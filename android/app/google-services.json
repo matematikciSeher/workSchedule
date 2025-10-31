@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1058419239941",
+    "project_id": "workschedule-f01ad",
+    "storage_bucket": "workschedule-f01ad.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1058419239941:android:9c1a2baf2433a152e0806c",
+        "android_client_info": {
+          "package_name": "com.workschedule.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBTKyLgrIS8AjykizkXkbQafPLIb8CnB9s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
