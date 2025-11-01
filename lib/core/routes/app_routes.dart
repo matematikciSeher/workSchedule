@@ -19,8 +19,23 @@ class AppRoutes {
   // Ayarlar sayfaları
   static const String settings = '/settings';
   static const String syncSettings = '/settings/sync';
+  static const String themeSettings = '/settings/theme';
 
   // Widget önizleme
   static const String widgetPreview = '/widget/preview';
+
+  // AI Asistan
+  static const String aiAssistant = '/assistant';
+
+  // Paylaşım ve içe aktarma
+  static const String shareEvent = '/share/event';
+  static const String shareCalendar = '/share/calendar';
+  static const String importCalendar = '/import/calendar';
+
+  // Deep link base URL
+  static const String deepLinkBase = 'workschedule://';
+  static const String deepLinkShareEvent = '${deepLinkBase}share/event';
+  static const String deepLinkShareCalendar = '${deepLinkBase}share/calendar';
+  static const String deepLinkImportCalendar = '${deepLinkBase}import/calendar';
 }
 

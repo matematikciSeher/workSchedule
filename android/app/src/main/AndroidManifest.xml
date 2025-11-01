@@ -1,6 +1,18 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Bildirim izinleri -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+    <!-- Android 13+ için bildirim izni -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <!-- Tam zamanlama için (Android 12+) -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
+    
+    <!-- Wear OS desteği -->
+    <uses-feature android:name="android.hardware.type.watch" android:required="false" />
+    
     <application
-        android:label="workschedule"
+        android:label="Work Schedule"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

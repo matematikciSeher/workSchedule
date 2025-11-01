@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import '../../core/extensions/date_extensions.dart';
 import '../../shared/models/task_model.dart';
-import '../home/widgets/weekly_calendar_widget.dart';
-import '../home/widgets/task_list_panel_widget.dart';
+import '../../pages/home/widgets/weekly_calendar_widget.dart';
+import '../../pages/home/widgets/task_list_panel_widget.dart';
+import '../../core/theme/app_theme.dart';
+import '../../core/theme/app_colors.dart';
 
-/// Widget önizleme ve tema ayarları sayfası
+/// Widget önizleme sayfası - Tema ve görünüm ayarlarıyla
 class WidgetPreviewPage extends StatefulWidget {
   const WidgetPreviewPage({super.key});
 
@@ -14,444 +15,273 @@ class WidgetPreviewPage extends StatefulWidget {
 
 class _WidgetPreviewPageState extends State<WidgetPreviewPage> {
   // Tema ayarları
-  int _selectedPrimaryColorIndex = 0;
-  bool _useDarkMode = false;
-  double _fontScale = 1.0;
+  bool _isDarkMode = false;
+  Color _primaryColor = AppColors.lightPrimary;
+  Color _secondaryColor = AppColors.lightSecondary;
   
-  // Önizleme verileri
+  // Widget durumları
   DateTime _selectedMonth = DateTime.now();
   DateTime? _selectedDate = DateTime.now();
-  late List<TaskModel> _previewTasks;
-
-  // Renk şemaları
-  final List<ColorScheme> _colorSchemes = [
-    // Mavi (varsayılan)
-    const ColorScheme.light(
-      primary: Color(0xFF2196F3),
-      secondary: Color(0xFF00BCD4),
-      tertiary: Color(0xFFFF5722),
-    ),
-    // Mor
-    const ColorScheme.light(
-      primary: Color(0xFF9C27B0),
-      secondary: Color(0xFFBA68C8),
-      tertiary: Color(0xFFE91E63),
-    ),
-    // Yeşil
-    const ColorScheme.light(
-      primary: Color(0xFF4CAF50),
-      secondary: Color(0xFF81C784),
-      tertiary: Color(0xFFFF9800),
-    ),
-    // Turuncu
-    const ColorScheme.light(
-      primary: Color(0xFFFF5722),
-      secondary: Color(0xFFFF8A65),
-      tertiary: Color(0xFFE91E63),
-    ),
-    // Kırmızı
-    const ColorScheme.light(
-      primary: Color(0xFFE91E63),
-      secondary: Color(0xFFF06292),
-      tertiary: Color(0xFFFF9800),
-    ),
-  ];
-
-  final List<ColorScheme> _darkColorSchemes = [
-    const ColorScheme.dark(
-      primary: Color(0xFF64B5F6),
-      secondary: Color(0xFF4DD0E1),
-      tertiary: Color(0xFFFF7043),
-    ),
-    const ColorScheme.dark(
-      primary: Color(0xFFBA68C8),
-      secondary: Color(0xFFAB47BC),
-      tertiary: Color(0xFFEC407A),
-    ),
-    const ColorScheme.dark(
-      primary: Color(0xFF66BB6A),
-      secondary: Color(0xFF81C784),
-      tertiary: Color(0xFFFFB74D),
-    ),
-    const ColorScheme.dark(
-      primary: Color(0xFFFF7043),
-      secondary: Color(0xFFFF8A65),
-      tertiary: Color(0xFFEC407A),
-    ),
-    const ColorScheme.dark(
-      primary: Color(0xFFEC407A),
-      secondary: Color(0xFFF48FB1),
-      tertiary: Color(0xFFFFB74D),
-    ),
+  List<TaskModel> _sampleTasks = [];
+  
+  // Renk paleti seçenekleri
+  final List<ColorPreset> _colorPresets = [
+    ColorPreset('Mavi', AppColors.lightPrimary, AppColors.lightSecondary),
+    ColorPreset('Yeşil', const Color(0xFF4CAF50), const Color(0xFF81C784)),
+    ColorPreset('Mor', const Color(0xFF9C27B0), const Color(0xFFBA68C8)),
+    ColorPreset('Turuncu', const Color(0xFFFF9800), const Color(0xFFFFB74D)),
+    ColorPreset('Kırmızı', const Color(0xFFE91E63), const Color(0xFFF06292)),
+    ColorPreset('Turkuaz', const Color(0xFF00BCD4), const Color(0xFF4DD0E1)),
   ];
 
   @override
   void initState() {
     super.initState();
-    _loadPreviewTasks();
+    _loadSampleTasks();
   }
 
-  void _loadPreviewTasks() {
+  void _loadSampleTasks() {
     final now = DateTime.now();
-    _previewTasks = [
-      TaskModel(
-        id: '1',
-        title: 'Toplantı hazırlığı',
-        description: 'Sunum materyallerini hazırla',
-        dueDate: now,
-        isCompleted: false,
-      ),
-      TaskModel(
-        id: '2',
-        title: 'Rapor yazma',
-        description: 'Aylık raporu tamamla',
-        dueDate: now,
-        isCompleted: true,
-      ),
-      TaskModel(
-        id: '3',
-        title: 'Müşteri görüşmesi',
-        dueDate: now.add(const Duration(days: 1)),
-        isCompleted: false,
-      ),
-      TaskModel(
-        id: '4',
-        title: 'Proje sunumu',
-        description: 'Yeni proje sunumunu hazırla',
-        dueDate: now.add(const Duration(days: 2)),
-        isCompleted: false,
-      ),
-      TaskModel(
-        id: '5',
-        title: 'Ekip toplantısı',
-        dueDate: now.add(const Duration(days: 3)),
-        isCompleted: false,
-      ),
-    ];
-  }
-
-  ThemeData _getPreviewTheme() {
-    final baseScheme = _useDarkMode
-        ? _darkColorSchemes[_selectedPrimaryColorIndex]
-        : _colorSchemes[_selectedPrimaryColorIndex];
-
-    final colorScheme = ColorScheme(
-      brightness: _useDarkMode ? Brightness.dark : Brightness.light,
-      primary: baseScheme.primary,
-      onPrimary: baseScheme.onPrimary,
-      secondary: baseScheme.secondary,
-      onSecondary: baseScheme.onSecondary,
-      tertiary: baseScheme.tertiary,
-      onTertiary: baseScheme.onTertiary,
-      error: _useDarkMode ? const Color(0xFFEF5350) : const Color(0xFFD32F2F),
-      onError: _useDarkMode ? const Color(0xFF000000) : const Color(0xFFFFFFFF),
-      surface: _useDarkMode 
-          ? const Color(0xFF1E1E1E) 
-          : const Color(0xFFFFFFFF),
-      onSurface: _useDarkMode 
-          ? const Color(0xFFFFFFFF) 
-          : const Color(0xFF212121),
-      surfaceContainerHighest: _useDarkMode
-          ? const Color(0xFF2C2C2C)
-          : const Color(0xFFE8E8E8),
-      onSurfaceVariant: _useDarkMode
-          ? const Color(0xFFB0B0B0)
-          : const Color(0xFF757575),
-      outline: _useDarkMode
-          ? const Color(0xFF424242)
-          : const Color(0xFFE0E0E0),
-      outlineVariant: _useDarkMode
-          ? const Color(0xFF2C2C2C)
-          : const Color(0xFFF5F5F5),
-      primaryContainer: baseScheme.primary.withOpacity(0.1),
-      onPrimaryContainer: baseScheme.primary,
-    );
-
-    return ThemeData(
-      useMaterial3: true,
-      colorScheme: colorScheme,
-      brightness: _useDarkMode ? Brightness.dark : Brightness.light,
-      scaffoldBackgroundColor: _useDarkMode 
-          ? const Color(0xFF121212) 
-          : const Color(0xFFF5F5F5),
-      textTheme: TextTheme(
-        displayLarge: TextStyle(
-          fontSize: 57 * _fontScale,
-          fontWeight: FontWeight.w400,
-          color: colorScheme.onSurface,
-        ),
-        displayMedium: TextStyle(
-          fontSize: 45 * _fontScale,
-          fontWeight: FontWeight.w400,
-          color: colorScheme.onSurface,
-        ),
-        displaySmall: TextStyle(
-          fontSize: 36 * _fontScale,
-          fontWeight: FontWeight.w400,
-          color: colorScheme.onSurface,
-        ),
-        headlineLarge: TextStyle(
-          fontSize: 32 * _fontScale,
-          fontWeight: FontWeight.w400,
-          color: colorScheme.onSurface,
-        ),
-        headlineMedium: TextStyle(
-          fontSize: 28 * _fontScale,
-          fontWeight: FontWeight.w400,
-          color: colorScheme.onSurface,
-        ),
-        headlineSmall: TextStyle(
-          fontSize: 24 * _fontScale,
-          fontWeight: FontWeight.w400,
-          color: colorScheme.onSurface,
-        ),
-        titleLarge: TextStyle(
-          fontSize: 22 * _fontScale,
-          fontWeight: FontWeight.w500,
-          color: colorScheme.onSurface,
-        ),
-        titleMedium: TextStyle(
-          fontSize: 16 * _fontScale,
-          fontWeight: FontWeight.w500,
-          color: colorScheme.onSurface,
-        ),
-        titleSmall: TextStyle(
-          fontSize: 14 * _fontScale,
-          fontWeight: FontWeight.w500,
-          color: colorScheme.onSurface,
-        ),
-        bodyLarge: TextStyle(
-          fontSize: 16 * _fontScale,
-          fontWeight: FontWeight.w400,
-          color: colorScheme.onSurface,
-        ),
-        bodyMedium: TextStyle(
-          fontSize: 14 * _fontScale,
-          fontWeight: FontWeight.w400,
-          color: colorScheme.onSurface,
-        ),
-        bodySmall: TextStyle(
-          fontSize: 12 * _fontScale,
-          fontWeight: FontWeight.w400,
-          color: colorScheme.onSurfaceVariant,
-        ),
-        labelLarge: TextStyle(
-          fontSize: 14 * _fontScale,
-          fontWeight: FontWeight.w500,
-          color: colorScheme.onSurface,
-        ),
-        labelMedium: TextStyle(
-          fontSize: 12 * _fontScale,
-          fontWeight: FontWeight.w500,
-          color: colorScheme.onSurfaceVariant,
-        ),
-        labelSmall: TextStyle(
-          fontSize: 11 * _fontScale,
-          fontWeight: FontWeight.w500,
-          color: colorScheme.onSurfaceVariant,
-        ),
-      ),
-    );
-  }
-
-  void _handleDateSelected(DateTime date) {
     setState(() {
-      _selectedDate = date;
+      _sampleTasks = [
+        TaskModel(
+          id: '1',
+          title: 'Toplantıya hazırlan',
+          description: 'Sunum materyallerini kontrol et',
+          dueDate: now.copyWith(hour: 10, minute: 0),
+          isCompleted: false,
+        ),
+        TaskModel(
+          id: '2',
+          title: 'E-posta yanıtla',
+          description: 'Müşteri sorularını yanıtla',
+          dueDate: now.copyWith(hour: 14, minute: 30),
+          isCompleted: true,
+        ),
+        TaskModel(
+          id: '3',
+          title: 'Raporu tamamla',
+          description: 'Aylık satış raporunu hazırla',
+          dueDate: now.copyWith(hour: 16, minute: 0),
+          isCompleted: false,
+        ),
+        TaskModel(
+          id: '4',
+          title: 'Spor yap',
+          dueDate: now.copyWith(hour: 18, minute: 0),
+          isCompleted: false,
+        ),
+      ];
     });
   }
 
-  void _handleTaskTap(TaskModel task) {
-    // Önizleme için boş
-  }
-
-  void _handleTaskToggle(TaskModel task) {
-    setState(() {
-      final index = _previewTasks.indexWhere((t) => t.id == task.id);
-      if (index != -1) {
-        _previewTasks[index] = TaskModel(
-          id: task.id,
-          title: task.title,
-          description: task.description,
-          dueDate: task.dueDate,
-          createdAt: task.createdAt,
-          isCompleted: !task.isCompleted,
-          color: task.color,
-        );
-      }
-    });
+  ThemeData _getCurrentTheme() {
+    return _isDarkMode 
+        ? darkTheme(1.0).copyWith(
+            colorScheme: ColorScheme.dark(
+              primary: _primaryColor,
+              secondary: _secondaryColor,
+              surface: AppColors.darkSurface,
+              onPrimary: AppColors.darkOnPrimary,
+              onSecondary: AppColors.darkOnSecondary,
+              onSurface: AppColors.darkOnSurface,
+            ),
+          )
+        : lightTheme(1.0).copyWith(
+            colorScheme: ColorScheme.light(
+              primary: _primaryColor,
+              secondary: _secondaryColor,
+              surface: AppColors.lightSurface,
+              onPrimary: AppColors.lightOnPrimary,
+              onSecondary: AppColors.lightOnSecondary,
+              onSurface: AppColors.lightOnSurface,
+            ),
+          );
   }
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 2,
+    return Theme(
+      data: _getCurrentTheme(),
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Widget Önizleme'),
-          bottom: const TabBar(
-            tabs: [
-              Tab(icon: Icon(Icons.calendar_today), text: 'Takvim'),
-              Tab(icon: Icon(Icons.task), text: 'Görevler'),
-            ],
-          ),
-        ),
-        body: Column(
-          children: [
-            // Ayarlar paneli
-            _buildSettingsPanel(),
-            
-            // Önizleme alanı
-            Expanded(
-              child: Theme(
-                data: _getPreviewTheme(),
-                child: Container(
-                  color: _useDarkMode 
-                      ? const Color(0xFF121212) 
-                      : const Color(0xFFF5F5F5),
-                  child: TabBarView(
-                    children: [
-                      // Takvim önizleme
-                      _buildCalendarPreview(),
-                      
-                      // Görev önizleme
-                      _buildTaskPreview(),
-                    ],
-                  ),
-                ),
-              ),
+          actions: [
+            IconButton(
+              icon: Icon(_isDarkMode ? Icons.light_mode : Icons.dark_mode),
+              onPressed: () {
+                setState(() {
+                  _isDarkMode = !_isDarkMode;
+                  // Tema değiştiğinde renkleri de güncelle
+                  if (_isDarkMode) {
+                    _primaryColor = AppColors.darkPrimary;
+                    _secondaryColor = AppColors.darkSecondary;
+                  } else {
+                    _primaryColor = AppColors.lightPrimary;
+                    _secondaryColor = AppColors.lightSecondary;
+                  }
+                });
+              },
+              tooltip: _isDarkMode ? 'Açık Tema' : 'Koyu Tema',
             ),
           ],
+        ),
+        body: SingleChildScrollView(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final isWideScreen = constraints.maxWidth > 900;
+              
+              if (isWideScreen) {
+                // Geniş ekranlarda yatay düzen
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Sol panel - Tema ayarları
+                    Container(
+                      width: 320,
+                      decoration: BoxDecoration(
+                        color: _isDarkMode 
+                            ? AppColors.darkSurface 
+                            : AppColors.lightSurface,
+                        border: Border(
+                          right: BorderSide(
+                            color: _isDarkMode 
+                                ? AppColors.dividerDark 
+                                : AppColors.dividerLight,
+                            width: 1,
+                          ),
+                        ),
+                      ),
+                      child: _buildSettingsPanel(),
+                    ),
+                    
+                    // Sağ panel - Widget önizlemesi
+                    Expanded(
+                      child: Container(
+                        color: _isDarkMode 
+                            ? AppColors.darkBackground 
+                            : AppColors.lightBackground,
+                        child: _buildPreviewArea(),
+                      ),
+                    ),
+                  ],
+                );
+              } else {
+                // Küçük ekranlarda dikey düzen
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Üst panel - Tema ayarları
+                    Container(
+                      decoration: BoxDecoration(
+                        color: _isDarkMode 
+                            ? AppColors.darkSurface 
+                            : AppColors.lightSurface,
+                        border: Border(
+                          bottom: BorderSide(
+                            color: _isDarkMode 
+                                ? AppColors.dividerDark 
+                                : AppColors.dividerLight,
+                            width: 1,
+                          ),
+                        ),
+                      ),
+                      child: _buildSettingsPanel(),
+                    ),
+                    
+                    // Alt panel - Widget önizlemesi
+                    Container(
+                      color: _isDarkMode 
+                          ? AppColors.darkBackground 
+                          : AppColors.lightBackground,
+                      child: _buildPreviewArea(),
+                    ),
+                  ],
+                );
+              }
+            },
+          ),
         ),
       ),
     );
   }
 
   Widget _buildSettingsPanel() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: Row(
-          children: [
-            // Renk şeması seçici
-            _buildColorSchemeSelector(),
-            const SizedBox(width: 16),
-            
-            // Dark mode toggle
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    _useDarkMode ? Icons.dark_mode : Icons.light_mode,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 8),
-                  Switch(
-                    value: _useDarkMode,
-                    onChanged: (value) {
-                      setState(() {
-                        _useDarkMode = value;
-                      });
-                    },
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    _useDarkMode ? 'Koyu' : 'Açık',
-                    style: Theme.of(context).textTheme.labelMedium,
-                  ),
-                ],
-              ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Başlık
+          Text(
+            'Tema Ayarları',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.bold,
             ),
-            const SizedBox(width: 16),
-            
-            // Font boyutu ayarı
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.text_fields, size: 20),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Font: ${(_fontScale * 100).toInt()}%',
-                    style: Theme.of(context).textTheme.labelMedium,
-                  ),
-                  const SizedBox(width: 8),
-                  Slider(
-                    value: _fontScale,
-                    min: 0.8,
-                    max: 1.5,
-                    divisions: 14,
-                    label: '${(_fontScale * 100).toInt()}%',
-                    onChanged: (value) {
-                      setState(() {
-                        _fontScale = value;
-                      });
-                    },
-                  ),
-                ],
-              ),
+            overflow: TextOverflow.ellipsis,
+          ),
+        const SizedBox(height: 24),
+        
+        // Tema modu
+        _buildSectionTitle('Görünüm Modu'),
+        const SizedBox(height: 8),
+        SegmentedButton<bool>(
+          segments: const [
+            ButtonSegment<bool>(
+              value: false,
+              label: Text('Açık'),
+              icon: Icon(Icons.light_mode),
+            ),
+            ButtonSegment<bool>(
+              value: true,
+              label: Text('Koyu'),
+              icon: Icon(Icons.dark_mode),
             ),
           ],
+          selected: {_isDarkMode},
+          onSelectionChanged: (Set<bool> selected) {
+            setState(() {
+              _isDarkMode = selected.first;
+              if (_isDarkMode) {
+                _primaryColor = AppColors.darkPrimary;
+                _secondaryColor = AppColors.darkSecondary;
+              } else {
+                _primaryColor = AppColors.lightPrimary;
+                _secondaryColor = AppColors.lightSecondary;
+              }
+            });
+          },
         ),
-      ),
-    );
-  }
-
-  Widget _buildColorSchemeSelector() {
-    final schemes = _useDarkMode ? _darkColorSchemes : _colorSchemes;
-    
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.palette, size: 20),
-          const SizedBox(width: 8),
-          Text(
-            'Tema:',
-            style: Theme.of(context).textTheme.labelMedium,
-          ),
-          const SizedBox(width: 8),
-          ...List.generate(schemes.length, (index) {
-            final isSelected = _selectedPrimaryColorIndex == index;
+        
+        const SizedBox(height: 32),
+        
+        // Renk şeması
+        _buildSectionTitle('Renk Şeması'),
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          alignment: WrapAlignment.start,
+          children: _colorPresets.map((preset) {
+            final isSelected = _primaryColor == preset.primary;
             return GestureDetector(
               onTap: () {
                 setState(() {
-                  _selectedPrimaryColorIndex = index;
+                  _primaryColor = preset.primary;
+                  _secondaryColor = preset.secondary;
                 });
               },
               child: Container(
-                width: 32,
-                height: 32,
-                margin: const EdgeInsets.symmetric(horizontal: 4),
+                constraints: const BoxConstraints(
+                  minWidth: 70,
+                  maxWidth: 85,
+                  minHeight: 80,
+                  maxHeight: 85,
+                ),
                 decoration: BoxDecoration(
-                  color: schemes[index].primary,
-                  shape: BoxShape.circle,
+                  color: preset.primary,
+                  borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: isSelected
                         ? Theme.of(context).colorScheme.primary
@@ -461,187 +291,311 @@ class _WidgetPreviewPageState extends State<WidgetPreviewPage> {
                   boxShadow: isSelected
                       ? [
                           BoxShadow(
-                            color: schemes[index].primary.withOpacity(0.5),
+                            color: preset.primary.withOpacity(0.3),
                             blurRadius: 8,
                             spreadRadius: 2,
                           ),
                         ]
                       : null,
                 ),
-                child: isSelected
-                    ? const Icon(
-                        Icons.check,
-                        color: Colors.white,
-                        size: 18,
-                      )
-                    : null,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: preset.secondary,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Flexible(
+                      child: Text(
+                        preset.name,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onPrimary,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        textAlign: TextAlign.center,
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             );
-          }),
-        ],
+          }).toList(),
+        ),
+        
+        const SizedBox(height: 32),
+        
+        // Önizleme kontrolleri
+        _buildSectionTitle('Önizleme Kontrolleri'),
+        const SizedBox(height: 12),
+        
+        // Tarih seçici
+        Card(
+          child: ListTile(
+            leading: const Icon(Icons.calendar_today),
+            title: const Text(
+              'Ay Seç',
+              overflow: TextOverflow.ellipsis,
+            ),
+            subtitle: Text(
+              '${_selectedMonth.month}/${_selectedMonth.year}',
+              style: Theme.of(context).textTheme.bodySmall,
+              overflow: TextOverflow.ellipsis,
+            ),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () async {
+              final date = await showDatePicker(
+                context: context,
+                initialDate: _selectedMonth,
+                firstDate: DateTime(2020),
+                lastDate: DateTime(2030),
+              );
+              if (date != null) {
+                setState(() {
+                  _selectedMonth = date;
+                  _selectedDate = date;
+                });
+              }
+            },
+          ),
+        ),
+        
+        const SizedBox(height: 12),
+        
+        // Bugünü seç
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton.icon(
+            onPressed: () {
+              setState(() {
+                final now = DateTime.now();
+                _selectedMonth = now;
+                _selectedDate = now;
+              });
+            },
+            icon: const Icon(Icons.today),
+            label: const Text(
+              'Bugünü Seç',
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ),
+        
+        const SizedBox(height: 32),
+        
+        // Örnek görevler
+        _buildSectionTitle('Örnek Görevler'),
+        const SizedBox(height: 8),
+        Text(
+          '${_sampleTasks.length} görev yüklendi',
+          style: Theme.of(context).textTheme.bodySmall,
+          overflow: TextOverflow.ellipsis,
+        ),
+        const SizedBox(height: 8),
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton.icon(
+            onPressed: () {
+              _loadSampleTasks();
+            },
+            icon: const Icon(Icons.refresh),
+            label: const Text(
+              'Yenile',
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ),
+      ],
       ),
     );
   }
 
-  Widget _buildCalendarPreview() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Başlık
-          Text(
-            'Takvim Widget Önizlemesi',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Haftalık takvim widget\'ının canlı önizlemesi',
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
-          const SizedBox(height: 24),
-          
-          // Widget önizleme kartı
-          Card(
-            elevation: 2,
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  WeeklyCalendarWidget(
-                    selectedMonth: _selectedMonth,
-                    selectedDate: _selectedDate,
-                    onDateSelected: _handleDateSelected,
-                    tasks: _previewTasks,
-                  ),
-                  const SizedBox(height: 16),
-                  Divider(),
-                  const SizedBox(height: 16),
-                  
-                  // Navigasyon kontrolleri
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.chevron_left),
-                        onPressed: () {
-                          setState(() {
-                            _selectedMonth = DateTime(
-                              _selectedMonth.year,
-                              _selectedMonth.month - 1,
-                            );
-                          });
-                        },
-                        tooltip: 'Önceki ay',
-                      ),
-                      Text(
-                        '${_selectedMonth.month}/${_selectedMonth.year}',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.chevron_right),
-                        onPressed: () {
-                          setState(() {
-                            _selectedMonth = DateTime(
-                              _selectedMonth.year,
-                              _selectedMonth.month + 1,
-                            );
-                          });
-                        },
-                        tooltip: 'Sonraki ay',
-                      ),
-                    ],
-                  ),
-                ],
+  Widget _buildSectionTitle(String title) {
+    return Text(
+      title,
+      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+        fontWeight: FontWeight.w600,
+        color: Theme.of(context).colorScheme.primary,
+      ),
+      overflow: TextOverflow.ellipsis,
+    );
+  }
+
+  Widget _buildPreviewArea() {
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1200),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+            // Başlık
+            Text(
+              'Canlı Önizleme',
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.bold,
               ),
+              overflow: TextOverflow.ellipsis,
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTaskPreview() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Başlık
-          Text(
-            'Görev Widget Önizlemesi',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.bold,
+            const SizedBox(height: 8),
+            Text(
+              'Takvim ve görev widgetlarının görünümünü buradan önizleyebilirsiniz.',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+              overflow: TextOverflow.visible,
+              softWrap: true,
             ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Görev listesi widget\'ının canlı önizlemesi',
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
-          const SizedBox(height: 24),
           
-          // Widget önizleme kartı
+          const SizedBox(height: 32),
+          
+          // Takvim widget önizlemesi
           Card(
             elevation: 2,
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Tarih seçici
                   Row(
                     children: [
+                      Icon(
+                        Icons.calendar_today,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          'Önizleme Tarihi:',
-                          style: Theme.of(context).textTheme.titleMedium,
+                          'Takvim Widget',
+                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                          overflow: TextOverflow.ellipsis,
                         ),
-                      ),
-                      TextButton.icon(
-                        icon: const Icon(Icons.calendar_today),
-                        label: Text(
-                          _selectedDate != null
-                              ? _selectedDate!.toDateString()
-                              : 'Tarih seç',
-                        ),
-                        onPressed: () async {
-                          final date = await showDatePicker(
-                            context: context,
-                            initialDate: _selectedDate ?? DateTime.now(),
-                            firstDate: DateTime.now().subtract(
-                              const Duration(days: 365),
-                            ),
-                            lastDate: DateTime.now().add(
-                              const Duration(days: 365),
-                            ),
-                          );
-                          if (date != null) {
-                            setState(() {
-                              _selectedDate = date;
-                            });
-                          }
-                        },
                       ),
                     ],
                   ),
-                  const SizedBox(height: 24),
-                  Divider(),
-                  const SizedBox(height: 24),
-                  
-                  // Widget önizleme
-                  ConstrainedBox(
-                    constraints: const BoxConstraints(
-                      maxHeight: 500,
-                      minHeight: 300,
-                    ),
-                    child: TaskListPanelWidget(
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    child: WeeklyCalendarWidget(
+                      selectedMonth: _selectedMonth,
                       selectedDate: _selectedDate,
-                      tasks: _previewTasks,
-                      onTaskTap: _handleTaskTap,
-                      onTaskToggle: _handleTaskToggle,
+                      onDateSelected: (date) {
+                        setState(() {
+                          _selectedDate = date;
+                          _selectedMonth = DateTime(date.year, date.month);
+                        });
+                      },
+                      tasks: _sampleTasks,
+                      locale: const Locale('tr', 'TR'),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          
+          const SizedBox(height: 24),
+          
+          // Görev listesi widget önizlemesi
+          Card(
+            elevation: 2,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.task_alt,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Görev Listesi Widget',
+                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  TaskListPanelWidget(
+                    selectedDate: _selectedDate,
+                    tasks: _sampleTasks,
+                    neverScroll: true,
+                    onTaskTap: (task) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'Görev tıklandı: ${task.title}',
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          duration: const Duration(seconds: 1),
+                        ),
+                      );
+                    },
+                    onTaskToggle: (task) {
+                      setState(() {
+                        final index = _sampleTasks.indexWhere((t) => t.id == task.id);
+                        if (index != -1) {
+                          _sampleTasks[index] = TaskModel(
+                            id: task.id,
+                            title: task.title,
+                            description: task.description,
+                            dueDate: task.dueDate,
+                            isCompleted: !task.isCompleted,
+                            color: task.color,
+                          );
+                        }
+                      });
+                    },
+                    locale: const Locale('tr', 'TR'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          
+          const SizedBox(height: 24),
+          
+          // Bilgi kartı
+          Card(
+            color: Theme.of(context).colorScheme.primaryContainer,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(
+                    Icons.info_outline,
+                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'Tema ayarlarınızı değiştirerek widgetların farklı görünümlerini test edebilirsiniz.',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.onPrimaryContainer,
+                      ),
+                      softWrap: true,
+                      overflow: TextOverflow.visible,
                     ),
                   ),
                 ],
@@ -649,7 +603,18 @@ class _WidgetPreviewPageState extends State<WidgetPreviewPage> {
             ),
           ),
         ],
+          ),
+        ),
       ),
     );
   }
+}
+
+/// Renk paleti modeli
+class ColorPreset {
+  final String name;
+  final Color primary;
+  final Color secondary;
+
+  ColorPreset(this.name, this.primary, this.secondary);
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/routes/app_routes.dart';
+import '../../shared/widgets/decorative_background.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -9,8 +10,13 @@ class SettingsPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Ayarlar'),
+        elevation: 0,
+        backgroundColor: Colors.transparent,
       ),
-      body: ListView(
+      extendBodyBehindAppBar: false,
+      body: DecorativeBackground(
+        style: BackgroundStyle.elegant,
+        child: ListView(
         children: [
           ListTile(
             leading: const Icon(Icons.sync),
@@ -42,9 +48,11 @@ class SettingsPage extends StatelessWidget {
           const Divider(),
           ListTile(
             leading: const Icon(Icons.color_lens),
-            title: const Text('Tema'),
+            title: const Text('Tema ve Yazı Tipi'),
+            subtitle: const Text('Tema renkleri ve yazı tipi boyutu'),
+            trailing: const Icon(Icons.chevron_right),
             onTap: () {
-              // Tema ayarları
+              Navigator.pushNamed(context, AppRoutes.themeSettings);
             },
           ),
           const Divider(),
@@ -56,6 +64,7 @@ class SettingsPage extends StatelessWidget {
             },
           ),
         ],
+        ),
       ),
     );
   }

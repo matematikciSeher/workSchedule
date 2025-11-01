@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../shared/widgets/decorative_background.dart';
 
 class WeekViewPage extends StatefulWidget {
   const WeekViewPage({super.key});
@@ -12,6 +13,7 @@ class _WeekViewPageState extends State<WeekViewPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -21,9 +23,18 @@ class _WeekViewPageState extends State<WeekViewPage> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
+        elevation: 0,
+        backgroundColor: Colors.transparent,
       ),
-      body: const Center(
-        child: Text('Hafta Görünümü'),
+      extendBodyBehindAppBar: false,
+      body: DecorativeBackground(
+        style: BackgroundStyle.vibrant,
+        child: Center(
+          child: Text(
+            'Hafta Görünümü',
+            style: theme.textTheme.headlineMedium,
+          ),
+        ),
       ),
     );
   }

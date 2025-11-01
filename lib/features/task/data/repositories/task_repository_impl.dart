@@ -1,46 +1,56 @@
 import '../../../../domain/entities/task_entity.dart';
 import '../../../../domain/repositories/task_repository.dart';
-import '../datasources/task_remote_datasource.dart';
+import '../datasources/task_local_datasource.dart';
+import '../models/task_model.dart';
 
-/// Task repository implementasyonu
+/// Task repository implementasyonu - SQLite kullanıyor
 class TaskRepositoryImpl implements TaskRepository {
-  final TaskRemoteDataSource remoteDataSource;
+  final TaskLocalDataSource localDataSource;
 
-  TaskRepositoryImpl(this.remoteDataSource);
+  TaskRepositoryImpl(this.localDataSource);
 
   @override
   Future<List<TaskEntity>> getAllTasks({String? userId}) async {
-    return await remoteDataSource.getAllTasks(userId: userId);
+    final tasks = await localDataSource.getAllTasks(userId: userId);
+    return tasks.map((task) => task.toEntity()).toList();
   }
 
   @override
   Future<TaskEntity?> getTaskById(String taskId) async {
-    return await remoteDataSource.getTaskById(taskId);
+    final task = await localDataSource.getTaskById(taskId);
+    return task?.toEntity();
   }
 
   @override
   Future<TaskEntity> createTask(TaskEntity task) async {
-    return await remoteDataSource.createTask(task);
+    final taskModel = TaskModel.fromEntity(task);
+    final createdTask = await localDataSource.createTask(taskModel);
+    return createdTask.toEntity();
   }
 
   @override
   Future<TaskEntity> updateTask(TaskEntity task) async {
-    return await remoteDataSource.updateTask(task);
+    final taskModel = TaskModel.fromEntity(task);
+    final updatedTask = await localDataSource.updateTask(taskModel);
+    return updatedTask.toEntity();
   }
 
   @override
   Future<void> deleteTask(String taskId) async {
-    await remoteDataSource.deleteTask(taskId);
+    await localDataSource.deleteTask(taskId);
   }
 
   @override
   Future<List<TaskEntity>> getTasksByDate(DateTime date, {String? userId}) async {
-    return await remoteDataSource.getTasksByDate(date, userId: userId);
+    final tasks = await localDataSource.getTasksByDate(date, userId: userId);
+    return tasks.map((task) => task.toEntity()).toList();
   }
 
   @override
   Stream<List<TaskEntity>> listenTasks({String? userId}) {
-    return remoteDataSource.listenTasks(userId: userId);
+    return localDataSource
+        .listenTasks(userId: userId)
+        .map((tasks) => tasks.map((task) => task.toEntity()).toList());
   }
 }
 

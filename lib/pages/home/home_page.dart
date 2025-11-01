@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/routes/app_routes.dart';
 import '../../shared/models/task_model.dart';
+import '../../shared/widgets/decorative_background.dart';
 import 'widgets/month_selector_widget.dart';
 import 'widgets/weekly_calendar_widget.dart';
 import 'widgets/task_list_panel_widget.dart';
@@ -122,77 +123,171 @@ class _HomePageState extends State<HomePage>
     final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: theme.colorScheme.background,
-      appBar: AppBar(
-        title: Text(
-          'Çalışma Takvimi',
-          style: theme.textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings_outlined),
-            onPressed: () {
-              Navigator.pushNamed(context, AppRoutes.settings);
-            },
-            tooltip: 'Ayarlar',
-          ),
-        ],
-        elevation: 0,
-      ),
-      body: Column(
-        children: [
-          // 1. Ay Seçici (Üstte)
-          MonthSelectorWidget(
-            selectedMonth: _selectedMonth,
-            onMonthChanged: _handleMonthChanged,
-          ),
-
-          // 2. Haftalık Takvim Grid (Ortada)
-          Expanded(
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: WeeklyCalendarWidget(
-                selectedMonth: _selectedMonth,
-                selectedDate: _selectedDate,
-                onDateSelected: _handleDateSelected,
-                tasks: _tasks,
-              ),
-            ),
-          ),
-
-          // 3. Görev Listesi Paneli (Altta)
-          SlideTransition(
-            position: Tween<Offset>(
-              begin: const Offset(0, 1),
-              end: Offset.zero,
-            ).animate(CurvedAnimation(
-              parent: _panelAnimationController,
-              curve: Curves.easeOutCubic,
-            )),
-            child: FadeTransition(
-              opacity: _panelAnimationController,
-              child: SizedBox(
-                height: MediaQuery.of(context).size.height * 0.45,
-                child: TaskListPanelWidget(
-                  selectedDate: _selectedDate,
-                  tasks: _tasks,
-                  onTaskTap: _handleTaskTap,
-                  onTaskToggle: _handleTaskToggle,
+      backgroundColor: Colors.transparent,
+      extendBodyBehindAppBar: false,
+      body: DecorativeBackground(
+        style: BackgroundStyle.elegant,
+        child: Column(
+          children: [
+            // AppBar
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    theme.colorScheme.surface,
+                    theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
+                boxShadow: [
+                  BoxShadow(
+                    color: theme.colorScheme.primary.withOpacity(0.1),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: AppBar(
+                title: Text(
+                  'Çalışma Takvimi',
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                actions: [
+                  Container(
+                    margin: const EdgeInsets.only(right: 8),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                        colors: [
+                          theme.colorScheme.tertiaryContainer,
+                          theme.colorScheme.primaryContainer,
+                        ],
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: theme.colorScheme.primary.withOpacity(0.2),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: IconButton(
+                      icon: const Icon(Icons.smart_toy_outlined),
+                      onPressed: () {
+                        Navigator.pushNamed(context, AppRoutes.aiAssistant);
+                      },
+                      tooltip: 'AI Asistan',
+                    ),
+                  ),
+                  Container(
+                    margin: const EdgeInsets.only(right: 8),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                        colors: [
+                          theme.colorScheme.surfaceContainerHighest,
+                          theme.colorScheme.surfaceContainerHighest
+                              .withOpacity(0.7),
+                        ],
+                      ),
+                    ),
+                    child: IconButton(
+                      icon: const Icon(Icons.settings_outlined),
+                      onPressed: () {
+                        Navigator.pushNamed(context, AppRoutes.settings);
+                      },
+                      tooltip: 'Ayarlar',
+                    ),
+                  ),
+                ],
+                elevation: 0,
+                backgroundColor: Colors.transparent,
+                surfaceTintColor: Colors.transparent,
               ),
             ),
-          ),
-        ],
+            Expanded(
+              child: Column(
+                children: [
+                  // 1. Ay Seçici (Üstte)
+                  MonthSelectorWidget(
+                    selectedMonth: _selectedMonth,
+                    onMonthChanged: _handleMonthChanged,
+                  ),
+
+                  // 2. Haftalık Takvim Grid (Ortada)
+                  Expanded(
+                    child: SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      child: WeeklyCalendarWidget(
+                        selectedMonth: _selectedMonth,
+                        selectedDate: _selectedDate,
+                        onDateSelected: _handleDateSelected,
+                        tasks: _tasks,
+                      ),
+                    ),
+                  ),
+
+                  // 3. Görev Listesi Paneli (Altta)
+                  SlideTransition(
+                    position: Tween<Offset>(
+                      begin: const Offset(0, 1),
+                      end: Offset.zero,
+                    ).animate(CurvedAnimation(
+                      parent: _panelAnimationController,
+                      curve: Curves.easeOutCubic,
+                    )),
+                    child: FadeTransition(
+                      opacity: _panelAnimationController,
+                      child: SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.45,
+                        child: TaskListPanelWidget(
+                          selectedDate: _selectedDate,
+                          tasks: _tasks,
+                          onTaskTap: _handleTaskTap,
+                          onTaskToggle: _handleTaskToggle,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.pushNamed(context, AppRoutes.taskForm);
-        },
-        icon: const Icon(Icons.add),
-        label: const Text('Yeni Görev'),
-        tooltip: 'Yeni görev ekle',
+      floatingActionButton: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          gradient: LinearGradient(
+            colors: [
+              theme.colorScheme.primary,
+              theme.colorScheme.tertiary,
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: theme.colorScheme.primary.withOpacity(0.4),
+              blurRadius: 16,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: FloatingActionButton.extended(
+          onPressed: () {
+            Navigator.pushNamed(context, AppRoutes.taskForm);
+          },
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          icon: const Icon(Icons.add),
+          label: const Text('Yeni Görev'),
+          tooltip: 'Yeni görev ekle',
+        ),
       ),
     );
   }

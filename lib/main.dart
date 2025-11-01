@@ -1,27 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'firebase_options.dart';
 import 'core/routes/app_routes.dart';
 import 'core/routes/route_generator.dart';
 import 'core/bloc/app_bloc_observer.dart';
+import 'core/services/notification_service.dart';
+import 'core/services/theme_service.dart';
+import 'core/theme/app_theme.dart';
+import 'core/theme/theme_models.dart';
 import 'features/task/bloc/task_bloc.dart';
-import 'features/task/data/datasources/task_remote_datasource.dart';
+import 'data/local/database_helper.dart';
+import 'features/task/data/datasources/task_local_datasource.dart';
 import 'features/task/data/repositories/task_repository_impl.dart';
+import 'features/calendar/share/bloc/share_calendar_bloc.dart';
+import 'core/services/timezone_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Firebase initialization
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   // Initialize locale data for intl package
   await initializeDateFormatting('tr_TR', null);
   await initializeDateFormatting('en_US', null);
+
+  // Bildirim servisini başlat
+  await NotificationService().initialize();
+
+  // Timezone servisini başlat
+  await TimezoneService().initialize();
 
   // BLoC Observer setup
   Bloc.observer = AppBlocObserver();
@@ -29,27 +39,84 @@ void main() async {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
   @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  final ThemeService _themeService = ThemeService();
+  AppThemeModel? _currentTheme;
+  ThemeMode _themeMode = ThemeMode.system;
+  double _textScaleFactor = 1.0;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadThemeSettings();
+  }
+
+  Future<void> _loadThemeSettings() async {
+    final theme = await _themeService.getSelectedTheme();
+    final themeMode = await _themeService.getThemeMode();
+    final textScale = await _themeService.getTextScaleFactor();
+
+    if (mounted) {
+      setState(() {
+        _currentTheme = theme;
+        _themeMode = themeMode;
+        _textScaleFactor = textScale;
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // Dependency Injection Setup
-    final firestore = FirebaseFirestore.instance;
-    final taskRemoteDataSource = TaskRemoteDataSource(firestore);
-    final taskRepository = TaskRepositoryImpl(taskRemoteDataSource);
+    if (_isLoading) {
+      return MaterialApp(
+        title: 'Çalışma Takvimi',
+        debugShowCheckedModeBanner: false,
+        home: const Scaffold(
+          body: Center(child: CircularProgressIndicator()),
+        ),
+      );
+    }
+
+    // Dependency Injection Setup - SQLite kullanıyor
+    final databaseHelper = DatabaseHelper.instance;
+    final taskLocalDataSource = TaskLocalDataSource(databaseHelper);
+    final taskRepository = TaskRepositoryImpl(taskLocalDataSource);
     final taskBloc = TaskBloc(taskRepository);
+
+    // Share Calendar BLoC
+    final shareCalendarBloc = ShareCalendarBloc();
 
     return MultiBlocProvider(
       providers: [
         BlocProvider<TaskBloc>.value(value: taskBloc),
-        // Add more BLoC providers here
+        BlocProvider<ShareCalendarBloc>.value(value: shareCalendarBloc),
       ],
-      child: const MaterialApp(
+      child: MaterialApp(
         title: 'Çalışma Takvimi',
         debugShowCheckedModeBanner: false,
+        themeMode: _themeMode,
+        theme: lightTheme(_textScaleFactor, themeModel: _currentTheme),
+        darkTheme: darkTheme(_textScaleFactor, themeModel: _currentTheme),
         initialRoute: AppRoutes.home,
         onGenerateRoute: RouteGenerator.generateRoute,
+        // Theme değişikliklerini dinlemek için navigator observer ekleyebilirsiniz
+        builder: (context, child) {
+          return MediaQuery(
+            data: MediaQuery.of(context).copyWith(
+              textScaler: TextScaler.linear(_textScaleFactor),
+            ),
+            child: child!,
+          );
+        },
       ),
     );
   }

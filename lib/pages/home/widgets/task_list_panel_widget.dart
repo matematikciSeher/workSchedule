@@ -10,6 +10,7 @@ class TaskListPanelWidget extends StatelessWidget {
   final Function(TaskModel) onTaskTap;
   final Function(TaskModel) onTaskToggle;
   final Locale? locale;
+  final bool neverScroll;
 
   const TaskListPanelWidget({
     super.key,
@@ -18,6 +19,7 @@ class TaskListPanelWidget extends StatelessWidget {
     required this.onTaskTap,
     required this.onTaskToggle,
     this.locale,
+    this.neverScroll = false,
   });
 
   List<TaskModel> _getTasksForDate() {
@@ -59,14 +61,170 @@ class TaskListPanelWidget extends StatelessWidget {
     final completedTasks = dateTasks.where((t) => t.isCompleted).length;
     final totalTasks = dateTasks.length;
 
+    // neverScroll modunda basit bir yapı
+    if (neverScroll) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Başlık
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        _getDateTitle(),
+                        style: theme.textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      if (totalTasks > 0)
+                        Text(
+                          '$totalTasks görev${totalTasks > 1 ? '' : ''} • $completedTasks tamamlandı',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                if (selectedDate != null && selectedDate!.isToday)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          theme.colorScheme.primaryContainer,
+                          theme.colorScheme.tertiaryContainer,
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(14),
+                      boxShadow: [
+                        BoxShadow(
+                          color: theme.colorScheme.primary.withOpacity(0.2),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Text(
+                      'Bugün',
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: theme.colorScheme.onPrimaryContainer,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          // Görev listesi
+          if (selectedDate == null)
+            Padding(
+              padding: const EdgeInsets.all(32),
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.calendar_today_outlined,
+                      size: 64,
+                      color: theme.colorScheme.onSurfaceVariant.withOpacity(0.5),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Bir gün seçin',
+                      style: theme.textTheme.bodyLarge?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          else if (dateTasks.isEmpty)
+            Padding(
+              padding: const EdgeInsets.all(32),
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.check_circle_outline,
+                      size: 64,
+                      color: theme.colorScheme.onSurfaceVariant.withOpacity(0.5),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Bu güne ait görev yok',
+                      style: theme.textTheme.bodyLarge?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          else
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: dateTasks.asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final task = entry.value;
+                  return Padding(
+                    padding: EdgeInsets.only(
+                      bottom: index < dateTasks.length - 1 ? 8 : 0,
+                    ),
+                    child: _TaskListItem(
+                      task: task,
+                      onTap: () => onTaskTap(task),
+                      onToggle: () => onTaskToggle(task),
+                      theme: theme,
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+        ],
+      );
+    }
+
+    // Normal scrollable mod
     return Container(
       decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
+        gradient: LinearGradient(
+          colors: [
+            theme.colorScheme.surface,
+            theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
+          ],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ),
         borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(24),
-          topRight: Radius.circular(24),
+          topLeft: Radius.circular(28),
+          topRight: Radius.circular(28),
         ),
         boxShadow: [
+          BoxShadow(
+            color: theme.colorScheme.primary.withOpacity(0.15),
+            blurRadius: 20,
+            offset: const Offset(0, -4),
+            spreadRadius: 0,
+          ),
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
             blurRadius: 10,
@@ -123,8 +281,22 @@ class TaskListPanelWidget extends StatelessWidget {
                           vertical: 6,
                         ),
                         decoration: BoxDecoration(
-                          color: theme.colorScheme.primaryContainer,
-                          borderRadius: BorderRadius.circular(12),
+                          gradient: LinearGradient(
+                            colors: [
+                              theme.colorScheme.primaryContainer,
+                              theme.colorScheme.tertiaryContainer,
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(14),
+                          boxShadow: [
+                            BoxShadow(
+                              color: theme.colorScheme.primary.withOpacity(0.2),
+                              blurRadius: 6,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
                         ),
                         child: Text(
                           'Bugün',
@@ -206,7 +378,7 @@ class TaskListPanelWidget extends StatelessWidget {
                           return Transform.translate(
                             offset: Offset(0, 20 * (1 - value)),
                             child: Opacity(
-                              opacity: value,
+                              opacity: value.clamp(0.0, 1.0),
                               child: child,
                             ),
                           );
@@ -253,28 +425,60 @@ class _TaskListItem extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: theme.colorScheme.outlineVariant.withOpacity(0.2),
-              width: 1,
+            gradient: LinearGradient(
+              colors: [
+                theme.colorScheme.surfaceContainerHighest.withOpacity(0.4),
+                theme.colorScheme.surfaceContainerHighest.withOpacity(0.2),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: theme.colorScheme.primary.withOpacity(0.3),
+              width: 1.5,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: theme.colorScheme.primary.withOpacity(0.1),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
           child: Row(
             children: [
               // Checkbox
-              Checkbox(
-                value: task.isCompleted,
-                onChanged: (_) => onToggle(),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(4),
+              Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: task.isCompleted
+                      ? LinearGradient(
+                          colors: [
+                            theme.colorScheme.primary,
+                            theme.colorScheme.tertiary,
+                          ],
+                        )
+                      : null,
+                  border: task.isCompleted
+                      ? null
+                      : Border.all(
+                          color: theme.colorScheme.outline,
+                          width: 2,
+                        ),
                 ),
-                fillColor: WidgetStateProperty.resolveWith((states) {
-                  if (states.contains(WidgetState.selected)) {
-                    return theme.colorScheme.primary;
-                  }
-                  return null;
-                }),
+                child: Checkbox(
+                  value: task.isCompleted,
+                  onChanged: (_) => onToggle(),
+                  shape: const CircleBorder(),
+                  fillColor: WidgetStateProperty.resolveWith((states) {
+                    if (states.contains(WidgetState.selected)) {
+                      return Colors.transparent;
+                    }
+                    return null;
+                  }),
+                  checkColor: theme.colorScheme.onPrimary,
+                ),
               ),
               const SizedBox(width: 12),
 

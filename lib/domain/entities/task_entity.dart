@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'subtask_entity.dart';
 
 /// Task entity - Domain katmanında kullanılacak görev entity'si
 class TaskEntity extends Equatable {
@@ -12,6 +13,10 @@ class TaskEntity extends Equatable {
   final String? userId; // Firebase için
   final String? color;
   final int? priority; // 1: Low, 2: Medium, 3: High
+  final List<SubtaskEntity> subtasks; // Alt görevler
+  final bool isRecurring; // Tekrar eden görev mi?
+  final String? recurringPattern; // 'daily', 'weekly', 'monthly', 'yearly', null
+  final DateTime? recurringEndDate; // Tekrarın bitiş tarihi
 
   const TaskEntity({
     required this.id,
@@ -24,10 +29,27 @@ class TaskEntity extends Equatable {
     this.userId,
     this.color,
     this.priority,
+    this.subtasks = const [],
+    this.isRecurring = false,
+    this.recurringPattern,
+    this.recurringEndDate,
   });
 
   /// Firebase Map'ten entity oluştur
   factory TaskEntity.fromFirestore(Map<String, dynamic> map) {
+    // Subtasks listesini parse et
+    final List<SubtaskEntity> subtasksList = [];
+    if (map['subtasks'] != null) {
+      final subtasksData = map['subtasks'] as List?;
+      if (subtasksData != null) {
+        subtasksList.addAll(
+          subtasksData
+              .map((item) => SubtaskEntity.fromFirestore(item as Map<String, dynamic>))
+              .toList(),
+        );
+      }
+    }
+
     return TaskEntity(
       id: map['id'] as String? ?? '',
       title: map['title'] as String? ?? '',
@@ -45,6 +67,12 @@ class TaskEntity extends Equatable {
       userId: map['userId'] as String?,
       color: map['color'] as String?,
       priority: map['priority'] as int?,
+      subtasks: subtasksList,
+      isRecurring: map['isRecurring'] as bool? ?? false,
+      recurringPattern: map['recurringPattern'] as String?,
+      recurringEndDate: map['recurringEndDate'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(map['recurringEndDate'] as int)
+          : null,
     );
   }
 
@@ -61,6 +89,10 @@ class TaskEntity extends Equatable {
       'userId': userId,
       'color': color,
       'priority': priority,
+      'subtasks': subtasks.map((subtask) => subtask.toFirestore()).toList(),
+      'isRecurring': isRecurring,
+      'recurringPattern': recurringPattern,
+      'recurringEndDate': recurringEndDate?.millisecondsSinceEpoch,
     };
   }
 
@@ -76,6 +108,10 @@ class TaskEntity extends Equatable {
     String? userId,
     String? color,
     int? priority,
+    List<SubtaskEntity>? subtasks,
+    bool? isRecurring,
+    String? recurringPattern,
+    DateTime? recurringEndDate,
   }) {
     return TaskEntity(
       id: id ?? this.id,
@@ -88,6 +124,10 @@ class TaskEntity extends Equatable {
       userId: userId ?? this.userId,
       color: color ?? this.color,
       priority: priority ?? this.priority,
+      subtasks: subtasks ?? this.subtasks,
+      isRecurring: isRecurring ?? this.isRecurring,
+      recurringPattern: recurringPattern ?? this.recurringPattern,
+      recurringEndDate: recurringEndDate ?? this.recurringEndDate,
     );
   }
 
@@ -97,6 +137,18 @@ class TaskEntity extends Equatable {
     return dueDate!.year == date.year &&
         dueDate!.month == date.month &&
         dueDate!.day == date.day;
+  }
+
+  /// Alt görevlerin tamamlanma yüzdesini hesapla
+  double get subtasksCompletionPercentage {
+    if (subtasks.isEmpty) return 0.0;
+    final completedCount = subtasks.where((s) => s.isCompleted).length;
+    return completedCount / subtasks.length;
+  }
+
+  /// Tüm alt görevler tamamlandı mı?
+  bool get allSubtasksCompleted {
+    return subtasks.isNotEmpty && subtasks.every((s) => s.isCompleted);
   }
 
   @override
@@ -111,6 +163,10 @@ class TaskEntity extends Equatable {
         userId,
         color,
         priority,
+        subtasks,
+        isRecurring,
+        recurringPattern,
+        recurringEndDate,
       ];
 }
 

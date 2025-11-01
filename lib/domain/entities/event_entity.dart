@@ -10,9 +10,14 @@ class EventEntity extends Equatable {
   final bool isAllDay;
   final String? location;
   final List<String> attendees;
-  final String? reminder;
+  final String? reminder; // Eski format için geriye dönük uyumluluk
+  final int?
+      reminderBeforeMinutes; // Etkinlikten kaç dakika önce hatırlatılacak
+  final bool isRecurring; // Tekrar eden hatırlatma mı?
+  final String? recurringPattern; // 'daily', 'weekly', 'monthly', null
   final String? color;
   final String? userId; // Firebase için
+  final List<String>? attachmentPaths; // Dosya/fotoğraf path'leri
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -26,8 +31,12 @@ class EventEntity extends Equatable {
     this.location,
     this.attendees = const [],
     this.reminder,
+    this.reminderBeforeMinutes,
+    this.isRecurring = false,
+    this.recurringPattern,
     this.color,
     this.userId,
+    this.attachmentPaths,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -48,8 +57,16 @@ class EventEntity extends Equatable {
       location: map['location'] as String?,
       attendees: List<String>.from(map['attendees'] as List? ?? []),
       reminder: map['reminder'] as String?,
+      reminderBeforeMinutes: map['reminderBeforeMinutes'] != null
+          ? map['reminderBeforeMinutes'] as int?
+          : null,
+      isRecurring: map['isRecurring'] as bool? ?? false,
+      recurringPattern: map['recurringPattern'] as String?,
       color: map['color'] as String?,
       userId: map['userId'] as String?,
+      attachmentPaths: map['attachmentPaths'] != null
+          ? List<String>.from(map['attachmentPaths'] as List)
+          : null,
       createdAt: map['createdAt'] != null
           ? DateTime.fromMillisecondsSinceEpoch(map['createdAt'] as int)
           : DateTime.now(),
@@ -71,8 +88,12 @@ class EventEntity extends Equatable {
       'location': location,
       'attendees': attendees,
       'reminder': reminder,
+      'reminderBeforeMinutes': reminderBeforeMinutes,
+      'isRecurring': isRecurring,
+      'recurringPattern': recurringPattern,
       'color': color,
       'userId': userId,
+      'attachmentPaths': attachmentPaths,
       'createdAt': createdAt.millisecondsSinceEpoch,
       'updatedAt': updatedAt.millisecondsSinceEpoch,
     };
@@ -89,8 +110,12 @@ class EventEntity extends Equatable {
     String? location,
     List<String>? attendees,
     String? reminder,
+    int? reminderBeforeMinutes,
+    bool? isRecurring,
+    String? recurringPattern,
     String? color,
     String? userId,
+    List<String>? attachmentPaths,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -104,8 +129,13 @@ class EventEntity extends Equatable {
       location: location ?? this.location,
       attendees: attendees ?? this.attendees,
       reminder: reminder ?? this.reminder,
+      reminderBeforeMinutes:
+          reminderBeforeMinutes ?? this.reminderBeforeMinutes,
+      isRecurring: isRecurring ?? this.isRecurring,
+      recurringPattern: recurringPattern ?? this.recurringPattern,
       color: color ?? this.color,
       userId: userId ?? this.userId,
+      attachmentPaths: attachmentPaths ?? this.attachmentPaths,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -136,10 +166,13 @@ class EventEntity extends Equatable {
         location,
         attendees,
         reminder,
+        reminderBeforeMinutes,
+        isRecurring,
+        recurringPattern,
         color,
         userId,
+        attachmentPaths,
         createdAt,
         updatedAt,
       ];
 }
-

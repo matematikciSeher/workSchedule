@@ -130,10 +130,13 @@ class _WeeklyCalendarWidgetState extends State<WeeklyCalendarWidget>
                     duration: Duration(milliseconds: 200 + (entry.key * 30)),
                     curve: Curves.easeOutBack,
                     builder: (context, value, child) {
+                      // Opacity değerini 0.0-1.0 aralığına sabitle
+                      final clampedOpacity = value.clamp(0.0, 1.0);
+                      final clampedScale = (0.8 + (value * 0.2)).clamp(0.0, 1.0);
                       return Transform.scale(
-                        scale: 0.8 + (value * 0.2),
+                        scale: clampedScale,
                         child: Opacity(
-                          opacity: value,
+                          opacity: clampedOpacity,
                           child: child,
                         ),
                       );
@@ -188,13 +191,23 @@ class _CalendarDayCell extends StatelessWidget {
           children: [
             // Gün numarası
             AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              curve: Curves.easeInOut,
-              width: 48,
-              height: 48,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeOutCubic,
+              width: 52,
+              height: 52,
               decoration: BoxDecoration(
+                gradient: isSelected
+                    ? LinearGradient(
+                        colors: [
+                          theme.colorScheme.primary,
+                          theme.colorScheme.tertiary,
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      )
+                    : null,
                 color: isSelected
-                    ? theme.colorScheme.primary
+                    ? null
                     : isToday
                         ? theme.colorScheme.primaryContainer
                         : Colors.transparent,
@@ -202,8 +215,17 @@ class _CalendarDayCell extends StatelessWidget {
                 border: isToday && !isSelected
                     ? Border.all(
                         color: theme.colorScheme.primary,
-                        width: 2,
+                        width: 2.5,
                       )
+                    : null,
+                boxShadow: isSelected
+                    ? [
+                        BoxShadow(
+                          color: theme.colorScheme.primary.withOpacity(0.4),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
+                      ]
                     : null,
               ),
               child: Center(

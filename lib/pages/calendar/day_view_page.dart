@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../shared/widgets/decorative_background.dart';
 
 class DayViewPage extends StatefulWidget {
   const DayViewPage({super.key});
@@ -12,6 +13,7 @@ class _DayViewPageState extends State<DayViewPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -21,9 +23,18 @@ class _DayViewPageState extends State<DayViewPage> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
+        elevation: 0,
+        backgroundColor: Colors.transparent,
       ),
-      body: const Center(
-        child: Text('Gün Görünümü'),
+      extendBodyBehindAppBar: false,
+      body: DecorativeBackground(
+        style: BackgroundStyle.modern,
+        child: Center(
+          child: Text(
+            'Gün Görünümü',
+            style: theme.textTheme.headlineMedium,
+          ),
+        ),
       ),
     );
   }

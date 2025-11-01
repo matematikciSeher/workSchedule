@@ -209,15 +209,32 @@ class _EventCardState extends State<EventCard>
               height: widget.height ?? 100,
               margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
               decoration: BoxDecoration(
-                color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
-                borderRadius: BorderRadius.circular(16),
+                gradient: LinearGradient(
+                  colors: isDark
+                      ? [
+                          AppColors.darkSurface,
+                          AppColors.darkSurface.withOpacity(0.95),
+                        ]
+                      : [
+                          AppColors.lightSurface,
+                          AppColors.lightSurface.withOpacity(0.98),
+                        ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: _parseColor(widget.colorLabel).withOpacity(0.2),
+                  width: 1.5,
+                ),
                 boxShadow: [
                   BoxShadow(
                     color: _isPressed
-                        ? _parseColor(widget.colorLabel).withOpacity(0.3)
-                        : (isDark ? AppColors.shadowDark : AppColors.shadowLight),
-                    blurRadius: _elevationAnimation.value,
+                        ? _parseColor(widget.colorLabel).withOpacity(0.4)
+                        : _parseColor(widget.colorLabel).withOpacity(0.15),
+                    blurRadius: _elevationAnimation.value * 1.5,
                     offset: Offset(0, _elevationAnimation.value / 2),
+                    spreadRadius: _isPressed ? 2 : 0,
                   ),
                 ],
               ),
@@ -254,17 +271,38 @@ class _EventCardState extends State<EventCard>
                           children: [
                             // Kategori simgesi
                             Container(
-                              width: 50,
-                              height: 50,
+                              width: 56,
+                              height: 56,
                               decoration: BoxDecoration(
-                                color: _parseColor(widget.colorLabel)
-                                    .withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(12),
+                                gradient: LinearGradient(
+                                  colors: [
+                                    _parseColor(widget.colorLabel)
+                                        .withOpacity(0.25),
+                                    _parseColor(widget.colorLabel)
+                                        .withOpacity(0.1),
+                                  ],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(
+                                  color: _parseColor(widget.colorLabel)
+                                      .withOpacity(0.3),
+                                  width: 1.5,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: _parseColor(widget.colorLabel)
+                                        .withOpacity(0.2),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
                               ),
                               child: Icon(
                                 widget.categoryIcon,
                                 color: _parseColor(widget.colorLabel),
-                                size: 26,
+                                size: 28,
                               ),
                             ),
                             

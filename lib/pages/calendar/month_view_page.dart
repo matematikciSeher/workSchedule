@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../shared/widgets/decorative_background.dart';
 
 class MonthViewPage extends StatefulWidget {
   const MonthViewPage({super.key});
@@ -12,6 +13,7 @@ class _MonthViewPageState extends State<MonthViewPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -21,9 +23,18 @@ class _MonthViewPageState extends State<MonthViewPage> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
+        elevation: 0,
+        backgroundColor: Colors.transparent,
       ),
-      body: const Center(
-        child: Text('Ay Görünümü'),
+      extendBodyBehindAppBar: false,
+      body: DecorativeBackground(
+        style: BackgroundStyle.vibrant,
+        child: Center(
+          child: Text(
+            'Ay Görünümü',
+            style: theme.textTheme.headlineMedium,
+          ),
+        ),
       ),
     );
   }

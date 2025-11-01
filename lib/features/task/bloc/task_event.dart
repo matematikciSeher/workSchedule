@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import '../../../domain/entities/task_entity.dart';
+import '../../../domain/entities/subtask_entity.dart';
 
 /// Base class for task events
 abstract class TaskEvent extends Equatable {
@@ -67,5 +68,79 @@ class SearchTasksEvent extends TaskEvent {
   
   @override
   List<Object?> get props => [query];
+}
+
+/// Add subtask event
+class AddSubtaskEvent extends TaskEvent {
+  final String taskId;
+  final SubtaskEntity subtask;
+  
+  const AddSubtaskEvent({
+    required this.taskId,
+    required this.subtask,
+  });
+  
+  @override
+  List<Object?> get props => [taskId, subtask];
+}
+
+/// Update subtask event
+class UpdateSubtaskEvent extends TaskEvent {
+  final String taskId;
+  final SubtaskEntity subtask;
+  
+  const UpdateSubtaskEvent({
+    required this.taskId,
+    required this.subtask,
+  });
+  
+  @override
+  List<Object?> get props => [taskId, subtask];
+}
+
+/// Delete subtask event
+class DeleteSubtaskEvent extends TaskEvent {
+  final String taskId;
+  final String subtaskId;
+  
+  const DeleteSubtaskEvent({
+    required this.taskId,
+    required this.subtaskId,
+  });
+  
+  @override
+  List<Object?> get props => [taskId, subtaskId];
+}
+
+/// Complete subtask event
+class CompleteSubtaskEvent extends TaskEvent {
+  final String taskId;
+  final String subtaskId;
+  
+  const CompleteSubtaskEvent({
+    required this.taskId,
+    required this.subtaskId,
+  });
+  
+  @override
+  List<Object?> get props => [taskId, subtaskId];
+}
+
+/// Set recurrence event
+class SetRecurrenceEvent extends TaskEvent {
+  final String taskId;
+  final bool isRecurring;
+  final String? recurringPattern; // 'daily', 'weekly', 'monthly', 'yearly'
+  final DateTime? recurringEndDate;
+  
+  const SetRecurrenceEvent({
+    required this.taskId,
+    required this.isRecurring,
+    this.recurringPattern,
+    this.recurringEndDate,
+  });
+  
+  @override
+  List<Object?> get props => [taskId, isRecurring, recurringPattern, recurringEndDate];
 }
 

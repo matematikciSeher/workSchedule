@@ -1,0 +1,8 @@
+# Bu dosya örnektir. Kendi keystore bilgilerinizi ekleyin ve dosya adını key.properties yapın.
+# IMPORTANT: Bu dosyayı .gitignore'a ekleyin!
+
+storePassword=<BURAYA_KEYSTORE_ŞİFRESİ_YAZIN>
+keyPassword=<BURAYA_KEY_ŞİFRESİ_YAZIN>
+keyAlias=release
+storeFile=app/release-key.jks
+

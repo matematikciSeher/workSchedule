@@ -2,42 +2,41 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'app_colors.dart';
 import 'app_text_styles.dart';
+import 'theme_models.dart';
 
 /// Light tema tanımı
-ThemeData lightTheme(double textScaleFactor) {
+ThemeData lightTheme(
+  double textScaleFactor, {
+  AppThemeModel? themeModel,
+}) {
+  final theme = themeModel ?? AppThemes.defaultTheme;
+  
   return ThemeData(
     useMaterial3: true,
     brightness: Brightness.light,
-    colorScheme: const ColorScheme.light(
-      primary: AppColors.lightPrimary,
-      secondary: AppColors.lightSecondary,
-      tertiary: AppColors.lightAccent,
-      error: AppColors.lightError,
-      surface: AppColors.lightSurface,
-      onPrimary: AppColors.lightOnPrimary,
-      onSecondary: AppColors.lightOnSecondary,
-      onError: AppColors.lightOnError,
-      onSurface: AppColors.lightOnSurface,
-    ),
-    scaffoldBackgroundColor: AppColors.lightBackground,
+    colorScheme: theme.lightColorScheme,
+    scaffoldBackgroundColor: theme.lightBackground,
     appBarTheme: AppBarTheme(
-      elevation: 0,
+      elevation: 2,
       centerTitle: false,
       backgroundColor: AppColors.lightSurface,
       foregroundColor: AppColors.lightOnSurface,
       systemOverlayStyle: SystemUiOverlayStyle.dark,
+      shadowColor: theme.lightColorScheme.primary.withOpacity(0.1),
       titleTextStyle: AppTextStyles.titleLarge(
         scale: textScaleFactor,
         color: AppColors.lightOnSurface,
       ),
+      surfaceTintColor: Colors.transparent,
     ),
-    cardTheme: const CardThemeData(
-      elevation: 2,
+    cardTheme: CardThemeData(
+      elevation: 4,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(12)),
+        borderRadius: BorderRadius.all(Radius.circular(20)),
       ),
       color: AppColors.lightSurface,
       margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      shadowColor: theme.lightColorScheme.primary.withOpacity(0.15),
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
@@ -52,7 +51,7 @@ ThemeData lightTheme(double textScaleFactor) {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: AppColors.lightPrimary, width: 2),
+        borderSide: BorderSide(color: theme.lightColorScheme.primary, width: 2),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
@@ -62,19 +61,24 @@ ThemeData lightTheme(double textScaleFactor) {
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        elevation: 0,
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        elevation: 3,
+        padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 18),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
         ),
         textStyle: AppTextStyles.labelLarge(scale: textScaleFactor),
+        shadowColor: theme.lightColorScheme.primary.withOpacity(0.4),
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 18),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        side: BorderSide(
+          color: theme.lightColorScheme.primary,
+          width: 2,
         ),
         textStyle: AppTextStyles.labelLarge(scale: textScaleFactor),
       ),
@@ -96,15 +100,15 @@ ThemeData lightTheme(double textScaleFactor) {
     switchTheme: SwitchThemeData(
       thumbColor: WidgetStateProperty.resolveWith((states) {
         if (states.contains(WidgetState.selected)) {
-          return AppColors.lightPrimary;
+          return theme.lightColorScheme.primary;
         }
-        return AppColors.lightOnSurface;
+        return theme.lightColorScheme.onSurface;
       }),
       trackColor: WidgetStateProperty.resolveWith((states) {
         if (states.contains(WidgetState.selected)) {
-          return AppColors.lightPrimary.withValues(alpha: 0.5);
+          return theme.lightColorScheme.primary.withValues(alpha: 0.5);
         }
-        return AppColors.lightOnSurface.withValues(alpha: 0.3);
+        return theme.lightColorScheme.onSurface.withValues(alpha: 0.3);
       }),
     ),
     textTheme: TextTheme(
@@ -128,41 +132,42 @@ ThemeData lightTheme(double textScaleFactor) {
 }
 
 /// Dark tema tanımı
-ThemeData darkTheme(double textScaleFactor) {
+ThemeData darkTheme(
+  double textScaleFactor, {
+  AppThemeModel? themeModel,
+}) {
+  final theme = themeModel ?? AppThemes.defaultTheme;
+  
   return ThemeData(
     useMaterial3: true,
     brightness: Brightness.dark,
-    colorScheme: const ColorScheme.dark(
-      primary: AppColors.darkPrimary,
-      secondary: AppColors.darkSecondary,
-      tertiary: AppColors.darkAccent,
-      error: AppColors.darkError,
-      surface: AppColors.darkSurface,
-      onPrimary: AppColors.darkOnPrimary,
-      onSecondary: AppColors.darkOnSecondary,
-      onError: AppColors.darkOnError,
-      onSurface: AppColors.darkOnSurface,
-    ),
-    scaffoldBackgroundColor: AppColors.darkBackground,
+    colorScheme: theme.darkColorScheme,
+    scaffoldBackgroundColor: theme.darkBackground,
     appBarTheme: AppBarTheme(
-      elevation: 0,
+      elevation: 3,
       centerTitle: false,
       backgroundColor: AppColors.darkSurface,
       foregroundColor: AppColors.darkOnSurface,
       systemOverlayStyle: SystemUiOverlayStyle.light,
+      shadowColor: theme.darkColorScheme.primary.withOpacity(0.2),
       titleTextStyle: AppTextStyles.titleLarge(
         scale: textScaleFactor,
         color: AppColors.darkOnSurface,
       ),
+      surfaceTintColor: Colors.transparent,
     ),
-    cardTheme: const CardThemeData(
-      elevation: 0,
+    cardTheme: CardThemeData(
+      elevation: 6,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(12)),
-        side: BorderSide(color: AppColors.dividerDark, width: 1),
+        borderRadius: BorderRadius.all(Radius.circular(20)),
+        side: BorderSide(
+          color: theme.darkColorScheme.primary.withOpacity(0.2),
+          width: 1,
+        ),
       ),
       color: AppColors.darkSurface,
       margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      shadowColor: theme.darkColorScheme.primary.withOpacity(0.3),
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
@@ -177,7 +182,7 @@ ThemeData darkTheme(double textScaleFactor) {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: AppColors.darkPrimary, width: 2),
+        borderSide: BorderSide(color: theme.darkColorScheme.primary, width: 2),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
@@ -187,19 +192,24 @@ ThemeData darkTheme(double textScaleFactor) {
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        elevation: 0,
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        elevation: 4,
+        padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 18),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
         ),
         textStyle: AppTextStyles.labelLarge(scale: textScaleFactor),
+        shadowColor: theme.darkColorScheme.primary.withOpacity(0.5),
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 18),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        side: BorderSide(
+          color: theme.darkColorScheme.primary,
+          width: 2,
         ),
         textStyle: AppTextStyles.labelLarge(scale: textScaleFactor),
       ),
@@ -221,15 +231,15 @@ ThemeData darkTheme(double textScaleFactor) {
     switchTheme: SwitchThemeData(
       thumbColor: WidgetStateProperty.resolveWith((states) {
         if (states.contains(WidgetState.selected)) {
-          return AppColors.darkPrimary;
+          return theme.darkColorScheme.primary;
         }
-        return AppColors.darkOnSurface;
+        return theme.darkColorScheme.onSurface;
       }),
       trackColor: WidgetStateProperty.resolveWith((states) {
         if (states.contains(WidgetState.selected)) {
-          return AppColors.darkPrimary.withValues(alpha: 0.5);
+          return theme.darkColorScheme.primary.withValues(alpha: 0.5);
         }
-        return AppColors.darkOnSurface.withValues(alpha: 0.3);
+        return theme.darkColorScheme.onSurface.withValues(alpha: 0.3);
       }),
     ),
     textTheme: TextTheme(
