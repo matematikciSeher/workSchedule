@@ -1,11 +1,13 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../domain/repositories/task_repository.dart';
+import '../../../core/services/task_notification_helper.dart';
 import 'task_event.dart';
 import 'task_state.dart';
 
 /// Task BLoC for managing task state
 class TaskBloc extends Bloc<TaskEvent, TaskState> {
   final TaskRepository taskRepository;
+  final TaskNotificationHelper _notificationHelper = TaskNotificationHelper();
 
   TaskBloc(this.taskRepository) : super(const TaskInitial()) {
     on<LoadTasksEvent>(_onLoadTasks);
@@ -28,6 +30,25 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
     emit(const TaskLoading());
     try {
       final tasks = await taskRepository.getAllTasks(userId: event.userId);
+      
+      // Mevcut görevler için bildirimleri kontrol et ve gerekirse zamanla
+      // (Uygulama yeniden başlatıldığında bildirimlerin yeniden zamanlanması için)
+      // Async olarak arka planda yap, görev yüklemesini yavaşlatmasın
+      Future.microtask(() async {
+        for (final task in tasks) {
+          if (!task.isCompleted && task.dueDate != null) {
+            // Bildirim zamanlamayı dene (zaten varsa sorun olmaz)
+            try {
+              await _notificationHelper.scheduleTaskNotification(task);
+            } catch (e) {
+              // Bildirim hatası görev yüklemesini engellemesin
+              // ignore: avoid_print
+              print('Bildirim zamanlama hatası (${task.id}): $e');
+            }
+          }
+        }
+      });
+      
       emit(TaskLoaded(tasks));
     } catch (e) {
       emit(TaskError(e.toString()));
@@ -40,7 +61,13 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
   ) async {
     emit(const TaskLoading());
     try {
-      await taskRepository.createTask(event.task);
+      final createdTask = await taskRepository.createTask(event.task);
+      
+      // Bildirim zamanlamayı arka planda yap (kaydetme hızını etkilemesin)
+      _notificationHelper.scheduleTaskNotification(createdTask).catchError((e) {
+        print('Bildirim zamanlama hatası (arka plan): $e');
+      });
+      
       emit(const TaskCreated());
       // Reload tasks after creation
       final tasks = await taskRepository.getAllTasks(userId: event.task.userId);
@@ -56,7 +83,13 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
   ) async {
     emit(const TaskLoading());
     try {
-      await taskRepository.updateTask(event.task);
+      final updatedTask = await taskRepository.updateTask(event.task);
+      
+      // Bildirimleri güncellemeyi arka planda yap
+      _notificationHelper.updateTaskNotification(updatedTask).catchError((e) {
+        print('Bildirim güncelleme hatası (arka plan): $e');
+      });
+      
       emit(const TaskUpdated());
       // Reload tasks after update
       final tasks = await taskRepository.getAllTasks(userId: event.task.userId);
@@ -72,8 +105,24 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
   ) async {
     emit(const TaskLoading());
     try {
+      // Önce görevi al (userId ve bildirim iptali için)
+      final task = await taskRepository.getTaskById(event.taskId);
+      
+      // Bildirimleri iptal et
+      if (task != null) {
+        await _notificationHelper.cancelTaskNotifications(task);
+      }
+      
       await taskRepository.deleteTask(event.taskId);
       emit(const TaskDeleted());
+      // Reload tasks after deletion
+      if (task != null) {
+        final tasks = await taskRepository.getAllTasks(userId: task.userId);
+        emit(TaskLoaded(tasks));
+      } else {
+        final tasks = await taskRepository.getAllTasks();
+        emit(TaskLoaded(tasks));
+      }
     } catch (e) {
       emit(TaskError(e.toString()));
     }
@@ -90,7 +139,11 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
           isCompleted: !task.isCompleted,
           updatedAt: DateTime.now(),
         );
-        await taskRepository.updateTask(updatedTask);
+        final savedTask = await taskRepository.updateTask(updatedTask);
+        
+        // Bildirimleri güncelle (tamamlandıysa iptal edilecek)
+        await _notificationHelper.updateTaskNotification(savedTask);
+        
         emit(const TaskCompleted());
         // Reload tasks after completion
         final tasks = await taskRepository.getAllTasks(userId: task.userId);

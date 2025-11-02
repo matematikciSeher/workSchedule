@@ -19,6 +19,9 @@ import '../../features/event/data/repositories/event_repository_impl.dart';
 import '../../data/local/database_helper.dart';
 import '../../features/task/data/datasources/task_local_datasource.dart';
 import '../../features/task/data/repositories/task_repository_impl.dart';
+import '../../pages/auth/login_page.dart';
+import '../../pages/auth/signup_page.dart';
+import '../../pages/auth/forgot_password_page.dart';
 import 'app_routes.dart';
 import '../services/deep_link_service.dart';
 
@@ -121,6 +124,21 @@ class RouteGenerator {
             eventRepository: eventRepository,
             taskRepository: taskRepository,
           ),
+        );
+
+      case AppRoutes.login:
+        return MaterialPageRoute(
+          builder: (_) => const LoginPage(),
+        );
+
+      case AppRoutes.signUp:
+        return MaterialPageRoute(
+          builder: (_) => const SignUpPage(),
+        );
+
+      case AppRoutes.forgotPassword:
+        return MaterialPageRoute(
+          builder: (_) => const ForgotPasswordPage(),
         );
 
       case AppRoutes.shareEvent:

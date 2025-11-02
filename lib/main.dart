@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'firebase_options.dart';
-import 'core/routes/app_routes.dart';
 import 'core/routes/route_generator.dart';
 import 'core/bloc/app_bloc_observer.dart';
 import 'core/services/notification_service.dart';
@@ -16,6 +16,8 @@ import 'features/task/data/datasources/task_local_datasource.dart';
 import 'features/task/data/repositories/task_repository_impl.dart';
 import 'features/calendar/share/bloc/share_calendar_bloc.dart';
 import 'core/services/timezone_service.dart';
+import 'core/widgets/auth_wrapper.dart';
+import 'pages/home/home_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -103,10 +105,22 @@ class _MyAppState extends State<MyApp> {
       child: MaterialApp(
         title: 'Çalışma Takvimi',
         debugShowCheckedModeBanner: false,
+        locale: const Locale('tr', 'TR'),
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [
+          Locale('tr', 'TR'),
+          Locale('en', 'US'),
+        ],
         themeMode: _themeMode,
         theme: lightTheme(_textScaleFactor, themeModel: _currentTheme),
         darkTheme: darkTheme(_textScaleFactor, themeModel: _currentTheme),
-        initialRoute: AppRoutes.home,
+        home: AuthWrapper(
+          child: const HomePage(),
+        ),
         onGenerateRoute: RouteGenerator.generateRoute,
         // Theme değişikliklerini dinlemek için navigator observer ekleyebilirsiniz
         builder: (context, child) {

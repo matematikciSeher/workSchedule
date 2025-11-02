@@ -3,18 +3,18 @@ import 'package:intl/intl.dart';
 /// Tarih işlemleri için extension'lar
 extension DateExtensions on DateTime {
   /// Tarihi string formatına çevir (dd.MM.yyyy)
-  String toDateString() {
-    return DateFormat('dd.MM.yyyy').format(this);
+  String toDateString([String? locale]) {
+    return DateFormat('dd.MM.yyyy', locale ?? 'tr_TR').format(this);
   }
   
   /// Saati string formatına çevir (HH:mm)
-  String toTimeString() {
-    return DateFormat('HH:mm').format(this);
+  String toTimeString([String? locale]) {
+    return DateFormat('HH:mm', locale ?? 'tr_TR').format(this);
   }
   
   /// Tarih ve saati string formatına çevir
-  String toDateTimeString() {
-    return DateFormat('dd.MM.yyyy HH:mm').format(this);
+  String toDateTimeString([String? locale]) {
+    return DateFormat('dd.MM.yyyy HH:mm', locale ?? 'tr_TR').format(this);
   }
   
   /// Sadece tarihi döndür (saat bilgisi olmadan)

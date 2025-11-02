@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../core/routes/app_routes.dart';
 import '../../shared/models/task_model.dart';
 import '../../shared/widgets/decorative_background.dart';
+import '../../features/task/bloc/task_bloc.dart';
+import '../../features/task/bloc/task_event.dart';
+import '../../features/task/bloc/task_state.dart';
 import 'widgets/month_selector_widget.dart';
 import 'widgets/weekly_calendar_widget.dart';
 import 'widgets/task_list_panel_widget.dart';
@@ -19,7 +23,7 @@ class _HomePageState extends State<HomePage>
   DateTime _selectedMonth = DateTime.now();
   DateTime? _selectedDate;
   late AnimationController _panelAnimationController;
-  final List<TaskModel> _tasks = [];
+  List<TaskModel> _tasks = [];
 
   @override
   void initState() {
@@ -32,44 +36,8 @@ class _HomePageState extends State<HomePage>
     );
     _panelAnimationController.forward();
 
-    // Örnek görevler (gerçek uygulamada BLoC'tan gelecek)
-    _loadSampleTasks();
-  }
-
-  void _loadSampleTasks() {
-    final now = DateTime.now();
-    setState(() {
-      _tasks.addAll([
-        TaskModel(
-          id: '1',
-          title: 'Toplantı hazırlığı',
-          description: 'Sunum dosyalarını hazırla',
-          dueDate: DateTime(now.year, now.month, now.day, 10, 0),
-          color: '#2196F3',
-        ),
-        TaskModel(
-          id: '2',
-          title: 'E-posta kontrolü',
-          dueDate: DateTime(now.year, now.month, now.day, 14, 30),
-          color: '#00BCD4',
-        ),
-        TaskModel(
-          id: '3',
-          title: 'Proje raporu',
-          description: 'Aylık proje raporunu tamamla',
-          dueDate: DateTime(now.year, now.month, now.day, 16, 0),
-          color: '#FF5722',
-        ),
-        // Yarın için görevler
-        TaskModel(
-          id: '4',
-          title: 'Müşteri görüşmesi',
-          description: 'Yeni müşteri ile ilk görüşme',
-          dueDate: DateTime(now.year, now.month, now.day + 1, 11, 0),
-          color: '#4CAF50',
-        ),
-      ]);
-    });
+    // BLoC'tan görevleri yükle
+    context.read<TaskBloc>().add(const LoadTasksEvent());
   }
 
   @override
@@ -98,31 +66,69 @@ class _HomePageState extends State<HomePage>
       context,
       AppRoutes.taskEdit,
       arguments: task.id,
+    ).then((_) {
+      // Görev düzenlendikten sonra listeyi yenile
+      context.read<TaskBloc>().add(const LoadTasksEvent());
+    });
+  }
+
+  void _handleTaskDelete(TaskModel task) {
+    // Silme onayı göster
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Görevi Sil'),
+        content: Text('${task.title} görevini silmek istediğinize emin misiniz?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('İptal'),
+          ),
+          TextButton(
+            onPressed: () {
+              context.read<TaskBloc>().add(DeleteTaskEvent(task.id));
+              Navigator.pop(context);
+            },
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(context).colorScheme.error,
+            ),
+            child: const Text('Sil'),
+          ),
+        ],
+      ),
     );
   }
 
   void _handleTaskToggle(TaskModel task) {
-    setState(() {
-      final index = _tasks.indexWhere((t) => t.id == task.id);
-      if (index != -1) {
-        _tasks[index] = TaskModel(
-          id: task.id,
-          title: task.title,
-          description: task.description,
-          dueDate: task.dueDate,
-          createdAt: task.createdAt,
-          isCompleted: !task.isCompleted,
-          color: task.color,
-        );
-      }
-    });
+    // BLoC üzerinden tamamlanma durumunu güncelle
+    context.read<TaskBloc>().add(CompleteTaskEvent(task.id));
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Scaffold(
+    return BlocListener<TaskBloc, TaskState>(
+      listener: (context, state) {
+        if (state is TaskLoaded) {
+          // TaskEntity'leri TaskModel'e dönüştür
+          setState(() {
+            _tasks = state.tasks.map((entity) => TaskModel.fromEntity(entity)).toList();
+          });
+        } else if (state is TaskDeleted || state is TaskCompleted || state is TaskCreated || state is TaskUpdated) {
+          // Görev silindikten, tamamlandıktan, oluşturulduktan veya güncellendikten sonra listeyi yenile
+          context.read<TaskBloc>().add(const LoadTasksEvent());
+        }
+      },
+      child: BlocBuilder<TaskBloc, TaskState>(
+        builder: (context, state) {
+          // State değiştiğinde görevleri güncelle (sadece UI güncellemesi için)
+          List<TaskModel> currentTasks = _tasks;
+          if (state is TaskLoaded) {
+            currentTasks = state.tasks.map((entity) => TaskModel.fromEntity(entity)).toList();
+          }
+          
+          return Scaffold(
       backgroundColor: Colors.transparent,
       extendBodyBehindAppBar: false,
       body: DecorativeBackground(
@@ -226,7 +232,7 @@ class _HomePageState extends State<HomePage>
                         selectedMonth: _selectedMonth,
                         selectedDate: _selectedDate,
                         onDateSelected: _handleDateSelected,
-                        tasks: _tasks,
+                        tasks: currentTasks,
                       ),
                     ),
                   ),
@@ -246,9 +252,10 @@ class _HomePageState extends State<HomePage>
                         height: MediaQuery.of(context).size.height * 0.45,
                         child: TaskListPanelWidget(
                           selectedDate: _selectedDate,
-                          tasks: _tasks,
+                          tasks: currentTasks,
                           onTaskTap: _handleTaskTap,
                           onTaskToggle: _handleTaskToggle,
+                          onTaskDelete: _handleTaskDelete,
                         ),
                       ),
                     ),
@@ -280,7 +287,10 @@ class _HomePageState extends State<HomePage>
         ),
         child: FloatingActionButton.extended(
           onPressed: () {
-            Navigator.pushNamed(context, AppRoutes.taskForm);
+            Navigator.pushNamed(context, AppRoutes.taskForm).then((_) {
+              // Yeni görev eklendikten sonra listeyi yenile
+              context.read<TaskBloc>().add(const LoadTasksEvent());
+            });
           },
           backgroundColor: Colors.transparent,
           elevation: 0,
@@ -288,6 +298,9 @@ class _HomePageState extends State<HomePage>
           label: const Text('Yeni Görev'),
           tooltip: 'Yeni görev ekle',
         ),
+      ),
+          );
+        },
       ),
     );
   }

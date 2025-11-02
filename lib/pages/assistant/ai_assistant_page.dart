@@ -333,7 +333,7 @@ class ChatBubble extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    DateFormat('HH:mm').format(message.timestamp),
+                    DateFormat('HH:mm', 'tr_TR').format(message.timestamp),
                     style: TextStyle(
                       color: message.isUser
                           ? Colors.white.withOpacity(0.7)

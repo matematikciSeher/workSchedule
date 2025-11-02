@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../core/routes/app_routes.dart';
+import '../../core/services/auth_service.dart';
 import '../../shared/widgets/decorative_background.dart';
+import 'notification_settings_page.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -41,8 +43,15 @@ class SettingsPage extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.notifications),
             title: const Text('Bildirimler'),
+            subtitle: const Text('Bildirim izinleri ve ayarları'),
+            trailing: const Icon(Icons.chevron_right),
             onTap: () {
-              // Bildirim ayarları
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const NotificationSettingsPage(),
+                ),
+              );
             },
           ),
           const Divider(),
@@ -61,6 +70,42 @@ class SettingsPage extends StatelessWidget {
             title: const Text('Hakkında'),
             onTap: () {
               // Hakkında sayfası
+            },
+          ),
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.logout, color: Colors.red),
+            title: const Text(
+              'Çıkış Yap',
+              style: TextStyle(color: Colors.red),
+            ),
+            onTap: () async {
+              // Çıkış yapma onayı
+              final shouldLogout = await showDialog<bool>(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Çıkış Yap'),
+                  content: const Text('Çıkış yapmak istediğinize emin misiniz?'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(false),
+                      child: const Text('İptal'),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(true),
+                      child: const Text(
+                        'Çıkış Yap',
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+
+              if (shouldLogout == true) {
+                await AuthService().signOut();
+                // AuthWrapper otomatik olarak login sayfasına yönlendirecek
+              }
             },
           ),
         ],

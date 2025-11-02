@@ -1,3 +1,5 @@
+import '../../domain/entities/task_entity.dart';
+
 /// Basit görev modeli (tam implementasyon için domain entities kullanılmalı)
 class TaskModel {
   final String id;
@@ -17,6 +19,19 @@ class TaskModel {
     this.isCompleted = false,
     this.color,
   }) : createdAt = createdAt ?? DateTime.now();
+
+  /// TaskEntity'den TaskModel oluştur
+  factory TaskModel.fromEntity(TaskEntity entity) {
+    return TaskModel(
+      id: entity.id,
+      title: entity.title,
+      description: entity.description,
+      dueDate: entity.dueDate,
+      createdAt: entity.createdAt,
+      isCompleted: entity.isCompleted,
+      color: entity.color,
+    );
+  }
 
   /// Görevin tarihini kontrol et
   bool isOnDate(DateTime date) {

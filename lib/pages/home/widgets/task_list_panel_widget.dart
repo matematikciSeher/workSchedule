@@ -9,6 +9,7 @@ class TaskListPanelWidget extends StatelessWidget {
   final List<TaskModel> tasks;
   final Function(TaskModel) onTaskTap;
   final Function(TaskModel) onTaskToggle;
+  final Function(TaskModel)? onTaskDelete;
   final Locale? locale;
   final bool neverScroll;
 
@@ -18,6 +19,7 @@ class TaskListPanelWidget extends StatelessWidget {
     this.tasks = const [],
     required this.onTaskTap,
     required this.onTaskToggle,
+    this.onTaskDelete,
     this.locale,
     this.neverScroll = false,
   });
@@ -193,6 +195,7 @@ class TaskListPanelWidget extends StatelessWidget {
                       task: task,
                       onTap: () => onTaskTap(task),
                       onToggle: () => onTaskToggle(task),
+                      onDelete: onTaskDelete != null ? () => onTaskDelete!(task) : null,
                       theme: theme,
                     ),
                   );
@@ -387,6 +390,7 @@ class TaskListPanelWidget extends StatelessWidget {
                           task: task,
                           onTap: () => onTaskTap(task),
                           onToggle: () => onTaskToggle(task),
+                          onDelete: onTaskDelete != null ? () => onTaskDelete!(task) : null,
                           theme: theme,
                         ),
                       );
@@ -406,12 +410,14 @@ class _TaskListItem extends StatelessWidget {
   final TaskModel task;
   final VoidCallback onTap;
   final VoidCallback onToggle;
+  final VoidCallback? onDelete;
   final ThemeData theme;
 
   const _TaskListItem({
     required this.task,
     required this.onTap,
     required this.onToggle,
+    this.onDelete,
     required this.theme,
   });
 
@@ -524,7 +530,7 @@ class _TaskListItem extends StatelessWidget {
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              DateFormat('HH:mm').format(task.dueDate!),
+                              DateFormat('HH:mm', 'tr_TR').format(task.dueDate!),
                               style: theme.textTheme.labelSmall?.copyWith(
                                 color: theme.colorScheme.primary,
                               ),
@@ -535,6 +541,22 @@ class _TaskListItem extends StatelessWidget {
                   ],
                 ),
               ),
+              // Silme butonu
+              if (onDelete != null)
+                GestureDetector(
+                  onTap: () {
+                    // Event'i durdur ki InkWell'ın onTap'i tetiklenmesin
+                    onDelete!();
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    child: Icon(
+                      Icons.delete_outline,
+                      color: theme.colorScheme.error,
+                      size: 20,
+                    ),
+                  ),
+                ),
             ],
           ),
         ),

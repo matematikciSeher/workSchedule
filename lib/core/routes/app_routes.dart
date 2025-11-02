@@ -32,6 +32,11 @@ class AppRoutes {
   static const String shareCalendar = '/share/calendar';
   static const String importCalendar = '/import/calendar';
 
+  // Auth sayfaları
+  static const String login = '/login';
+  static const String signUp = '/signup';
+  static const String forgotPassword = '/forgot-password';
+
   // Deep link base URL
   static const String deepLinkBase = 'workschedule://';
   static const String deepLinkShareEvent = '${deepLinkBase}share/event';

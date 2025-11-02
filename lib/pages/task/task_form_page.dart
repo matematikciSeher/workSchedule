@@ -5,6 +5,7 @@ import '../../features/task/bloc/task_event.dart';
 import '../../features/task/bloc/task_state.dart';
 import '../../domain/entities/task_entity.dart';
 import '../../shared/widgets/decorative_background.dart';
+import '../../core/services/task_notification_helper.dart';
 
 class TaskFormPage extends StatefulWidget {
   final String? taskId; // null ise yeni görev, değilse düzenleme
@@ -210,48 +211,6 @@ class _TaskFormPageState extends State<TaskFormPage> {
                 trailing: const Icon(Icons.access_time),
                 onTap: _selectTime,
               ),
-              const SizedBox(height: 16),
-              const Divider(),
-              const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Text(
-                  'Öncelik',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-              ),
-              Row(
-                children: [
-                  Expanded(
-                    child: ChoiceChip(
-                      label: const Text('Düşük'),
-                      selected: _selectedPriority == 1,
-                      onSelected: (selected) {
-                        setState(() => _selectedPriority = selected ? 1 : null);
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: ChoiceChip(
-                      label: const Text('Orta'),
-                      selected: _selectedPriority == 2,
-                      onSelected: (selected) {
-                        setState(() => _selectedPriority = selected ? 2 : null);
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: ChoiceChip(
-                      label: const Text('Yüksek'),
-                      selected: _selectedPriority == 3,
-                      onSelected: (selected) {
-                        setState(() => _selectedPriority = selected ? 3 : null);
-                      },
-                    ),
-                  ),
-                ],
-              ),
               const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: _isLoading ? null : _saveTask,
@@ -266,6 +225,54 @@ class _TaskFormPageState extends State<TaskFormPage> {
                       )
                     : Text(isEditing ? 'Güncelle' : 'Kaydet'),
               ),
+              // Test butonu (sadece debug için)
+              if (!isEditing && _selectedTime != null && _selectedDate != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: OutlinedButton.icon(
+                    onPressed: () async {
+                      // Test için 1 dakika sonra bildirim gönder
+                      final testTime = DateTime.now().add(const Duration(minutes: 1));
+                      final task = TaskEntity(
+                        id: 'test_${DateTime.now().millisecondsSinceEpoch}',
+                        title: 'Test Görevi',
+                        description: 'Bu bir test görevidir',
+                        dueDate: testTime,
+                        createdAt: DateTime.now(),
+                        updatedAt: DateTime.now(),
+                      );
+                      try {
+                        await Future.microtask(() async {
+                          final helper = TaskNotificationHelper();
+                          await helper.scheduleTaskNotification(task);
+                        });
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Test bildirimi zamanlandı! 1 dakika sonra gelecek.'),
+                              backgroundColor: Colors.green,
+                            ),
+                          );
+                        }
+                      } catch (e) {
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Test hatası: $e'),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        }
+                      }
+                    },
+                    icon: const Icon(Icons.bug_report, size: 16),
+                    label: const Text('Test Bildirimi (1 dk)'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.orange,
+                      minimumSize: const Size(double.infinity, 40),
+                    ),
+                  ),
+                ),
             ],
           ),
           ),
