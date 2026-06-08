@@ -21,6 +21,7 @@ class AppRoutes {
   static const String settings = '/settings';
   static const String syncSettings = '/settings/sync';
   static const String themeSettings = '/settings/theme';
+  static const String privacyPolicy = '/settings/privacy';
 
   // Widget önizleme
   static const String widgetPreview = '/widget/preview';

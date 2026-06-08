@@ -1,0 +1,169 @@
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:w="urn:schemas-microsoft-com:office:word"
+xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta charset="UTF-8">
+<meta name="ProgId" content="Word.Document">
+<meta name="Generator" content="Microsoft Word">
+<title>Gizlilik Politikası - Çalışma Takvimi</title>
+<!--[if gte mso 9]>
+<xml>
+<w:WordDocument>
+<w:View>Print</w:View>
+<w:Zoom>100</w:Zoom>
+</w:WordDocument>
+</xml>
+<![endif]-->
+<style>
+body { font-family: Calibri, Arial, sans-serif; font-size: 11pt; line-height: 1.5; }
+h1 { font-size: 18pt; color: #FF6B00; }
+h2 { font-size: 13pt; margin-top: 18pt; border-bottom: 1pt solid #CCCCCC; padding-bottom: 3pt; }
+h3 { font-size: 11pt; margin-top: 12pt; }
+p { margin: 6pt 0; }
+ul { margin: 6pt 0 6pt 18pt; }
+li { margin-bottom: 3pt; }
+.meta { color: #666666; font-size: 10pt; }
+</style>
+</head>
+<body>
+
+<h1>GİZLİLİK POLİTİKASI</h1>
+
+<p class="meta"><b>Çalışma Takvimi</b> (com.workschedule.app)<br>
+Son güncelleme: 8 Haziran 2026</p>
+
+<p>Bu Gizlilik Politikası, Çalışma Takvimi mobil uygulamasını (“Uygulama”) kullandığınızda kişisel verilerinizin nasıl toplandığını, kullanıldığını, saklandığını ve korunduğunu açıklar. Uygulamayı kullanarak bu politikayı kabul etmiş sayılırsınız.</p>
+
+<h2>1. Veri Sorumlusu</h2>
+<p>6698 sayılı Kişisel Verilerin Korunması Kanunu (“KVKK”) kapsamında veri sorumlusu:</p>
+<ul>
+<li><b>Veri sorumlusu:</b> Seher Aydın</li>
+<li><b>Uygulama:</b> Çalışma Takvimi</li>
+<li><b>Paket adı:</b> com.workschedule.app</li>
+<li><b>İletişim:</b> seheraydin4241@gmail.com</li>
+</ul>
+
+<h2>2. Toplanan Veriler</h2>
+<p>Uygulama aşağıdaki veri kategorilerini toplayabilir ve işleyebilir:</p>
+
+<h3>2.1 Hesap Bilgileri</h3>
+<ul>
+<li>E-posta adresi</li>
+<li>Şifre (yalnızca Firebase Authentication tarafından güvenli şekilde işlenir; düz metin olarak saklanmaz)</li>
+<li>Google hesabı profil bilgileri (Google ile giriş yaparsanız: ad, e-posta, profil fotoğrafı URL’si)</li>
+</ul>
+
+<h3>2.2 Uygulama İçeriği</h3>
+<ul>
+<li>Görevler (başlık, açıklama, tarih, öncelik, tamamlanma durumu)</li>
+<li>Etkinlikler (başlık, açıklama, başlangıç/bitiş tarihi, konum, katılımcılar, hatırlatıcılar)</li>
+<li>Etkinliklere eklenen fotoğraf ve dosyalar</li>
+<li>Google Takvim verileri (Google Takvim senkronizasyonunu etkinleştirirseniz)</li>
+</ul>
+
+<h3>2.3 Cihaz ve Kullanım Verileri</h3>
+<ul>
+<li>Tema tercihleri, yazı tipi boyutu ve bildirim ayarları</li>
+<li>Senkronizasyon tercihleri</li>
+<li>Cihaz saat dilimi (hatırlatıcılar için)</li>
+<li>“Beni hatırla” seçeneğini etkinleştirirseniz: e-posta ve şifre cihazınızda yerel olarak saklanır</li>
+</ul>
+
+<h3>2.4 AI Asistan</h3>
+<p>AI Asistan varsayılan olarak cihazınızda yerel modda çalışır; sorularınızı yanıtlamak için görev ve etkinlik verilerinize erişir ancak bu verileri üçüncü taraflara göndermez. İsteğe bağlı olarak harici bir yapay zeka API’si yapılandırılırsa, soru metniniz ilgili hizmet sağlayıcıya iletilebilir.</p>
+
+<h2>3. Verilerin Kullanım Amaçları</h2>
+<ul>
+<li>Hesap oluşturma, giriş ve kimlik doğrulama</li>
+<li>Görev ve etkinlik yönetimi</li>
+<li>Hatırlatıcı ve bildirim gönderimi</li>
+<li>Bulut senkronizasyonu ve yedekleme</li>
+<li>Google Takvim ile senkronizasyon</li>
+<li>Takvim paylaşımı ve dışa aktarma</li>
+<li>Uygulama tercihlerinizi hatırlama</li>
+<li>AI Asistan ile programınız hakkında bilgi sunma</li>
+<li>Uygulama güvenliği ve hata giderme</li>
+</ul>
+
+<h2>4. Hukuki Dayanak (KVKK)</h2>
+<p>Kişisel verileriniz KVKK’nın 5. ve 6. maddeleri kapsamında aşağıdaki hukuki sebeplere dayanılarak işlenir:</p>
+<ul>
+<li>Bir sözleşmenin kurulması veya ifası (hesap ve hizmet sunumu)</li>
+<li>Veri sorumlusunun meşru menfaati (güvenlik, hizmet iyileştirme)</li>
+<li>Açık rızanız (Google hesabı bağlantısı, bildirim izinleri, kamera/galeri erişimi)</li>
+</ul>
+
+<h2>5. Verilerin Saklanması</h2>
+<ul>
+<li><b>Yerel depolama:</b> Görev ve etkinlik verileri cihazınızdaki SQLite veritabanında saklanır.</li>
+<li><b>Bulut depolama:</b> Senkronizasyon etkinse veriler Google Firebase (Firestore) üzerinde saklanır.</li>
+<li><b>Tercihler:</b> Uygulama ayarları SharedPreferences ile cihazınızda saklanır.</li>
+<li><b>Ekler:</b> Fotoğraf ve dosyalar uygulama belgeler dizininde saklanır.</li>
+</ul>
+<p>Verileriniz, hesabınız aktif olduğu sürece veya hizmetin sunulması için gerekli olduğu sürece saklanır. Hesabınızı sildiğinizde veya silme talebinde bulunduğunuzda, yasal yükümlülükler saklı kalmak kaydıyla verileriniz silinir veya anonimleştirilir.</p>
+
+<h2>6. Üçüncü Taraf Hizmetler</h2>
+<p>Uygulama aşağıdaki üçüncü taraf hizmetleri kullanır:</p>
+<ul>
+<li><b>Google Firebase</b> (Kimlik doğrulama ve bulut veritabanı) – https://firebase.google.com/support/privacy</li>
+<li><b>Google Sign-In ve Google Takvim API</b> (isteğe bağlı hesap bağlantısı ve takvim senkronizasyonu) – https://policies.google.com/privacy</li>
+<li><b>Google Fonts</b> (yazı tiplerinin indirilmesi; IP adresiniz Google’a iletilebilir) – https://developers.google.com/fonts/faq</li>
+</ul>
+<p>Bu hizmet sağlayıcılar kendi gizlilik politikalarına tabidir. Verilerinizin bu platformlarda nasıl işlendiği hakkında bilgi için ilgili politikaları incelemenizi öneririz.</p>
+
+<h2>7. Cihaz İzinleri</h2>
+<p>Uygulama aşağıdaki izinleri talep edebilir:</p>
+<ul>
+<li><b>Bildirimler:</b> Görev ve etkinlik hatırlatıcıları için</li>
+<li><b>Kamera ve galeri:</b> Etkinliklere fotoğraf eklemek için</li>
+<li><b>Dosya erişimi:</b> Takvim içe/dışa aktarma ve etkinlik ekleri için</li>
+<li><b>İnternet:</b> Bulut senkronizasyonu ve Google hizmetleri için</li>
+<li><b>Cihaz yeniden başlatma:</b> Yeniden başlatma sonrası hatırlatıcıları yeniden planlamak için</li>
+<li><b>Tam zamanlı alarm:</b> Zamanında hatırlatıcılar için</li>
+</ul>
+<p>İzinleri cihaz ayarlarınızdan istediğiniz zaman geri alabilirsiniz.</p>
+
+<h2>8. Veri Güvenliği</h2>
+<p>Verilerinizi korumak için endüstri standardı güvenlik önlemleri uygulanmaktadır. Firebase iletişimi şifrelenmiş bağlantılar (HTTPS/TLS) üzerinden gerçekleştirilir. Ancak hiçbir internet tabanlı iletim veya depolama yöntemi %100 güvenli değildir.</p>
+
+<h2>9. Veri Paylaşımı</h2>
+<p>Kişisel verilerinizi üçüncü taraflara satmayız. Verileriniz yalnızca şu durumlarda paylaşılabilir:</p>
+<ul>
+<li>Hizmet sunumu için gerekli üçüncü taraf sağlayıcılarla (Firebase, Google)</li>
+<li>Sizin açık talebinizle (takvim paylaşımı, dışa aktarma)</li>
+<li>Yasal zorunluluk halinde yetkili makamlarla</li>
+</ul>
+
+<h2>10. Kullanıcı Haklarınız (KVKK Madde 11)</h2>
+<p>KVKK kapsamında aşağıdaki haklara sahipsiniz:</p>
+<ul>
+<li>Kişisel verilerinizin işlenip işlenmediğini öğrenme</li>
+<li>İşlenmişse buna ilişkin bilgi talep etme</li>
+<li>İşlenme amacını ve amacına uygun kullanılıp kullanılmadığını öğrenme</li>
+<li>Yurt içinde veya yurt dışında aktarıldığı üçüncü kişileri bilme</li>
+<li>Eksik veya yanlış işlenmişse düzeltilmesini isteme</li>
+<li>KVKK’nın 7. maddesi kapsamında silinmesini veya yok edilmesini isteme</li>
+<li>Düzeltme ve silme işlemlerinin üçüncü kişilere bildirilmesini isteme</li>
+<li>İşlenen verilerin münhasıran otomatik sistemler vasıtasıyla analiz edilmesi suretiyle aleyhinize bir sonucun ortaya çıkmasına itiraz etme</li>
+<li>Kanuna aykırı işlenmesi sebebiyle zarara uğramanız hâlinde zararın giderilmesini talep etme</li>
+</ul>
+<p>Bu haklarınızı kullanmak için seheraydin4241@gmail.com adresine başvurabilirsiniz. Talebiniz en geç 30 gün içinde yanıtlanacaktır.</p>
+
+<h2>11. Çocukların Gizliliği</h2>
+<p>Uygulama 13 yaşın altındaki çocuklara yönelik değildir. Bilerek 13 yaşın altındaki çocuklardan kişisel veri toplamıyoruz. Böyle bir durum fark edilirse ilgili veriler derhal silinir.</p>
+
+<h2>12. Uluslararası Veri Aktarımı</h2>
+<p>Firebase ve Google hizmetleri verilerinizi Türkiye dışındaki sunucularda işleyebilir. Bu aktarım, ilgili hizmet sağlayıcıların veri koruma taahhütleri ve KVKK’nın 9. maddesi kapsamındaki güvenceler çerçevesinde gerçekleşir.</p>
+
+<h2>13. Politika Değişiklikleri</h2>
+<p>Bu Gizlilik Politikası zaman zaman güncellenebilir. Önemli değişikliklerde uygulama içi bildirim veya güncellenmiş “son güncelleme” tarihi ile bilgilendirilirsiniz. Değişikliklerden sonra uygulamayı kullanmaya devam etmeniz, güncellenmiş politikayı kabul ettiğiniz anlamına gelir.</p>
+
+<h2>14. İletişim</h2>
+<p>Gizlilik politikası veya kişisel verileriniz hakkında sorularınız için:</p>
+<p><b>Veri sorumlusu:</b> Seher Aydın<br>
+<b>E-posta:</b> seheraydin4241@gmail.com</p>
+
+<p style="margin-top:24pt; color:#666666; font-size:10pt;">© 2026 Çalışma Takvimi. Tüm hakları saklıdır.</p>
+
+</body>
+</html>

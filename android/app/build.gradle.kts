@@ -18,7 +18,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace = "com.workschedule.app"
+    namespace = "com.Appworkschedule.app"
     compileSdk = 36
     ndkVersion = flutter.ndkVersion
 
@@ -33,7 +33,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.workschedule.app"
+        applicationId = "com.Appworkschedule.app"
         minSdk = 24
         targetSdk = 36
         versionCode = flutter.versionCode

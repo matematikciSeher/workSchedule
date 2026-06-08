@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'app_colors.dart';
+import 'app_font_families.dart';
 import 'app_text_styles.dart';
 import 'theme_models.dart';
 
@@ -8,8 +9,10 @@ import 'theme_models.dart';
 ThemeData lightTheme(
   double textScaleFactor, {
   AppThemeModel? themeModel,
+  AppFontFamily? fontFamily,
 }) {
   final theme = themeModel ?? AppThemes.defaultTheme;
+  final font = fontFamily ?? AppFontFamilies.defaultFont;
   
   return ThemeData(
     useMaterial3: true,
@@ -26,6 +29,7 @@ ThemeData lightTheme(
       titleTextStyle: AppTextStyles.titleLarge(
         scale: textScaleFactor,
         color: AppColors.lightOnSurface,
+        fontFamily: font,
       ),
       surfaceTintColor: Colors.transparent,
     ),
@@ -66,7 +70,10 @@ ThemeData lightTheme(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
-        textStyle: AppTextStyles.labelLarge(scale: textScaleFactor),
+        textStyle: AppTextStyles.labelLarge(
+          scale: textScaleFactor,
+          fontFamily: font,
+        ),
         shadowColor: theme.lightColorScheme.primary.withOpacity(0.4),
       ),
     ),
@@ -80,7 +87,10 @@ ThemeData lightTheme(
           color: theme.lightColorScheme.primary,
           width: 2,
         ),
-        textStyle: AppTextStyles.labelLarge(scale: textScaleFactor),
+        textStyle: AppTextStyles.labelLarge(
+          scale: textScaleFactor,
+          fontFamily: font,
+        ),
       ),
     ),
     textButtonTheme: TextButtonThemeData(
@@ -89,7 +99,10 @@ ThemeData lightTheme(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
         ),
-        textStyle: AppTextStyles.labelLarge(scale: textScaleFactor),
+        textStyle: AppTextStyles.labelLarge(
+          scale: textScaleFactor,
+          fontFamily: font,
+        ),
       ),
     ),
     dividerTheme: const DividerThemeData(
@@ -112,21 +125,66 @@ ThemeData lightTheme(
       }),
     ),
     textTheme: TextTheme(
-      displayLarge: AppTextStyles.displayLarge(scale: textScaleFactor),
-      displayMedium: AppTextStyles.displayMedium(scale: textScaleFactor),
-      displaySmall: AppTextStyles.displaySmall(scale: textScaleFactor),
-      headlineLarge: AppTextStyles.headlineLarge(scale: textScaleFactor),
-      headlineMedium: AppTextStyles.headlineMedium(scale: textScaleFactor),
-      headlineSmall: AppTextStyles.headlineSmall(scale: textScaleFactor),
-      titleLarge: AppTextStyles.titleLarge(scale: textScaleFactor),
-      titleMedium: AppTextStyles.titleMedium(scale: textScaleFactor),
-      titleSmall: AppTextStyles.titleSmall(scale: textScaleFactor),
-      bodyLarge: AppTextStyles.bodyLarge(scale: textScaleFactor),
-      bodyMedium: AppTextStyles.bodyMedium(scale: textScaleFactor),
-      bodySmall: AppTextStyles.bodySmall(scale: textScaleFactor),
-      labelLarge: AppTextStyles.labelLarge(scale: textScaleFactor),
-      labelMedium: AppTextStyles.labelMedium(scale: textScaleFactor),
-      labelSmall: AppTextStyles.labelSmall(scale: textScaleFactor),
+      displayLarge: AppTextStyles.displayLarge(
+        scale: textScaleFactor,
+        fontFamily: font,
+      ),
+      displayMedium: AppTextStyles.displayMedium(
+        scale: textScaleFactor,
+        fontFamily: font,
+      ),
+      displaySmall: AppTextStyles.displaySmall(
+        scale: textScaleFactor,
+        fontFamily: font,
+      ),
+      headlineLarge: AppTextStyles.headlineLarge(
+        scale: textScaleFactor,
+        fontFamily: font,
+      ),
+      headlineMedium: AppTextStyles.headlineMedium(
+        scale: textScaleFactor,
+        fontFamily: font,
+      ),
+      headlineSmall: AppTextStyles.headlineSmall(
+        scale: textScaleFactor,
+        fontFamily: font,
+      ),
+      titleLarge: AppTextStyles.titleLarge(
+        scale: textScaleFactor,
+        fontFamily: font,
+      ),
+      titleMedium: AppTextStyles.titleMedium(
+        scale: textScaleFactor,
+        fontFamily: font,
+      ),
+      titleSmall: AppTextStyles.titleSmall(
+        scale: textScaleFactor,
+        fontFamily: font,
+      ),
+      bodyLarge: AppTextStyles.bodyLarge(
+        scale: textScaleFactor,
+        fontFamily: font,
+      ),
+      bodyMedium: AppTextStyles.bodyMedium(
+        scale: textScaleFactor,
+        fontFamily: font,
+      ),
+      bodySmall: AppTextStyles.bodySmall(
+        scale: textScaleFactor,
+        fontFamily: font,
+      ),
+      labelLarge: AppTextStyles.labelLarge(
+        scale: textScaleFactor,
+        fontFamily: font,
+      ),
+      labelMedium: AppTextStyles.labelMedium(
+        scale: textScaleFactor,
+        fontFamily: font,
+      ),
+      labelSmall: AppTextStyles.labelSmall(
+        scale: textScaleFactor,
+        fontFamily: font,
+      ),
     ),
   );
 }
@@ -135,8 +193,10 @@ ThemeData lightTheme(
 ThemeData darkTheme(
   double textScaleFactor, {
   AppThemeModel? themeModel,
+  AppFontFamily? fontFamily,
 }) {
   final theme = themeModel ?? AppThemes.defaultTheme;
+  final font = fontFamily ?? AppFontFamilies.defaultFont;
   
   return ThemeData(
     useMaterial3: true,
@@ -153,6 +213,7 @@ ThemeData darkTheme(
       titleTextStyle: AppTextStyles.titleLarge(
         scale: textScaleFactor,
         color: AppColors.darkOnSurface,
+        fontFamily: font,
       ),
       surfaceTintColor: Colors.transparent,
     ),
@@ -197,7 +258,10 @@ ThemeData darkTheme(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
-        textStyle: AppTextStyles.labelLarge(scale: textScaleFactor),
+        textStyle: AppTextStyles.labelLarge(
+          scale: textScaleFactor,
+          fontFamily: font,
+        ),
         shadowColor: theme.darkColorScheme.primary.withOpacity(0.5),
       ),
     ),
@@ -211,7 +275,10 @@ ThemeData darkTheme(
           color: theme.darkColorScheme.primary,
           width: 2,
         ),
-        textStyle: AppTextStyles.labelLarge(scale: textScaleFactor),
+        textStyle: AppTextStyles.labelLarge(
+          scale: textScaleFactor,
+          fontFamily: font,
+        ),
       ),
     ),
     textButtonTheme: TextButtonThemeData(
@@ -220,7 +287,10 @@ ThemeData darkTheme(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
         ),
-        textStyle: AppTextStyles.labelLarge(scale: textScaleFactor),
+        textStyle: AppTextStyles.labelLarge(
+          scale: textScaleFactor,
+          fontFamily: font,
+        ),
       ),
     ),
     dividerTheme: const DividerThemeData(
@@ -243,21 +313,66 @@ ThemeData darkTheme(
       }),
     ),
     textTheme: TextTheme(
-      displayLarge: AppTextStyles.displayLarge(scale: textScaleFactor),
-      displayMedium: AppTextStyles.displayMedium(scale: textScaleFactor),
-      displaySmall: AppTextStyles.displaySmall(scale: textScaleFactor),
-      headlineLarge: AppTextStyles.headlineLarge(scale: textScaleFactor),
-      headlineMedium: AppTextStyles.headlineMedium(scale: textScaleFactor),
-      headlineSmall: AppTextStyles.headlineSmall(scale: textScaleFactor),
-      titleLarge: AppTextStyles.titleLarge(scale: textScaleFactor),
-      titleMedium: AppTextStyles.titleMedium(scale: textScaleFactor),
-      titleSmall: AppTextStyles.titleSmall(scale: textScaleFactor),
-      bodyLarge: AppTextStyles.bodyLarge(scale: textScaleFactor),
-      bodyMedium: AppTextStyles.bodyMedium(scale: textScaleFactor),
-      bodySmall: AppTextStyles.bodySmall(scale: textScaleFactor),
-      labelLarge: AppTextStyles.labelLarge(scale: textScaleFactor),
-      labelMedium: AppTextStyles.labelMedium(scale: textScaleFactor),
-      labelSmall: AppTextStyles.labelSmall(scale: textScaleFactor),
+      displayLarge: AppTextStyles.displayLarge(
+        scale: textScaleFactor,
+        fontFamily: font,
+      ),
+      displayMedium: AppTextStyles.displayMedium(
+        scale: textScaleFactor,
+        fontFamily: font,
+      ),
+      displaySmall: AppTextStyles.displaySmall(
+        scale: textScaleFactor,
+        fontFamily: font,
+      ),
+      headlineLarge: AppTextStyles.headlineLarge(
+        scale: textScaleFactor,
+        fontFamily: font,
+      ),
+      headlineMedium: AppTextStyles.headlineMedium(
+        scale: textScaleFactor,
+        fontFamily: font,
+      ),
+      headlineSmall: AppTextStyles.headlineSmall(
+        scale: textScaleFactor,
+        fontFamily: font,
+      ),
+      titleLarge: AppTextStyles.titleLarge(
+        scale: textScaleFactor,
+        fontFamily: font,
+      ),
+      titleMedium: AppTextStyles.titleMedium(
+        scale: textScaleFactor,
+        fontFamily: font,
+      ),
+      titleSmall: AppTextStyles.titleSmall(
+        scale: textScaleFactor,
+        fontFamily: font,
+      ),
+      bodyLarge: AppTextStyles.bodyLarge(
+        scale: textScaleFactor,
+        fontFamily: font,
+      ),
+      bodyMedium: AppTextStyles.bodyMedium(
+        scale: textScaleFactor,
+        fontFamily: font,
+      ),
+      bodySmall: AppTextStyles.bodySmall(
+        scale: textScaleFactor,
+        fontFamily: font,
+      ),
+      labelLarge: AppTextStyles.labelLarge(
+        scale: textScaleFactor,
+        fontFamily: font,
+      ),
+      labelMedium: AppTextStyles.labelMedium(
+        scale: textScaleFactor,
+        fontFamily: font,
+      ),
+      labelSmall: AppTextStyles.labelSmall(
+        scale: textScaleFactor,
+        fontFamily: font,
+      ),
     ),
   );
 }

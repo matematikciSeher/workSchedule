@@ -10,9 +10,8 @@ import 'core/bloc/app_bloc_observer.dart';
 import 'core/services/notification_service.dart';
 import 'core/services/notification_navigation_service.dart';
 import 'core/services/task_due_worker.dart';
-import 'core/services/theme_service.dart';
 import 'core/theme/app_theme.dart';
-import 'core/theme/theme_models.dart';
+import 'core/theme/app_theme_controller.dart';
 import 'features/task/bloc/task_bloc.dart';
 import 'data/local/database_helper.dart';
 import 'features/task/data/datasources/task_local_datasource.dart';
@@ -56,107 +55,109 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  final ThemeService _themeService = ThemeService();
-  AppThemeModel? _currentTheme;
-  ThemeMode _themeMode = ThemeMode.system;
-  double _textScaleFactor = 1.0;
-  bool _isLoading = true;
+  final AppThemeController _themeController = AppThemeController();
 
   @override
   void initState() {
     super.initState();
-    _loadThemeSettings();
+    _themeController.load();
   }
 
-  Future<void> _loadThemeSettings() async {
-    final theme = await _themeService.getSelectedTheme();
-    final themeMode = await _themeService.getThemeMode();
-    final textScale = await _themeService.getTextScaleFactor();
-
-    if (mounted) {
-      setState(() {
-        _currentTheme = theme;
-        _themeMode = themeMode;
-        _textScaleFactor = textScale;
-        _isLoading = false;
-      });
-    }
+  @override
+  void dispose() {
+    _themeController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      return MaterialApp(
-        title: 'Çalışma Takvimi',
-        debugShowCheckedModeBanner: false,
-        home: Scaffold(
-          backgroundColor: Colors.white,
-          body: LayoutBuilder(
-            builder: (context, constraints) {
-              final logoSize = constraints.maxWidth * 0.62;
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Image.asset(
-                      'assets/images/splash_logo.png',
-                      width: logoSize,
-                      height: logoSize,
-                      fit: BoxFit.contain,
-                    ),
-                    const SizedBox(height: 32),
-                    const CircularProgressIndicator(
-                      color: Color(0xFFFF6B00),
-                    ),
-                  ],
+    return AppThemeScope(
+      controller: _themeController,
+      child: ListenableBuilder(
+        listenable: _themeController,
+        builder: (context, _) {
+          if (_themeController.isLoading) {
+            return MaterialApp(
+              title: 'Çalışma Takvimi',
+              debugShowCheckedModeBanner: false,
+              home: Scaffold(
+                backgroundColor: Colors.white,
+                body: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final logoSize = constraints.maxWidth * 0.62;
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image.asset(
+                            'assets/images/splash_logo.png',
+                            width: logoSize,
+                            height: logoSize,
+                            fit: BoxFit.contain,
+                          ),
+                          const SizedBox(height: 32),
+                          const CircularProgressIndicator(
+                            color: Color(0xFFFF6B00),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
                 ),
-              );
-            },
-          ),
-        ),
-      );
-    }
+              ),
+            );
+          }
 
-    // Dependency Injection Setup - SQLite kullanıyor
-    final databaseHelper = DatabaseHelper.instance;
-    final taskLocalDataSource = TaskLocalDataSource(databaseHelper);
-    final taskRepository = TaskRepositoryImpl(taskLocalDataSource);
-    final taskBloc = TaskBloc(taskRepository);
+          // Dependency Injection Setup - SQLite kullanıyor
+          final databaseHelper = DatabaseHelper.instance;
+          final taskLocalDataSource = TaskLocalDataSource(databaseHelper);
+          final taskRepository = TaskRepositoryImpl(taskLocalDataSource);
+          final taskBloc = TaskBloc(taskRepository);
+          final shareCalendarBloc = ShareCalendarBloc();
 
-    // Share Calendar BLoC
-    final shareCalendarBloc = ShareCalendarBloc();
-
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider<TaskBloc>.value(value: taskBloc),
-        BlocProvider<ShareCalendarBloc>.value(value: shareCalendarBloc),
-      ],
-      child: MaterialApp(
-        navigatorKey: NotificationNavigationService.navigatorKey,
-        title: 'Çalışma Takvimi',
-        debugShowCheckedModeBanner: false,
-        locale: const Locale('tr', 'TR'),
-        localizationsDelegates: const [
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        supportedLocales: const [
-          Locale('tr', 'TR'),
-          Locale('en', 'US'),
-        ],
-        themeMode: _themeMode,
-        theme: lightTheme(_textScaleFactor, themeModel: _currentTheme),
-        darkTheme: darkTheme(_textScaleFactor, themeModel: _currentTheme),
-        home: const HomePage(),
-        onGenerateRoute: RouteGenerator.generateRoute,
-        // Theme değişikliklerini dinlemek için navigator observer ekleyebilirsiniz
-        builder: (context, child) {
-          return MediaQuery(
-            data: MediaQuery.of(context).copyWith(
-              textScaler: TextScaler.linear(_textScaleFactor),
+          return MultiBlocProvider(
+            providers: [
+              BlocProvider<TaskBloc>.value(value: taskBloc),
+              BlocProvider<ShareCalendarBloc>.value(value: shareCalendarBloc),
+            ],
+            child: MaterialApp(
+              navigatorKey: NotificationNavigationService.navigatorKey,
+              title: 'Çalışma Takvimi',
+              debugShowCheckedModeBanner: false,
+              locale: const Locale('tr', 'TR'),
+              localizationsDelegates: const [
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              supportedLocales: const [
+                Locale('tr', 'TR'),
+                Locale('en', 'US'),
+              ],
+              themeMode: _themeController.themeMode,
+              theme: lightTheme(
+                _themeController.textScaleFactor,
+                themeModel: _themeController.currentTheme,
+                fontFamily: _themeController.fontFamily,
+              ),
+              darkTheme: darkTheme(
+                _themeController.textScaleFactor,
+                themeModel: _themeController.currentTheme,
+                fontFamily: _themeController.fontFamily,
+              ),
+              home: const HomePage(),
+              onGenerateRoute: RouteGenerator.generateRoute,
+              builder: (context, child) {
+                return MediaQuery(
+                  data: MediaQuery.of(context).copyWith(
+                    textScaler: TextScaler.linear(
+                      _themeController.textScaleFactor,
+                    ),
+                  ),
+                  child: child!,
+                );
+              },
             ),
-            child: child!,
           );
         },
       ),

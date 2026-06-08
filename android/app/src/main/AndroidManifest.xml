@@ -1,4 +1,8 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <!-- Telefon uygulaması: Wear OS watch özelliği Google Play'de required=false ile reddedilir -->
+    <uses-feature android:name="android.hardware.type.watch" tools:node="remove" />
+
     <!-- Bildirim izinleri -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission android:name="android.permission.VIBRATE" />
@@ -9,9 +13,6 @@
     <uses-permission android:name="android.permission.USE_EXACT_ALARM"/>
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" android:maxSdkVersion="32"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
-    
-    <!-- Wear OS desteği -->
-    <uses-feature android:name="android.hardware.type.watch" android:required="false" />
     
     <application
         android:label="Çalışma Takvimi"

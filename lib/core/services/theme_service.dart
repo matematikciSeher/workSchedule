@@ -7,6 +7,7 @@ class ThemeService {
   static const String _keySelectedTheme = 'selected_theme';
   static const String _keyTextScaleFactor = 'text_scale_factor';
   static const String _keyThemeMode = 'theme_mode';
+  static const String _keyFontFamily = 'font_family';
 
   /// SharedPreferences instance
   Future<SharedPreferences> get _prefs => SharedPreferences.getInstance();
@@ -78,6 +79,18 @@ class ThemeService {
     // 0.8 ile 1.5 arasında sınırla
     final clampedFactor = factor.clamp(0.8, 1.5);
     await prefs.setDouble(_keyTextScaleFactor, clampedFactor);
+  }
+
+  /// Yazı tipi ailesini getir
+  Future<String> getFontFamilyId() async {
+    final prefs = await _prefs;
+    return prefs.getString(_keyFontFamily) ?? 'roboto';
+  }
+
+  /// Yazı tipi ailesini kaydet
+  Future<void> saveFontFamilyId(String fontId) async {
+    final prefs = await _prefs;
+    await prefs.setString(_keyFontFamily, fontId);
   }
 }
 

@@ -3,6 +3,7 @@ import '../../core/routes/app_routes.dart';
 import '../../shared/widgets/decorative_background.dart';
 import 'about_page.dart';
 import 'notification_settings_page.dart';
+import 'privacy_policy_page.dart';
 import 'widgets/settings_tile.dart';
 
 class SettingsPage extends StatelessWidget {
@@ -72,7 +73,7 @@ class SettingsPage extends StatelessWidget {
                   icon: Icons.palette_outlined,
                   iconColor: const Color(0xFF9C27B0),
                   title: 'Tema ve Yazı Tipi',
-                  subtitle: 'Tema renkleri ve yazı tipi boyutu',
+                  subtitle: 'Açık/koyu tema, renkler ve yazı ayarları',
                   showDivider: false,
                   onTap: () {
                     Navigator.pushNamed(context, AppRoutes.themeSettings);
@@ -84,6 +85,20 @@ class SettingsPage extends StatelessWidget {
             SettingsSection(
               title: 'Uygulama',
               children: [
+                SettingsTile(
+                  icon: Icons.privacy_tip_outlined,
+                  iconColor: const Color(0xFF2E7D32),
+                  title: 'Gizlilik Politikası',
+                  subtitle: 'Veri kullanımı ve KVKK bilgileri',
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const PrivacyPolicyPage(),
+                      ),
+                    );
+                  },
+                ),
                 SettingsTile(
                   icon: Icons.info_outline_rounded,
                   iconColor: theme.colorScheme.primary,
