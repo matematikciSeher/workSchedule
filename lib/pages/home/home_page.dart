@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../../core/routes/app_routes.dart';
+import '../../core/services/notification_action_handler.dart';
+import '../../core/services/notification_navigation_service.dart';
+import '../../core/services/task_refresh_notifier.dart';
 import '../../shared/models/task_model.dart';
 import '../../shared/widgets/decorative_background.dart';
 import '../../features/task/bloc/task_bloc.dart';
@@ -19,7 +23,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   DateTime _selectedMonth = DateTime.now();
   DateTime? _selectedDate;
   late AnimationController _panelAnimationController;
@@ -28,6 +32,9 @@ class _HomePageState extends State<HomePage>
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    TaskRefreshNotifier.tick.addListener(_onTaskChangedFromNotification);
+
     _selectedDate = DateTime.now();
     _panelAnimationController = AnimationController(
       vsync: this,
@@ -38,10 +45,49 @@ class _HomePageState extends State<HomePage>
 
     // BLoC'tan görevleri yükle
     context.read<TaskBloc>().add(const LoadTasksEvent());
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _handleNotificationLaunch();
+    });
+  }
+
+  Future<void> _handleNotificationLaunch() async {
+    final details =
+        await FlutterLocalNotificationsPlugin().getNotificationAppLaunchDetails();
+    if (details?.didNotificationLaunchApp ?? false) {
+      final response = details!.notificationResponse;
+      if (response != null) {
+        await NotificationActionHandler.handleResponse(response);
+        NotificationNavigationService.processPendingNavigation();
+      }
+    }
+  }
+
+  void _onTaskChangedFromNotification() {
+    if (!mounted) return;
+
+    final newDate = TaskRefreshNotifier.focusDate;
+    if (newDate != null) {
+      setState(() {
+        _selectedDate = newDate;
+        _selectedMonth = DateTime(newDate.year, newDate.month, 1);
+      });
+      _panelAnimationController.forward(from: 0);
+    }
+    context.read<TaskBloc>().add(const LoadTasksEvent());
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && mounted) {
+      context.read<TaskBloc>().add(const LoadTasksEvent());
+    }
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    TaskRefreshNotifier.tick.removeListener(_onTaskChangedFromNotification);
     _panelAnimationController.dispose();
     super.dispose();
   }
@@ -55,7 +101,10 @@ class _HomePageState extends State<HomePage>
   void _handleDateSelected(DateTime date) {
     setState(() {
       _selectedDate = date;
-      // Panel animasyonu
+      if (date.month != _selectedMonth.month ||
+          date.year != _selectedMonth.year) {
+        _selectedMonth = DateTime(date.year, date.month, 1);
+      }
       _panelAnimationController.forward(from: 0);
     });
   }
@@ -224,32 +273,26 @@ class _HomePageState extends State<HomePage>
                     onMonthChanged: _handleMonthChanged,
                   ),
 
-                  // 2. Haftalık Takvim Grid (Ortada)
-                  Expanded(
-                    child: SingleChildScrollView(
-                      physics: const BouncingScrollPhysics(),
-                      child: WeeklyCalendarWidget(
-                        selectedMonth: _selectedMonth,
-                        selectedDate: _selectedDate,
-                        onDateSelected: _handleDateSelected,
-                        tasks: currentTasks,
-                      ),
-                    ),
+                  // 2. Aylık Takvim Grid
+                  WeeklyCalendarWidget(
+                    selectedMonth: _selectedMonth,
+                    selectedDate: _selectedDate,
+                    onDateSelected: _handleDateSelected,
+                    tasks: currentTasks,
                   ),
 
                   // 3. Görev Listesi Paneli (Altta)
-                  SlideTransition(
-                    position: Tween<Offset>(
-                      begin: const Offset(0, 1),
-                      end: Offset.zero,
-                    ).animate(CurvedAnimation(
-                      parent: _panelAnimationController,
-                      curve: Curves.easeOutCubic,
-                    )),
-                    child: FadeTransition(
-                      opacity: _panelAnimationController,
-                      child: SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.45,
+                  Expanded(
+                    child: SlideTransition(
+                      position: Tween<Offset>(
+                        begin: const Offset(0, 1),
+                        end: Offset.zero,
+                      ).animate(CurvedAnimation(
+                        parent: _panelAnimationController,
+                        curve: Curves.easeOutCubic,
+                      )),
+                      child: FadeTransition(
+                        opacity: _panelAnimationController,
                         child: TaskListPanelWidget(
                           selectedDate: _selectedDate,
                           tasks: currentTasks,

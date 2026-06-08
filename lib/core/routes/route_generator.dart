@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../pages/home/home_page.dart';
 import '../../pages/task/task_form_page.dart';
+import '../../pages/task/task_snooze_page.dart';
 import '../../pages/event/event_detail_page.dart';
 import '../../pages/calendar/month_view_page.dart';
 import '../../pages/calendar/week_view_page.dart';
@@ -19,9 +20,6 @@ import '../../features/event/data/repositories/event_repository_impl.dart';
 import '../../data/local/database_helper.dart';
 import '../../features/task/data/datasources/task_local_datasource.dart';
 import '../../features/task/data/repositories/task_repository_impl.dart';
-import '../../pages/auth/login_page.dart';
-import '../../pages/auth/signup_page.dart';
-import '../../pages/auth/forgot_password_page.dart';
 import 'app_routes.dart';
 import '../services/deep_link_service.dart';
 
@@ -53,6 +51,19 @@ class RouteGenerator {
         return MaterialPageRoute(
           builder: (_) => TaskFormPage(
             taskId: args is String ? args : null,
+          ),
+        );
+
+      case AppRoutes.taskSnooze:
+        if (args is String) {
+          return MaterialPageRoute(
+            builder: (_) => TaskSnoozePage(taskId: args),
+          );
+        }
+        return MaterialPageRoute(
+          builder: (_) => Scaffold(
+            appBar: AppBar(title: const Text('Hata')),
+            body: const Center(child: Text('Görev ID gerekli')),
           ),
         );
 
@@ -124,21 +135,6 @@ class RouteGenerator {
             eventRepository: eventRepository,
             taskRepository: taskRepository,
           ),
-        );
-
-      case AppRoutes.login:
-        return MaterialPageRoute(
-          builder: (_) => const LoginPage(),
-        );
-
-      case AppRoutes.signUp:
-        return MaterialPageRoute(
-          builder: (_) => const SignUpPage(),
-        );
-
-      case AppRoutes.forgotPassword:
-        return MaterialPageRoute(
-          builder: (_) => const ForgotPasswordPage(),
         );
 
       case AppRoutes.shareEvent:

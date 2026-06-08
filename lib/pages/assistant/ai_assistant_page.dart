@@ -57,12 +57,13 @@ class _AiAssistantPageState extends State<AiAssistantPage> {
           text: '''Merhaba! 👋 Ben kişisel takvim asistanınızım. 
 
 Size şu konularda yardımcı olabilirim:
-• 📅 Bugünkü programınız
-• ⏰ Boş zamanlarınız
-• ✅ Görevleriniz
-• 📊 Haftalık özet
+• 📅 Günlük ve haftalık programınız
+• ⏰ Boş zaman analizi
+• ✅ Görevler ve öncelikler
+• 📌 Sıradaki etkinlikler
+• ⚠️ Geciken görevler
 
-"Bugün ne yapmalıyım?" gibi sorularınızı sorabilirsiniz!''',
+"Bugün ne yapmalıyım?" veya "Sıradaki etkinliğim ne?" gibi sorular sorabilirsiniz!''',
           isUser: false,
           timestamp: DateTime.now(),
         ),
@@ -373,13 +374,17 @@ class _QuickSuggestions extends StatelessWidget {
   Widget build(BuildContext context) {
     final suggestions = [
       'Bugün ne yapmalıyım?',
+      'Sıradaki etkinliğim ne?',
       'Boş zamanım var mı?',
+      'Geciken görevlerim var mı?',
       'Yarın ne var?',
-      'Görevlerim neler?',
+      'Hafta sonu planım ne?',
+      'Öncelikli görevlerim neler?',
+      'Bu hafta özeti',
     ];
 
     return Container(
-      height: 60,
+      height: 72,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: ListView.separated(
         scrollDirection: Axis.horizontal,

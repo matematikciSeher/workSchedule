@@ -1,6 +1,6 @@
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest_all.dart' as tz;
-import 'package:flutter_native_timezone/flutter_native_timezone.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:intl/intl.dart';
 
 /// Timezone ve location tabanlı zaman dilimi yönetim servisi
@@ -22,7 +22,8 @@ class TimezoneService {
       tz.initializeTimeZones();
 
       // Cihazın yerel zaman dilimini al
-      final String timeZoneName = await FlutterNativeTimezone.getLocalTimezone();
+      final String timeZoneName =
+          (await FlutterTimezone.getLocalTimezone()).identifier;
       _localLocation = tz.getLocation(timeZoneName);
       tz.setLocalLocation(_localLocation!);
 
@@ -39,7 +40,7 @@ class TimezoneService {
   Future<String> getLocalTimezone() async {
     await initialize();
     try {
-      return await FlutterNativeTimezone.getLocalTimezone();
+      return (await FlutterTimezone.getLocalTimezone()).identifier;
     } catch (e) {
       return 'UTC';
     }

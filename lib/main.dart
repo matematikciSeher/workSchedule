@@ -3,10 +3,13 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:workmanager/workmanager.dart';
 import 'firebase_options.dart';
 import 'core/routes/route_generator.dart';
 import 'core/bloc/app_bloc_observer.dart';
 import 'core/services/notification_service.dart';
+import 'core/services/notification_navigation_service.dart';
+import 'core/services/task_due_worker.dart';
 import 'core/services/theme_service.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_models.dart';
@@ -16,7 +19,6 @@ import 'features/task/data/datasources/task_local_datasource.dart';
 import 'features/task/data/repositories/task_repository_impl.dart';
 import 'features/calendar/share/bloc/share_calendar_bloc.dart';
 import 'core/services/timezone_service.dart';
-import 'core/widgets/auth_wrapper.dart';
 import 'pages/home/home_page.dart';
 
 void main() async {
@@ -29,8 +31,13 @@ void main() async {
   await initializeDateFormatting('tr_TR', null);
   await initializeDateFormatting('en_US', null);
 
-  // Bildirim servisini başlat
-  await NotificationService().initialize();
+  // Bildirim servisini başlat ve izinleri iste
+  final notificationService = NotificationService();
+  await notificationService.initialize();
+  await notificationService.ensurePermissions();
+
+  // Arka plan vade kontrolü
+  await Workmanager().initialize(taskDueCallbackDispatcher);
 
   // Timezone servisini başlat
   await TimezoneService().initialize();
@@ -82,8 +89,30 @@ class _MyAppState extends State<MyApp> {
       return MaterialApp(
         title: 'Çalışma Takvimi',
         debugShowCheckedModeBanner: false,
-        home: const Scaffold(
-          body: Center(child: CircularProgressIndicator()),
+        home: Scaffold(
+          backgroundColor: Colors.white,
+          body: LayoutBuilder(
+            builder: (context, constraints) {
+              final logoSize = constraints.maxWidth * 0.62;
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset(
+                      'assets/images/splash_logo.png',
+                      width: logoSize,
+                      height: logoSize,
+                      fit: BoxFit.contain,
+                    ),
+                    const SizedBox(height: 32),
+                    const CircularProgressIndicator(
+                      color: Color(0xFFFF6B00),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
         ),
       );
     }
@@ -103,6 +132,7 @@ class _MyAppState extends State<MyApp> {
         BlocProvider<ShareCalendarBloc>.value(value: shareCalendarBloc),
       ],
       child: MaterialApp(
+        navigatorKey: NotificationNavigationService.navigatorKey,
         title: 'Çalışma Takvimi',
         debugShowCheckedModeBanner: false,
         locale: const Locale('tr', 'TR'),
@@ -118,9 +148,7 @@ class _MyAppState extends State<MyApp> {
         themeMode: _themeMode,
         theme: lightTheme(_textScaleFactor, themeModel: _currentTheme),
         darkTheme: darkTheme(_textScaleFactor, themeModel: _currentTheme),
-        home: AuthWrapper(
-          child: const HomePage(),
-        ),
+        home: const HomePage(),
         onGenerateRoute: RouteGenerator.generateRoute,
         // Theme değişikliklerini dinlemek için navigator observer ekleyebilirsiniz
         builder: (context, child) {

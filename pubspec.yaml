@@ -66,13 +66,13 @@ dependencies:
   path: ^1.8.3
   
   # BİLDİRİMLER
-  flutter_local_notifications: ^16.2.0
+  flutter_local_notifications: ^17.2.1
   timezone: ^0.9.2
-  flutter_native_timezone: ^2.0.0
-  
+  flutter_timezone: ^5.0.2
+
   # SENKRONİZASYON
   connectivity_plus: ^5.0.2
-  workmanager: ^0.5.2
+  workmanager: ^0.9.0
   
   # UI/UX
   google_fonts: ^6.1.0
@@ -112,6 +112,27 @@ dev_dependencies:
   integration_test:
     sdk: flutter
 
+  # APP ICON & SPLASH SCREEN
+  flutter_launcher_icons: ^0.14.3
+  flutter_native_splash: ^2.4.4
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/app_icon.png"
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: "assets/images/app_icon.png"
+
+flutter_native_splash:
+  color: "#FFFFFF"
+  image: assets/images/splash_logo.png
+  android_gravity: center
+  fullscreen: true
+  android_12:
+    color: "#FFFFFF"
+    image: assets/images/splash_android12.png
+    icon_background_color: "#FFFFFF"
+
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
@@ -123,10 +144,11 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
-  # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
+  assets:
+    - assets/images/app_logo.png
+    - assets/images/app_icon.png
+    - assets/images/splash_logo.png
+    - assets/images/splash_android12.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

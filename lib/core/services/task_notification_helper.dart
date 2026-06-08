@@ -1,193 +1,207 @@
+import 'package:intl/intl.dart';
 import '../../domain/entities/task_entity.dart';
+import 'notification_schedule_result.dart';
 import 'notification_service.dart';
+import 'task_due_worker.dart';
+import 'task_notification_ids.dart';
 
 /// Görev bildirimlerini yöneten yardımcı sınıf
 class TaskNotificationHelper {
   final NotificationService _notificationService = NotificationService();
 
-  /// Görev için bildirim zamanla
-  Future<void> scheduleTaskNotification(TaskEntity task) async {
-    print('=== Görev Bildirimi Zamanlama Başlatıldı ===');
-    print('Görev ID: ${task.id}');
-    print('Görev Başlığı: ${task.title}');
-    print('Due Date: ${task.dueDate}');
-    print('Tamamlandı mı: ${task.isCompleted}');
-    
-    // Due date yoksa veya tamamlanmışsa bildirim gönderme
-    if (task.dueDate == null) {
-      print('⚠️ Bildirim atlandı: dueDate null');
-      return;
-    }
-    
-    if (task.isCompleted) {
-      print('⚠️ Bildirim atlandı: Görev tamamlanmış');
-      return;
+  static const Duration oneHourOffset = Duration(hours: 1);
+  static const Duration halfHourOffset = Duration(minutes: 30);
+
+  /// Bildirimin ne zaman geleceğini hesapla (kaydetmeden önce gösterim için)
+  static NotificationScheduleResult previewSchedule({
+    required DateTime? dueDate,
+    bool isCompleted = false,
+  }) {
+    if (dueDate == null || isCompleted) {
+      return const NotificationScheduleResult(
+        success: false,
+        errorMessage: 'Tarih seçilmediği için bildirim planlanmaz.',
+      );
     }
 
-    // Due date'te saat yoksa (sadece tarih varsa, yani saat 00:00 ve saniye/milisaniye de 0)
-    // varsayılan olarak 09:00'da bildirim gönder
-    DateTime notificationDate = task.dueDate!;
+    final resolvedDue = _resolveDueDateStatic(dueDate);
     final now = DateTime.now();
-    
-    print('Orijinal notificationDate: $notificationDate');
-    print('Şu anki zaman: $now');
-    
-    // Eğer saat 00:00:00 ise ve kullanıcı muhtemelen sadece tarih seçtiyse
-    // (task_form_page.dart'da saat seçilmediğinde saat 0 olarak ayarlanıyor)
-    // Varsayılan olarak 09:00 kullan
-    if (notificationDate.hour == 0 && 
-        notificationDate.minute == 0 && 
-        notificationDate.second == 0 &&
-        notificationDate.millisecond == 0) {
-      notificationDate = DateTime(
-        notificationDate.year,
-        notificationDate.month,
-        notificationDate.day,
-        9, // 09:00
-        0,
+
+    if (resolvedDue.isBefore(now.subtract(const Duration(minutes: 5)))) {
+      return const NotificationScheduleResult(
+        success: false,
+        errorMessage: 'Geçmiş bir görev için bildirim planlanmaz.',
       );
-      print('ℹ️ Saat seçilmemiş, varsayılan 09:00 kullanılıyor: $notificationDate');
     }
 
-    // Geçmiş bir tarihse bildirim gönderme veya düzelt
-    final difference = notificationDate.difference(now);
-    final isPast = notificationDate.isBefore(now);
-    
-    if (isPast) {
-      // Önce bugün mü kontrol et
-      final isSameDay = notificationDate.year == now.year &&
-                       notificationDate.month == now.month &&
-                       notificationDate.day == now.day;
-      
-      print('🔍 Tarih kontrolü:');
-      print('   Bildirim Tarihi: ${notificationDate.year}-${notificationDate.month}-${notificationDate.day} ${notificationDate.hour}:${notificationDate.minute}');
-      print('   Şu Anki Tarih: ${now.year}-${now.month}-${now.day} ${now.hour}:${now.minute}');
-      print('   Aynı Gün mü: $isSameDay');
-      print('   Fark: ${difference.inMinutes.abs()} dakika');
-      
-      if (isSameDay) {
-        // Bugün seçilmiş ama saat geçmiş - yarın aynı saatte gönder
-        print('ℹ️ Bugün için saat geçmiş (${difference.inMinutes.abs()} dakika), yarın aynı saatte bildirim gönderiliyor');
-        notificationDate = DateTime(
-          now.year,
-          now.month,
-          now.day,
-          notificationDate.hour,
-          notificationDate.minute,
-        ).add(const Duration(days: 1));
-        print('✅ Yeni bildirim tarihi (yarın): $notificationDate');
-      } else if (difference.inMinutes.abs() <= 60) {
-        // Sadece 1 saatten az geçmişse, hemen (1 dakika sonra) gönder
-        print('ℹ️ Bildirim tarihi 1 saatten az geçmiş (${difference.inMinutes.abs()} dakika), 1 dakika sonra gönderiliyor');
-        notificationDate = now.add(const Duration(minutes: 1));
-        print('✅ Yeni bildirim tarihi (1 dakika sonra): $notificationDate');
-      } else {
-        // Çok geçmiş tarihse bildirim gönderme
-        print('⚠️ Bildirim atlandı: Geçmiş tarih (${difference.inMinutes.abs()} dakika). Şimdi: $now, Bildirim: $notificationDate');
-        return;
-      }
-    }
+    final reminders = _buildReminderTimes(resolvedDue, now);
 
-    print('✅ Bildirim zamanlanıyor: $notificationDate');
-    await _scheduleNotification(
-      task: task,
-      scheduledDate: notificationDate,
+    final dueStr = DateFormat('dd MMMM HH:mm', 'tr_TR').format(resolvedDue);
+    final reminderLines = reminders.isEmpty
+        ? '• Hatırlatıcı yok (görev çok yakın)'
+        : reminders
+            .map(
+              (r) =>
+                  '• ${r.label} kala: ${DateFormat('dd MMMM HH:mm', 'tr_TR').format(r.at)}',
+            )
+            .join('\n');
+
+    return NotificationScheduleResult(
+      success: true,
+      reminderAt: reminders.isNotEmpty ? reminders.first.at : resolvedDue,
+      dueAt: resolvedDue,
+      infoMessage:
+          'Görev saati: $dueStr\nHatırlatıcılar:\n$reminderLines\n\nVade anında tamamlanma durumu bildirilecek.',
     );
-    print('=== Görev Bildirimi Zamanlama Tamamlandı ===\n');
   }
 
-  /// Bildirimi zamanla (tekrar eden veya tek seferlik)
-  Future<void> _scheduleNotification({
-    required TaskEntity task,
-    required DateTime scheduledDate,
-  }) async {
-    // Bildirim içeriğini hazırla
-    final title = 'Görev Hatırlatıcısı';
-    final bodyBuilder = StringBuffer(task.title);
-    if (task.description != null && task.description!.isNotEmpty) {
-      bodyBuilder.write('\n${task.description}');
+  static DateTime _resolveDueDateStatic(DateTime dueDate) {
+    if (dueDate.hour == 0 &&
+        dueDate.minute == 0 &&
+        dueDate.second == 0 &&
+        dueDate.millisecond == 0) {
+      return DateTime(dueDate.year, dueDate.month, dueDate.day, 9, 0);
     }
-    final body = bodyBuilder.toString();
+    return dueDate;
+  }
 
-    // Görev ID'sini payload olarak ekle
-    final payload = task.id;
+  static List<({DateTime at, String label})> _buildReminderTimes(
+    DateTime dueDate,
+    DateTime now,
+  ) {
+    final candidates = [
+      (at: dueDate.subtract(oneHourOffset), label: '1 saat'),
+      (at: dueDate.subtract(halfHourOffset), label: '30 dakika'),
+    ];
 
-    // Tekrar eden görev mi?
-    if (task.isRecurring && task.recurringPattern != null) {
-      final pattern = _parseRecurringPattern(task.recurringPattern!);
-      
-      if (pattern != RecurringPattern.none) {
-        // Tekrar eden bildirim zamanla
-        try {
-          await _notificationService.scheduleRecurringEventNotification(
-            id: task.id.hashCode.abs() % 100000,
-            title: title,
-            body: body,
-            firstDate: scheduledDate,
-            pattern: pattern,
-            payload: payload,
-          );
-          return;
-        } catch (e) {
-          // Bildirim hatası görev kaydını engellemesin
-          print('Tekrar eden görev bildirimi zamanlama hatası (${task.id}): $e');
-          return;
-        }
+    final reminders = <({DateTime at, String label})>[];
+    for (final candidate in candidates) {
+      if (candidate.at.isAfter(now.subtract(const Duration(minutes: 5)))) {
+        final at = candidate.at.isBefore(now)
+            ? now.add(const Duration(seconds: 30))
+            : candidate.at;
+        reminders.add((at: at, label: candidate.label));
       }
     }
+    return reminders;
+  }
 
-    // Tek seferlik bildirim zamanla
+  /// Görev için bildirim zamanla (1 saat ve 30 dakika önce + vade kontrolü)
+  Future<NotificationScheduleResult> scheduleTaskNotification(
+    TaskEntity task,
+  ) async {
+    final preview = previewSchedule(
+      dueDate: task.dueDate,
+      isCompleted: task.isCompleted,
+    );
+    if (!preview.success || preview.dueAt == null) {
+      return preview;
+    }
+
     try {
-      final notificationId = task.id.hashCode.abs() % 100000;
-      print('Bildirim ID: $notificationId');
-      print('Bildirim Başlığı: $title');
-      print('Bildirim İçeriği: $body');
-      print('Zamanlanan Tarih: $scheduledDate');
-      
-      await _notificationService.scheduleEventNotification(
-        id: notificationId,
-        title: title,
-        body: body,
-        scheduledDate: scheduledDate,
-        payload: payload,
+      final dueDate = preview.dueAt!;
+      final now = DateTime.now();
+      final reminders = _buildReminderTimes(dueDate, now);
+
+      DateTime? firstScheduled;
+      for (var i = 0; i < reminders.length; i++) {
+        final reminder = reminders[i];
+        final slot = i == 0
+            ? TaskNotificationSlot.oneHour
+            : TaskNotificationSlot.halfHour;
+
+        final scheduledAt = await _scheduleReminderNotification(
+          task: task,
+          dueDate: dueDate,
+          scheduledDate: reminder.at,
+          slot: slot,
+          label: reminder.label,
+        );
+        firstScheduled ??= scheduledAt;
+      }
+
+      await TaskDueWorker.schedule(task.id, dueDate);
+
+      return NotificationScheduleResult(
+        success: true,
+        reminderAt: firstScheduled,
+        dueAt: dueDate,
+        infoMessage: preview.infoMessage,
       );
-      
-      print('✅ Bildirim başarıyla zamanlandı!');
-    } catch (e, stackTrace) {
-      // Bildirim hatası görev kaydını engellemesin
-      print('❌ Görev bildirimi zamanlama hatası (${task.id}): $e');
-      print('Stack trace: $stackTrace');
+    } catch (e) {
+      final needsExact = !await _notificationService.canScheduleExactAlarms();
+      final needsNotif = !await _notificationService.hasPermission();
+
+      return NotificationScheduleResult(
+        success: false,
+        reminderAt: preview.reminderAt,
+        dueAt: preview.dueAt,
+        needsExactAlarmPermission: needsExact,
+        needsNotificationPermission: needsNotif,
+        errorMessage: needsExact
+            ? 'Kesin alarm izni kapalı. Ayarlar > İzinler > Saat ve Alarm bölümünden açın.'
+            : needsNotif
+                ? 'Bildirim izni kapalı. Ayarlar > Bildirimler bölümünden açın.'
+                : 'Bildirim zamanlanamadı: $e',
+      );
     }
   }
 
-  /// Görev için bildirimleri iptal et
+  Future<DateTime> _scheduleReminderNotification({
+    required TaskEntity task,
+    required DateTime dueDate,
+    required DateTime scheduledDate,
+    required TaskNotificationSlot slot,
+    required String label,
+  }) async {
+    final dueTimeStr = DateFormat('HH:mm').format(dueDate);
+    final dueDateStr = DateFormat('dd MMMM', 'tr_TR').format(dueDate);
+
+    final title = 'Görev Hatırlatıcısı';
+    final body = StringBuffer()
+      ..writeln(task.title)
+      ..write('$dueDateStr saat $dueTimeStr — $label kaldı');
+    if (task.description != null && task.description!.isNotEmpty) {
+      body.write('\n${task.description}');
+    }
+
+    final notificationId = slot == TaskNotificationSlot.oneHour
+        ? TaskNotificationIds.oneHour(task.id)
+        : TaskNotificationIds.halfHour(task.id);
+
+    return _notificationService.scheduleTaskReminderNotification(
+      id: notificationId,
+      title: title,
+      body: body.toString(),
+      scheduledDate: scheduledDate,
+      taskId: task.id,
+      slot: slot,
+    );
+  }
+
   Future<void> cancelTaskNotifications(TaskEntity task) async {
+    await _notificationService.cancelNotification(
+      TaskNotificationIds.oneHour(task.id),
+    );
+    await _notificationService.cancelNotification(
+      TaskNotificationIds.halfHour(task.id),
+    );
+    await _notificationService.cancelNotification(
+      TaskNotificationIds.dueStatus(task.id),
+    );
+    await TaskDueWorker.cancel(task.id);
     await _notificationService.cancelEventNotifications(task.id);
   }
 
-  /// Görev güncellendiğinde bildirimleri yeniden zamanla
-  Future<void> updateTaskNotification(TaskEntity task) async {
-    // Önce eski bildirimleri iptal et
+  Future<NotificationScheduleResult> updateTaskNotification(
+    TaskEntity task,
+  ) async {
     await cancelTaskNotifications(task);
-    
-    // Yeni bildirimleri zamanla (sadece tamamlanmamışsa)
-    if (!task.isCompleted) {
-      await scheduleTaskNotification(task);
+    if (task.isCompleted) {
+      return const NotificationScheduleResult(success: true);
     }
-  }
-
-  /// Recurring pattern string'ini enum'a çevir
-  RecurringPattern _parseRecurringPattern(String pattern) {
-    switch (pattern.toLowerCase()) {
-      case 'daily':
-        return RecurringPattern.daily;
-      case 'weekly':
-        return RecurringPattern.weekly;
-      case 'monthly':
-        return RecurringPattern.monthly;
-      default:
-        return RecurringPattern.none;
-    }
+    return scheduleTaskNotification(task);
   }
 }
 
+enum TaskNotificationSlot { oneHour, halfHour }

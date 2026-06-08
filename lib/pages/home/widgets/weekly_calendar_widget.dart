@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../core/extensions/date_extensions.dart';
 import '../../../shared/models/task_model.dart';
 
-/// Material 3 prensiplerine göre haftalık takvim grid widget'ı
+/// Seçili ayın tamamını gösteren kompakt takvim grid widget'ı
 class WeeklyCalendarWidget extends StatefulWidget {
   final DateTime selectedMonth;
   final DateTime? selectedDate;
@@ -26,7 +26,9 @@ class WeeklyCalendarWidget extends StatefulWidget {
 class _WeeklyCalendarWidgetState extends State<WeeklyCalendarWidget>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
-  late DateTime _displayedWeekStart;
+
+  static const _dayLabels = ['P', 'S', 'Ç', 'P', 'C', 'C', 'P'];
+  static const _cellSize = 34.0;
 
   @override
   void initState() {
@@ -35,7 +37,6 @@ class _WeeklyCalendarWidgetState extends State<WeeklyCalendarWidget>
       vsync: this,
       duration: const Duration(milliseconds: 300),
     );
-    _updateDisplayedWeek();
     _animationController.forward();
   }
 
@@ -44,14 +45,8 @@ class _WeeklyCalendarWidgetState extends State<WeeklyCalendarWidget>
     super.didUpdateWidget(oldWidget);
     if (oldWidget.selectedMonth != widget.selectedMonth ||
         oldWidget.selectedDate != widget.selectedDate) {
-      _updateDisplayedWeek();
       _animationController.forward(from: 0);
     }
-  }
-
-  void _updateDisplayedWeek() {
-    final selected = widget.selectedDate ?? DateTime.now();
-    _displayedWeekStart = selected.startOfWeek;
   }
 
   @override
@@ -60,10 +55,25 @@ class _WeeklyCalendarWidgetState extends State<WeeklyCalendarWidget>
     super.dispose();
   }
 
-  List<DateTime> _getWeekDays() {
+  List<DateTime> _getMonthDays() {
+    final firstOfMonth = DateTime(
+      widget.selectedMonth.year,
+      widget.selectedMonth.month,
+      1,
+    );
+    final gridStart = firstOfMonth.startOfWeek;
+    final lastOfMonth = DateTime(
+      widget.selectedMonth.year,
+      widget.selectedMonth.month + 1,
+      0,
+    );
+    final gridEnd = lastOfMonth.endOfWeek;
+
     final days = <DateTime>[];
-    for (int i = 0; i < 7; i++) {
-      days.add(_displayedWeekStart.add(Duration(days: i)));
+    var current = gridStart;
+    while (!current.isAfter(gridEnd)) {
+      days.add(current);
+      current = current.add(const Duration(days: 1));
     }
     return days;
   }
@@ -81,78 +91,66 @@ class _WeeklyCalendarWidgetState extends State<WeeklyCalendarWidget>
         date.day == widget.selectedDate!.day;
   }
 
-  bool _isToday(DateTime date) {
-    return date.isToday;
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final weekDays = _getWeekDays();
+    final monthDays = _getMonthDays();
+    final weekCount = monthDays.length ~/ 7;
 
-    return Container(
-      padding: const EdgeInsets.all(16),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 4, 12, 8),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          // Hafta günleri başlıkları
           Row(
-            children: ['P', 'S', 'Ç', 'P', 'C', 'C', 'P'].map((dayName) => Expanded(
-                      child: Center(
-                        child: Text(
-                          dayName,
-                          style: theme.textTheme.labelMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: theme.colorScheme.onSurfaceVariant,
-                          ),
+            children: _dayLabels
+                .map(
+                  (dayName) => Expanded(
+                    child: Center(
+                      child: Text(
+                        dayName,
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: theme.colorScheme.onSurfaceVariant,
                         ),
                       ),
-                    ))
-                .toList(),
-          ),
-          const SizedBox(height: 12),
-
-          // Haftalık takvim grid
-          FadeTransition(
-            opacity: _animationController,
-            child: Row(
-              children: weekDays.asMap().entries.map((entry) {
-                final date = entry.value;
-                final dayNumber = date.day;
-                final isSelected = _isSelectedDate(date);
-                final isToday = _isToday(date);
-                final taskCount = _getTaskCountForDate(date);
-                final isCurrentMonth = date.month == widget.selectedMonth.month &&
-                    date.year == widget.selectedMonth.year;
-
-                return Expanded(
-                  child: TweenAnimationBuilder<double>(
-                    tween: Tween<double>(begin: 0.0, end: 1.0),
-                    duration: Duration(milliseconds: 200 + (entry.key * 30)),
-                    curve: Curves.easeOutBack,
-                    builder: (context, value, child) {
-                      // Opacity değerini 0.0-1.0 aralığına sabitle
-                      final clampedOpacity = value.clamp(0.0, 1.0);
-                      final clampedScale = (0.8 + (value * 0.2)).clamp(0.0, 1.0);
-                      return Transform.scale(
-                        scale: clampedScale,
-                        child: Opacity(
-                          opacity: clampedOpacity,
-                          child: child,
-                        ),
-                      );
-                    },
-                    child: _CalendarDayCell(
-                      dayNumber: dayNumber,
-                      isSelected: isSelected,
-                      isToday: isToday,
-                      taskCount: taskCount,
-                      isCurrentMonth: isCurrentMonth,
-                      onTap: () => widget.onDateSelected(date),
-                      theme: theme,
                     ),
                   ),
+                )
+                .toList(),
+          ),
+          const SizedBox(height: 6),
+          FadeTransition(
+            opacity: _animationController,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: List.generate(weekCount, (weekIndex) {
+                return Padding(
+                  padding: EdgeInsets.only(bottom: weekIndex < weekCount - 1 ? 2 : 0),
+                  child: Row(
+                    children: List.generate(7, (dayIndex) {
+                      final index = weekIndex * 7 + dayIndex;
+                      final date = monthDays[index];
+                      final isCurrentMonth =
+                          date.month == widget.selectedMonth.month &&
+                              date.year == widget.selectedMonth.year;
+
+                      return Expanded(
+                        child: _CalendarDayCell(
+                          dayNumber: date.day,
+                          cellSize: _cellSize,
+                          isSelected: _isSelectedDate(date),
+                          isToday: date.isToday,
+                          taskCount: _getTaskCountForDate(date),
+                          isCurrentMonth: isCurrentMonth,
+                          onTap: () => widget.onDateSelected(date),
+                          theme: theme,
+                        ),
+                      );
+                    }),
+                  ),
                 );
-              }).toList(),
+              }),
             ),
           ),
         ],
@@ -164,6 +162,7 @@ class _WeeklyCalendarWidgetState extends State<WeeklyCalendarWidget>
 /// Tek bir takvim günü hücresi
 class _CalendarDayCell extends StatelessWidget {
   final int dayNumber;
+  final double cellSize;
   final bool isSelected;
   final bool isToday;
   final int taskCount;
@@ -173,6 +172,7 @@ class _CalendarDayCell extends StatelessWidget {
 
   const _CalendarDayCell({
     required this.dayNumber,
+    required this.cellSize,
     required this.isSelected,
     required this.isToday,
     required this.taskCount,
@@ -185,16 +185,17 @@ class _CalendarDayCell extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 2),
+      behavior: HitTestBehavior.opaque,
+      child: SizedBox(
+        height: cellSize + 8,
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Gün numarası
             AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
+              duration: const Duration(milliseconds: 200),
               curve: Curves.easeOutCubic,
-              width: 52,
-              height: 52,
+              width: cellSize,
+              height: cellSize,
               decoration: BoxDecoration(
                 gradient: isSelected
                     ? LinearGradient(
@@ -210,20 +211,21 @@ class _CalendarDayCell extends StatelessWidget {
                     ? null
                     : isToday
                         ? theme.colorScheme.primaryContainer
+                            .withValues(alpha: 0.7)
                         : Colors.transparent,
                 shape: BoxShape.circle,
                 border: isToday && !isSelected
                     ? Border.all(
                         color: theme.colorScheme.primary,
-                        width: 2.5,
+                        width: 1.5,
                       )
                     : null,
                 boxShadow: isSelected
                     ? [
                         BoxShadow(
-                          color: theme.colorScheme.primary.withOpacity(0.4),
-                          blurRadius: 12,
-                          offset: const Offset(0, 4),
+                          color: theme.colorScheme.primary.withValues(alpha: 0.25),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
                         ),
                       ]
                     : null,
@@ -231,10 +233,10 @@ class _CalendarDayCell extends StatelessWidget {
               child: Center(
                 child: Text(
                   dayNumber.toString(),
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: isSelected || isToday
-                        ? FontWeight.w700
-                        : FontWeight.w500,
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    fontWeight:
+                        isSelected || isToday ? FontWeight.w700 : FontWeight.w500,
+                    fontSize: 13,
                     color: isSelected
                         ? theme.colorScheme.onPrimary
                         : isToday
@@ -242,38 +244,35 @@ class _CalendarDayCell extends StatelessWidget {
                             : isCurrentMonth
                                 ? theme.colorScheme.onSurface
                                 : theme.colorScheme.onSurfaceVariant
-                                    .withOpacity(0.5),
+                                    .withValues(alpha: 0.35),
                   ),
                 ),
               ),
             ),
-            const SizedBox(height: 4),
-
-            // Görev göstergeleri
             if (taskCount > 0)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(
-                  taskCount > 3 ? 3 : taskCount,
-                  (index) => Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 1.5),
-                    width: 4,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? theme.colorScheme.onPrimary
-                          : theme.colorScheme.primary,
-                      shape: BoxShape.circle,
+              Padding(
+                padding: const EdgeInsets.only(top: 2),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(
+                    taskCount > 3 ? 3 : taskCount,
+                    (_) => Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 1),
+                      width: 3,
+                      height: 3,
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? theme.colorScheme.onPrimary
+                            : theme.colorScheme.primary,
+                        shape: BoxShape.circle,
+                      ),
                     ),
                   ),
                 ),
-              )
-            else
-              const SizedBox(height: 4),
+              ),
           ],
         ),
       ),
     );
   }
 }
-

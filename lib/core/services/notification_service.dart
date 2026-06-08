@@ -1,9 +1,15 @@
+import 'package:flutter/material.dart' show Color;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/services.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest_all.dart' as tz;
-import 'package:flutter_native_timezone/flutter_native_timezone.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
 import 'dart:io' show Platform;
+import '../../domain/entities/task_entity.dart';
+import 'notification_action_handler.dart';
+import 'notification_background.dart';
+import 'task_notification_helper.dart';
+import 'task_notification_ids.dart';
 
 /// Bildirim servisi - Yerel bildirimleri yönetir
 class NotificationService {
@@ -17,6 +23,10 @@ class NotificationService {
   bool _initialized = false;
   bool _permissionGranted = false;
 
+  static const String completeActionId = 'complete_task';
+  static const String snoozeActionId = 'snooze_task';
+  static const String taskReminderChannelId = 'task_reminders';
+
   /// Bildirim servisini başlat
   Future<void> initialize() async {
     if (_initialized) return;
@@ -28,7 +38,7 @@ class NotificationService {
       // Cihazın zaman dilimini al ve ayarla
       try {
         final String timeZoneName =
-            await FlutterNativeTimezone.getLocalTimezone();
+            (await FlutterTimezone.getLocalTimezone()).identifier;
         tz.setLocalLocation(tz.getLocation(timeZoneName));
       } catch (e) {
         // Varsayılan olarak UTC kullan
@@ -54,13 +64,14 @@ class NotificationService {
       final bool? initialized = await _notifications.initialize(
         initSettings,
         onDidReceiveNotificationResponse: _onNotificationTapped,
+        onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
       );
 
       if (initialized == true) {
         _initialized = true;
-        
-        // Android 13+ için bildirim iznini kontrol et ve iste
+
         if (Platform.isAndroid) {
+          await _createAndroidChannels();
           await _requestAndroidNotificationPermission();
         }
       } else {
@@ -71,6 +82,79 @@ class NotificationService {
       print('Bildirim servisi başlatma hatası: $e');
       _initialized = false;
     }
+  }
+
+  Future<void> _createAndroidChannels() async {
+    final android = resolvePlatformSpecificImplementation();
+    if (android == null) return;
+
+    const channels = [
+      AndroidNotificationChannel(
+        taskReminderChannelId,
+        'Görev Hatırlatıcıları',
+        description: 'Görevler için 1 saat ve 30 dakika önce hatırlatma',
+        importance: Importance.high,
+        playSound: true,
+        enableVibration: true,
+        showBadge: true,
+      ),
+      AndroidNotificationChannel(
+        'event_reminders',
+        'Hatırlatıcı Bildirimleri',
+        description: 'Etkinlik hatırlatıcıları',
+        importance: Importance.high,
+        playSound: true,
+        enableVibration: true,
+        showBadge: true,
+      ),
+      AndroidNotificationChannel(
+        'task_feedback',
+        'Görev Bildirimleri',
+        description: 'Tamamlama ve erteleme bildirimleri',
+        importance: Importance.defaultImportance,
+      ),
+    ];
+
+    for (final channel in channels) {
+      await android.createNotificationChannel(channel);
+    }
+  }
+
+  /// Bildirim + kesin alarm izinlerini kontrol et / iste
+  Future<bool> ensurePermissions({bool requestExactAlarm = true}) async {
+    if (!_initialized) await initialize();
+
+    if (!Platform.isAndroid) return true;
+
+    var hasNotifications = await hasPermission();
+    if (!hasNotifications) {
+      await _requestAndroidNotificationPermission();
+      hasNotifications = await hasPermission();
+    }
+
+    if (!hasNotifications) return false;
+
+    if (requestExactAlarm) {
+      final canExact = await canScheduleExactAlarms();
+      if (!canExact) {
+        await requestExactAlarmsPermission();
+      }
+    }
+
+    return hasNotifications;
+  }
+
+  Future<bool> canScheduleExactAlarms() async {
+    if (!Platform.isAndroid) return true;
+    final android = resolvePlatformSpecificImplementation();
+    if (android == null) return false;
+    return await android.canScheduleExactNotifications() ?? false;
+  }
+
+  Future<void> requestExactAlarmsPermission() async {
+    if (!Platform.isAndroid) return;
+    final android = resolvePlatformSpecificImplementation();
+    await android?.requestExactAlarmsPermission();
   }
 
   /// Android 13+ için bildirim izni iste
@@ -122,19 +206,150 @@ class NotificationService {
         AndroidFlutterLocalNotificationsPlugin>();
   }
 
-  /// Bildirime tıklandığında çağrılır
+  /// Bildirime tıklandığında veya aksiyon seçildiğinde çağrılır
   void _onNotificationTapped(NotificationResponse response) {
-    // Bildirime tıklandığında yapılacak işlemler
-    // (örneğin, etkinlik detay sayfasına yönlendirme)
+    NotificationActionHandler.handleResponse(response);
   }
 
-  /// Tek seferlik bildirim zamanla
-  Future<void> scheduleEventNotification({
+  /// Görev hatırlatıcısı bildirimi (1 saat / 30 dakika önce)
+  Future<DateTime> scheduleTaskReminderNotification({
+    required int id,
+    required String title,
+    required String body,
+    required DateTime scheduledDate,
+    required String taskId,
+    TaskNotificationSlot slot = TaskNotificationSlot.oneHour,
+  }) async {
+    return scheduleEventNotification(
+      id: id,
+      title: title,
+      body: body,
+      scheduledDate: scheduledDate,
+      payload: 'task:$taskId:reminder',
+      channelId: taskReminderChannelId,
+      channelName: 'Görev Hatırlatıcıları',
+      channelDescription:
+          'Görevler için 1 saat ve 30 dakika önce hatırlatma bildirimleri',
+      withTaskActions: true,
+    );
+  }
+
+  /// Vade anında görev durumunu renkli bildirimle göster
+  Future<void> showTaskDueStatusNotification({
+    required TaskEntity task,
+  }) async {
+    if (!_initialized) await initialize();
+
+    final isCompleted = task.isCompleted;
+    final statusColor =
+        isCompleted ? const Color(0xFF2E7D32) : const Color(0xFFD32F2F);
+
+    final title =
+        isCompleted ? 'Görev Tamamlandı ✓' : 'Görev Tamamlanmadı';
+    final dueTime = task.dueDate != null
+        ? '${task.dueDate!.hour.toString().padLeft(2, '0')}:${task.dueDate!.minute.toString().padLeft(2, '0')}'
+        : '';
+    final body = isCompleted
+        ? '"${task.title}" $dueTime için zamanında tamamlanmış.'
+        : '"${task.title}" süresi doldu ($dueTime). Henüz tamamlanmadı.';
+
+    final androidDetails = AndroidNotificationDetails(
+      taskReminderChannelId,
+      'Görev Hatırlatıcıları',
+      channelDescription: 'Görev vade durumu bildirimleri',
+      importance: Importance.high,
+      priority: Priority.high,
+      color: statusColor,
+      colorized: true,
+      visibility: NotificationVisibility.public,
+      category: AndroidNotificationCategory.reminder,
+      styleInformation: BigTextStyleInformation(body),
+      actions: isCompleted
+          ? null
+          : <AndroidNotificationAction>[
+              const AndroidNotificationAction(
+                snoozeActionId,
+                'Ertele',
+                showsUserInterface: true,
+                cancelNotification: true,
+              ),
+              const AndroidNotificationAction(
+                completeActionId,
+                'Tamamla',
+                showsUserInterface: false,
+                cancelNotification: true,
+              ),
+            ],
+    );
+
+    const iosDetails = DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
+    );
+
+    await _notifications.show(
+      TaskNotificationIds.dueStatus(task.id),
+      title,
+      body,
+      NotificationDetails(android: androidDetails, iOS: iosDetails),
+      payload: 'task:${task.id}:due',
+    );
+  }
+
+  /// Tamamlandı / ertelendi gibi geri bildirim bildirimi
+  Future<void> showFeedbackNotification({
+    required int id,
+    required String title,
+    required String body,
+    bool isSuccess = true,
+    bool isSnooze = false,
+  }) async {
+    if (!_initialized) await initialize();
+
+    final color = isSnooze
+        ? const Color(0xFFC79100)
+        : isSuccess
+            ? const Color(0xFF2E7D32)
+            : const Color(0xFFD32F2F);
+
+    final androidDetails = AndroidNotificationDetails(
+      'task_feedback',
+      'Görev Bildirimleri',
+      channelDescription: 'Görev tamamlama ve erteleme bildirimleri',
+      importance: Importance.defaultImportance,
+      priority: Priority.defaultPriority,
+      visibility: NotificationVisibility.public,
+      color: color,
+      colorized: true,
+    );
+
+    const iosDetails = DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: false,
+      presentSound: true,
+    );
+
+    await _notifications.show(
+      id,
+      title,
+      body,
+      NotificationDetails(android: androidDetails, iOS: iosDetails),
+    );
+  }
+
+  /// Tek seferlik bildirim zamanla — gerçek zamanlanan tarihi döndürür
+  Future<DateTime> scheduleEventNotification({
     required int id,
     required String title,
     required String body,
     required DateTime scheduledDate,
     String? payload,
+    String channelId = 'event_reminders',
+    String channelName = 'Hatırlatıcı Bildirimleri',
+    String channelDescription =
+        'Etkinlikler ve görevler için hatırlatıcı bildirimleri',
+    bool withTaskActions = false,
   }) async {
     if (!_initialized) await initialize();
 
@@ -143,8 +358,7 @@ class NotificationService {
     final now = DateTime.now();
     final difference = scheduledDate.difference(now);
     if (difference.isNegative && difference.inMinutes.abs() > 5) {
-      print('⚠️ Bildirim atlandı: Geçmiş tarih (5 dakikadan fazla). Şimdi: $now, Bildirim: $scheduledDate');
-      return;
+      throw Exception('Bildirim zamanı geçmiş: $scheduledDate');
     }
     
     // Eğer geçmiş ama 5 dakikadan azsa, hemen bildirim gönder (veya 1 dakika sonra)
@@ -155,32 +369,38 @@ class NotificationService {
     }
 
     try {
-      // Android'de bildirim iznini kontrol et
       if (Platform.isAndroid) {
-        final hasPermission = await this.hasPermission();
-        if (!hasPermission) {
-          print('Bildirim izni verilmemiş, izin isteniyor...');
-          await _requestAndroidNotificationPermission();
-          // Tekrar kontrol et
-          final hasPermissionAfterRequest = await this.hasPermission();
-          if (!hasPermissionAfterRequest) {
-            print('Bildirim izni reddedildi, bildirim zamanlanamadı');
-            return;
-          }
+        final granted = await ensurePermissions();
+        if (!granted) {
+          throw Exception(
+            'Bildirim izni verilmedi. Ayarlar > Bildirimler bölümünden izin verin.',
+          );
         }
       }
 
       final androidDetails = AndroidNotificationDetails(
-        'event_reminders',
-        'Hatırlatıcı Bildirimleri',
-        channelDescription: 'Etkinlikler ve görevler için hatırlatıcı bildirimleri',
+        channelId,
+        channelName,
+        channelDescription: channelDescription,
         importance: Importance.high,
         priority: Priority.high,
         showWhen: true,
         enableVibration: true,
         playSound: true,
         channelShowBadge: true,
+        visibility: NotificationVisibility.public,
+        category: AndroidNotificationCategory.reminder,
         styleInformation: BigTextStyleInformation(body),
+        actions: withTaskActions
+            ? <AndroidNotificationAction>[
+                const AndroidNotificationAction(
+                  snoozeActionId,
+                  'Ertele',
+                  showsUserInterface: true,
+                  cancelNotification: true,
+                ),
+              ]
+            : null,
       );
 
       const iosDetails = DarwinNotificationDetails(
@@ -194,9 +414,16 @@ class NotificationService {
         iOS: iosDetails,
       );
 
-      // finalScheduledDate kullan (geçmiş tarih kontrolü yapılmış)
-      DateTime dateToSchedule = finalScheduledDate;
-      final tzScheduledDate = tz.TZDateTime.from(dateToSchedule, tz.local);
+      final dateToSchedule = finalScheduledDate;
+      final tzScheduledDate = tz.TZDateTime(
+        tz.local,
+        dateToSchedule.year,
+        dateToSchedule.month,
+        dateToSchedule.day,
+        dateToSchedule.hour,
+        dateToSchedule.minute,
+        dateToSchedule.second,
+      );
       final tzNow = tz.TZDateTime.now(tz.local);
       final timeUntilNotification = tzScheduledDate.difference(tzNow);
       
@@ -225,8 +452,10 @@ class NotificationService {
           }
         }
         
-        // Exact alarm izni varsa androidAllowWhileIdle: true kullan (daha güvenilir)
-        // Yoksa androidAllowWhileIdle: false kullan
+        final scheduleMode = canScheduleExactAlarms
+            ? AndroidScheduleMode.exactAllowWhileIdle
+            : AndroidScheduleMode.inexactAllowWhileIdle;
+
         await _notifications.zonedSchedule(
           id,
           title,
@@ -234,7 +463,7 @@ class NotificationService {
           tzScheduledDate,
           notificationDetails,
           payload: payload,
-          androidAllowWhileIdle: canScheduleExactAlarms, // İzin varsa true, yoksa false
+          androidScheduleMode: scheduleMode,
           uiLocalNotificationDateInterpretation:
               UILocalNotificationDateInterpretation.absoluteTime,
         );
@@ -246,8 +475,7 @@ class NotificationService {
           print('Kullanıcıyı ayarlara yönlendirin:');
           print('Ayarlar > Uygulamalar > Work Schedule > İzinler > Saat ve Alarm > Kesin alarmlar');
           
-          // İzin yoksa androidAllowWhileIdle: false ile tekrar dene
-          print('🔄 androidAllowWhileIdle: false ile tekrar deneniyor...');
+          print('🔄 inexactAllowWhileIdle ile tekrar deneniyor...');
           try {
             await _notifications.zonedSchedule(
               id,
@@ -256,11 +484,11 @@ class NotificationService {
               tzScheduledDate,
               notificationDetails,
               payload: payload,
-              androidAllowWhileIdle: false,
+              androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
               uiLocalNotificationDateInterpretation:
                   UILocalNotificationDateInterpretation.absoluteTime,
             );
-            print('✅ Bildirim androidAllowWhileIdle: false ile zamanlandı');
+            print('✅ Bildirim inexactAllowWhileIdle ile zamanlandı');
           } catch (e2) {
             print('❌ Alternatif yöntem de başarısız: $e2');
             throw PlatformException(
@@ -294,8 +522,8 @@ class NotificationService {
         print('⚠️ Bekleyen bildirimler kontrol edilemedi: $e');
       }
       
-      // Bildirim ID'sini logla (hata durumunda bulmak için)
       print('🔔 Bildirim ID: $id');
+      return dateToSchedule;
     } catch (e) {
       print('Bildirim zamanlama hatası: $e');
       print('Hata detayı - ID: $id, Tarih: $scheduledDate, Zaman dilimi: ${tz.local.name}');

@@ -6,6 +6,7 @@ class AppRoutes {
   // Görev sayfaları
   static const String taskForm = '/task/form';
   static const String taskEdit = '/task/edit';
+  static const String taskSnooze = '/task/snooze';
 
   // Etkinlik sayfaları
   static const String eventDetail = '/event/detail';
@@ -31,11 +32,6 @@ class AppRoutes {
   static const String shareEvent = '/share/event';
   static const String shareCalendar = '/share/calendar';
   static const String importCalendar = '/import/calendar';
-
-  // Auth sayfaları
-  static const String login = '/login';
-  static const String signUp = '/signup';
-  static const String forgotPassword = '/forgot-password';
 
   // Deep link base URL
   static const String deepLinkBase = 'workschedule://';

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'dart:io' show Platform;
 import '../../core/services/notification_service.dart';
-import '../../core/services/test_notification_helper.dart';
 import '../../shared/widgets/decorative_background.dart';
 
 class NotificationSettingsPage extends StatefulWidget {
@@ -14,10 +14,10 @@ class NotificationSettingsPage extends StatefulWidget {
 
 class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
   final NotificationService _notificationService = NotificationService();
-  final TestNotificationHelper _testHelper = TestNotificationHelper();
   bool _hasPermission = false;
+  bool _hasExactAlarm = false;
   bool _isLoading = true;
-  bool _isTestingNotification = false;
+  List<PendingNotificationRequest> _pendingNotifications = [];
 
   @override
   void initState() {
@@ -29,13 +29,42 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
     setState(() => _isLoading = true);
     try {
       final hasPermission = await _notificationService.hasPermission();
+      final hasExactAlarm = await _notificationService.canScheduleExactAlarms();
+      final pending = await _notificationService.getPendingNotifications();
       setState(() {
         _hasPermission = hasPermission;
+        _hasExactAlarm = hasExactAlarm;
+        _pendingNotifications = pending;
         _isLoading = false;
       });
     } catch (e) {
       print('İzin kontrolü hatası: $e');
       setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _requestExactAlarmPermission() async {
+    await _notificationService.requestExactAlarmsPermission();
+    await _checkPermissionStatus();
+    if (!mounted) return;
+
+    if (_hasExactAlarm) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Kesin alarm izni açık.'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Kesin alarm izni hâlâ kapalı. Açılan ayar ekranından "Kesin alarmlar"ı etkinleştirin.',
+          ),
+          backgroundColor: Colors.orange,
+          duration: Duration(seconds: 6),
+        ),
+      );
     }
   }
 
@@ -134,78 +163,126 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
     );
   }
 
-  Future<void> _sendTestNotification() async {
-    setState(() => _isTestingNotification = true);
-    try {
-      // Önce izin durumunu kontrol et
-      final hasPermission = await _notificationService.hasPermission();
-      print('🔍 Bildirim izni durumu: $hasPermission');
-      
-      await _testHelper.sendTestNotificationIn1Minute();
-      
-      // Bekleyen bildirimleri kontrol et
-      final pending = await _notificationService.getPendingNotifications();
-      print('📋 Bekleyen bildirim sayısı: ${pending.length}');
-      
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Test bildirimi zamanlandı! 1 dakika sonra gelecek.\nBekleyen bildirim: ${pending.length}'),
-            backgroundColor: Colors.green,
-            duration: const Duration(seconds: 5),
+  void _showExactAlarmHelp() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Kesin Alarm İzni'),
+        content: const Text(
+          'Zamanında hatırlatma için:\n\n'
+          'Ayarlar → Uygulamalar → Work Schedule → İzinler → Saat ve Alarm → Kesin alarmlar',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Tamam'),
           ),
-        );
-      }
-    } on PlatformException catch (e) {
-      if (e.code == 'exact_alarms_not_permitted') {
-        if (mounted) {
-          showDialog(
-            context: context,
-            builder: (context) => AlertDialog(
-              title: const Text('Kesin Alarm İzni Gerekli'),
-              content: Text(
-                'Test bildirimi göndermek için "Kesin alarmlar" izni gereklidir.\n\n'
-                '${e.details ?? ''}\n\n'
-                'Lütfen ayarlardan bu izni açın.',
+        ],
+      ),
+    );
+  }
+
+  Widget _buildExactAlarmSection(ThemeData theme) {
+    final granted = _hasExactAlarm;
+    final accent = granted
+        ? theme.colorScheme.primary
+        : theme.colorScheme.tertiary;
+
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: accent.withValues(alpha: granted ? 0.35 : 0.5),
+        ),
+        color: accent.withValues(alpha: 0.08),
+      ),
+      padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Icon(Icons.alarm_on_outlined, size: 18, color: accent),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Kesin alarm izni',
+                      style: theme.textTheme.labelLarge?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      granted
+                          ? 'Hatırlatıcılar zamanında gönderilebilir.'
+                          : 'Kapalıysa bildirimler gecikebilir.',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurface.withValues(alpha: 0.65),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              actions: [
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: granted
+                      ? theme.colorScheme.primary.withValues(alpha: 0.15)
+                      : theme.colorScheme.tertiary.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  granted ? 'Açık' : 'Kapalı',
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: accent,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          if (!granted) ...[
+            const SizedBox(height: 8),
+            Row(
+              children: [
                 TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('Tamam'),
+                  onPressed: _requestExactAlarmPermission,
+                  style: TextButton.styleFrom(
+                    visualDensity: VisualDensity.compact,
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  child: const Text('İzin iste'),
                 ),
                 TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    _showSettingsInfo();
-                  },
-                  child: const Text('Ayarlara Git'),
+                  onPressed: _openAppSettings,
+                  style: TextButton.styleFrom(
+                    visualDensity: VisualDensity.compact,
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  child: const Text('Ayarlara git'),
+                ),
+                const Spacer(),
+                IconButton(
+                  onPressed: _showExactAlarmHelp,
+                  icon: const Icon(Icons.info_outline, size: 18),
+                  visualDensity: VisualDensity.compact,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                  tooltip: 'Nasıl açılır?',
                 ),
               ],
             ),
-          );
-        }
-      } else {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Test bildirimi hatası: ${e.message ?? e.toString()}'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Test bildirimi hatası: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    } finally {
-      setState(() => _isTestingNotification = false);
-    }
+          ],
+        ],
+      ),
+    );
   }
 
   @override
@@ -306,184 +383,57 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
             const Divider(),
             const SizedBox(height: 8),
 
-            // Test Bildirimi Bölümü
-            Text(
-              'Test',
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
+            // Bekleyen bildirimler
             Card(
-              elevation: 1,
               child: Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Test Bildirimi Gönder',
-                      style: theme.textTheme.titleSmall,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '1 dakika sonra bir test bildirimi göndererek bildirimlerin çalışıp çalışmadığını kontrol edin.',
-                      style: theme.textTheme.bodySmall,
-                    ),
-                    const SizedBox(height: 12),
-                    ElevatedButton.icon(
-                      onPressed: _hasPermission && !_isTestingNotification
-                          ? _sendTestNotification
-                          : null,
-                      icon: _isTestingNotification
-                          ? const SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                              ),
-                            )
-                          : const Icon(Icons.send),
-                      label: Text(_isTestingNotification ? 'Gönderiliyor...' : 'Test Bildirimi Gönder (1 dk)'),
-                      style: ElevatedButton.styleFrom(
-                        minimumSize: const Size(double.infinity, 44),
+                      'Zamanlanmış Bildirimler',
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                     const SizedBox(height: 8),
-                    OutlinedButton.icon(
-                      onPressed: _hasPermission && !_isTestingNotification
-                          ? () async {
-                              setState(() => _isTestingNotification = true);
-                              try {
-                                await _notificationService.sendImmediateTestNotification();
-                                if (mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('Anında test bildirimi gönderildi! Kontrol edin.'),
-                                      backgroundColor: Colors.green,
-                                      duration: Duration(seconds: 3),
-                                    ),
-                                  );
-                                }
-                              } catch (e) {
-                                if (mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text('Test bildirimi hatası: $e'),
-                                      backgroundColor: Colors.red,
-                                    ),
-                                  );
-                                }
-                              } finally {
-                                setState(() => _isTestingNotification = false);
-                              }
-                            }
-                          : null,
-                      icon: const Icon(Icons.notifications_active, size: 16),
-                      label: const Text('Anında Test Bildirimi Gönder'),
-                      style: OutlinedButton.styleFrom(
-                        minimumSize: const Size(double.infinity, 44),
+                    Text(
+                      'Görev bildirimleri 1 saat ve 30 dakika önce gelir; vade anında durum bildirilir.',
+                      style: theme.textTheme.bodySmall,
+                    ),
+                    const SizedBox(height: 8),
+                    if (_pendingNotifications.isEmpty)
+                      Text(
+                        'Bekleyen bildirim yok. Tarih ve saatli görev ekleyin.',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                        ),
+                      )
+                    else
+                      ..._pendingNotifications.take(8).map(
+                        (n) => Padding(
+                          padding: const EdgeInsets.only(bottom: 6),
+                          child: Text(
+                            '• ${n.title ?? 'Bildirim'} — ${n.body ?? ''}',
+                            style: theme.textTheme.bodySmall,
+                          ),
+                        ),
                       ),
+                    const SizedBox(height: 8),
+                    OutlinedButton.icon(
+                      onPressed: _checkPermissionStatus,
+                      icon: const Icon(Icons.refresh, size: 16),
+                      label: const Text('Listeyi Yenile'),
                     ),
                   ],
                 ),
               ),
             ),
 
-            const SizedBox(height: 24),
-            const Divider(),
-            const SizedBox(height: 8),
-
-            // Exact Alarm Uyarısı (Android 12+)
-            if (Platform.isAndroid)
-              Card(
-                color: theme.colorScheme.errorContainer.withOpacity(0.3),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.warning_outlined,
-                            color: theme.colorScheme.error,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Kesin Alarm İzni (Android 12+)',
-                            style: theme.textTheme.titleSmall?.copyWith(
-                              color: theme.colorScheme.error,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Hassas zamanlanmış bildirimler için ek bir izin gereklidir:\n\n'
-                        '1. Ayarlar > Uygulamalar > Work Schedule\n'
-                        '2. İzinler > Saat ve Alarm\n'
-                        '3. "Kesin alarmlar" (Exact alarms) seçeneğini açın\n\n'
-                        'Bu izin olmadan bildirimler zamanında gelmeyebilir.',
-                        style: theme.textTheme.bodySmall,
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: OutlinedButton.icon(
-                              onPressed: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (context) => AlertDialog(
-                                    title: const Text('Kesin Alarm İzni'),
-                                    content: const Text(
-                                      'Bu izni açmak için:\n\n'
-                                      '1. Ayarlar uygulamasını açın\n'
-                                      '2. "Uygulamalar" veya "Apps" seçeneğine gidin\n'
-                                      '3. "Work Schedule" uygulamasını bulun\n'
-                                      '4. "İzinler" (Permissions) seçeneğine gidin\n'
-                                      '5. "Saat ve Alarm" (Alarms & reminders) seçeneğine gidin\n'
-                                      '6. "Kesin alarmlar" (Exact alarms) seçeneğini açın\n\n'
-                                      '⚠️ Bu izin olmadan bildirimler zamanında gelmeyebilir veya hiç gelmeyebilir!',
-                                    ),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () => Navigator.pop(context),
-                                        child: const Text('Tamam'),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
-                              icon: const Icon(Icons.help_outline, size: 16),
-                              label: const Text('Nasıl Açılır?'),
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: theme.colorScheme.error,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: ElevatedButton.icon(
-                              onPressed: () {
-                                _openAppSettings();
-                              },
-                              icon: const Icon(Icons.settings, size: 16),
-                              label: const Text('Ayarlara Git'),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: theme.colorScheme.error,
-                                foregroundColor: theme.colorScheme.onError,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+            if (Platform.isAndroid) ...[
+              const SizedBox(height: 12),
+              _buildExactAlarmSection(theme),
+            ],
 
             const SizedBox(height: 16),
             const Divider(),
@@ -514,10 +464,14 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      '• Bildirim izni, görev hatırlatıcılarının çalışması için gereklidir.\n\n'
-                      '• Android 13 ve üzeri için bildirim izni gereklidir.\n\n'
-                      '• Android 12+ için ek olarak "Kesin alarmlar" izni gereklidir.\n\n'
-                      '• İzin verilmediyse, cihaz ayarlarından manuel olarak açabilirsiniz.',
+                      'Görev bildirimleri görev saatinden 1 saat ve 30 dakika önce gelir.\n'
+                      '  Örnek: Görev 15:00 → 14:00 ve 14:30\n\n'
+                      '• Vade anında tamamlanma durumu renkli bildirimle gösterilir.\n'
+                      '  Yeşil: tamamlandı, Kırmızı: tamamlanmadı\n\n'
+                      '• Bildirime dokunmak veya Ertele tuşu görevi 30 dk erteler.\n'
+                      '  Yeni saat takvimde otomatik güncellenir.\n\n'
+                      '• Saat seçilmezse görev 09:00 varsayılır.\n\n'
+                      '• Bildirim izni + Kesin alarmlar izni birlikte açık olmalıdır.',
                       style: theme.textTheme.bodySmall,
                     ),
                   ],

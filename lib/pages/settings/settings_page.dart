@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import '../../core/routes/app_routes.dart';
-import '../../core/services/auth_service.dart';
 import '../../shared/widgets/decorative_background.dart';
+import 'about_page.dart';
 import 'notification_settings_page.dart';
+import 'widgets/settings_tile.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Ayarlar'),
@@ -19,99 +22,162 @@ class SettingsPage extends StatelessWidget {
       body: DecorativeBackground(
         style: BackgroundStyle.elegant,
         child: ListView(
-        children: [
-          ListTile(
-            leading: const Icon(Icons.sync),
-            title: const Text('Senkronizasyon Ayarları'),
-            subtitle: const Text('Bulut senkronizasyon ve yedekleme'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () {
-              Navigator.pushNamed(context, AppRoutes.syncSettings);
-            },
-          ),
-          const Divider(),
-          ListTile(
-            leading: const Icon(Icons.preview),
-            title: const Text('Widget Önizleme'),
-            subtitle: const Text('Ana ekran widget\'ını önizle'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () {
-              Navigator.pushNamed(context, AppRoutes.widgetPreview);
-            },
-          ),
-          const Divider(),
-          ListTile(
-            leading: const Icon(Icons.notifications),
-            title: const Text('Bildirimler'),
-            subtitle: const Text('Bildirim izinleri ve ayarları'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const NotificationSettingsPage(),
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
+          children: [
+            _SettingsHeader(theme: theme),
+            const SizedBox(height: 28),
+            SettingsSection(
+              title: 'Genel',
+              children: [
+                SettingsTile(
+                  icon: Icons.cloud_sync_rounded,
+                  iconColor: theme.colorScheme.primary,
+                  title: 'Senkronizasyon Ayarları',
+                  subtitle: 'Bulut senkronizasyon ve yedekleme',
+                  onTap: () {
+                    Navigator.pushNamed(context, AppRoutes.syncSettings);
+                  },
                 ),
-              );
-            },
-          ),
-          const Divider(),
-          ListTile(
-            leading: const Icon(Icons.color_lens),
-            title: const Text('Tema ve Yazı Tipi'),
-            subtitle: const Text('Tema renkleri ve yazı tipi boyutu'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () {
-              Navigator.pushNamed(context, AppRoutes.themeSettings);
-            },
-          ),
-          const Divider(),
-          ListTile(
-            leading: const Icon(Icons.info),
-            title: const Text('Hakkında'),
-            onTap: () {
-              // Hakkında sayfası
-            },
-          ),
-          const Divider(),
-          ListTile(
-            leading: const Icon(Icons.logout, color: Colors.red),
-            title: const Text(
-              'Çıkış Yap',
-              style: TextStyle(color: Colors.red),
+                SettingsTile(
+                  icon: Icons.widgets_outlined,
+                  iconColor: theme.colorScheme.secondary,
+                  title: 'Widget Önizleme',
+                  subtitle: 'Ana ekran widget\'ını önizle',
+                  showDivider: false,
+                  onTap: () {
+                    Navigator.pushNamed(context, AppRoutes.widgetPreview);
+                  },
+                ),
+              ],
             ),
-            onTap: () async {
-              // Çıkış yapma onayı
-              final shouldLogout = await showDialog<bool>(
-                context: context,
-                builder: (context) => AlertDialog(
-                  title: const Text('Çıkış Yap'),
-                  content: const Text('Çıkış yapmak istediğinize emin misiniz?'),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pop(false),
-                      child: const Text('İptal'),
-                    ),
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pop(true),
-                      child: const Text(
-                        'Çıkış Yap',
-                        style: TextStyle(color: Colors.red),
+            const SizedBox(height: 20),
+            SettingsSection(
+              title: 'Kişiselleştirme',
+              children: [
+                SettingsTile(
+                  icon: Icons.notifications_active_outlined,
+                  iconColor: theme.colorScheme.tertiary,
+                  title: 'Bildirimler',
+                  subtitle: 'Bildirim izinleri ve ayarları',
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const NotificationSettingsPage(),
                       ),
-                    ),
-                  ],
+                    );
+                  },
                 ),
-              );
-
-              if (shouldLogout == true) {
-                await AuthService().signOut();
-                // AuthWrapper otomatik olarak login sayfasına yönlendirecek
-              }
-            },
-          ),
-        ],
+                SettingsTile(
+                  icon: Icons.palette_outlined,
+                  iconColor: const Color(0xFF9C27B0),
+                  title: 'Tema ve Yazı Tipi',
+                  subtitle: 'Tema renkleri ve yazı tipi boyutu',
+                  showDivider: false,
+                  onTap: () {
+                    Navigator.pushNamed(context, AppRoutes.themeSettings);
+                  },
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            SettingsSection(
+              title: 'Uygulama',
+              children: [
+                SettingsTile(
+                  icon: Icons.info_outline_rounded,
+                  iconColor: theme.colorScheme.primary,
+                  title: 'Hakkında',
+                  subtitle: 'Uygulama bilgileri ve sürüm',
+                  showDivider: false,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const AboutPage(),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
   }
 }
 
+class _SettingsHeader extends StatelessWidget {
+  const _SettingsHeader({required this.theme});
+
+  final ThemeData theme;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            theme.colorScheme.primaryContainer.withValues(alpha: 0.55),
+            theme.colorScheme.secondaryContainer.withValues(alpha: 0.35),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: theme.colorScheme.primary.withValues(alpha: 0.12),
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 56,
+            height: 56,
+            decoration: BoxDecoration(
+              color: theme.colorScheme.surface.withValues(alpha: 0.9),
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: theme.colorScheme.primary.withValues(alpha: 0.15),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Icon(
+              Icons.tune_rounded,
+              size: 28,
+              color: theme.colorScheme.primary,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Tercihlerinizi Yönetin',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.2,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Senkronizasyon, bildirimler ve görünüm ayarlarını buradan düzenleyin.',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                    height: 1.4,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

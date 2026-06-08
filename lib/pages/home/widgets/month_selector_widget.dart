@@ -65,7 +65,7 @@ class MonthSelectorWidget extends StatelessWidget {
         .format(selectedMonth);
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
         border: Border(
@@ -78,91 +78,44 @@ class MonthSelectorWidget extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Önceki ay butonu
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  theme.colorScheme.surfaceContainerHighest,
-                  theme.colorScheme.surfaceContainerHighest.withOpacity(0.7),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
+          IconButton(
+            onPressed: _previousMonth,
+            icon: const Icon(Icons.chevron_left, size: 22),
+            style: IconButton.styleFrom(
+              backgroundColor:
+                  theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.6),
+              foregroundColor: theme.colorScheme.onSurface,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
               ),
-              borderRadius: BorderRadius.circular(14),
-              boxShadow: [
-                BoxShadow(
-                  color: theme.colorScheme.primary.withOpacity(0.1),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: IconButton(
-              onPressed: _previousMonth,
-              icon: const Icon(Icons.chevron_left),
-              style: IconButton.styleFrom(
-                backgroundColor: Colors.transparent,
-                foregroundColor: theme.colorScheme.onSurface,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                padding: const EdgeInsets.all(8),
-              ),
+              padding: const EdgeInsets.all(6),
+              minimumSize: const Size(36, 36),
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
           ),
-
-          // Ay ve yıl gösterimi (tıklanabilir)
           Expanded(
             child: Center(
               child: InkWell(
                 onTap: () => _showMonthPicker(context),
-                borderRadius: BorderRadius.circular(12),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 12,
-                  ),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        theme.colorScheme.primaryContainer.withOpacity(0.4),
-                        theme.colorScheme.tertiaryContainer.withOpacity(0.2),
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: theme.colorScheme.primary.withOpacity(0.15),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
+                borderRadius: BorderRadius.circular(10),
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
                         monthName,
-                        style: theme.textTheme.titleLarge?.copyWith(
+                        style: theme.textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.w600,
-                          letterSpacing: 0.5,
+                          letterSpacing: 0.3,
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          color: theme.colorScheme.primary.withOpacity(0.2),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          Icons.calendar_today,
-                          size: 14,
-                          color: theme.colorScheme.primary,
-                        ),
+                      const SizedBox(width: 6),
+                      Icon(
+                        Icons.calendar_today_outlined,
+                        size: 14,
+                        color: theme.colorScheme.primary,
                       ),
                     ],
                   ),
@@ -170,38 +123,19 @@ class MonthSelectorWidget extends StatelessWidget {
               ),
             ),
           ),
-
-          // Sonraki ay butonu
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  theme.colorScheme.surfaceContainerHighest,
-                  theme.colorScheme.surfaceContainerHighest.withOpacity(0.7),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
+          IconButton(
+            onPressed: _nextMonth,
+            icon: const Icon(Icons.chevron_right, size: 22),
+            style: IconButton.styleFrom(
+              backgroundColor:
+                  theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.6),
+              foregroundColor: theme.colorScheme.onSurface,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
               ),
-              borderRadius: BorderRadius.circular(14),
-              boxShadow: [
-                BoxShadow(
-                  color: theme.colorScheme.primary.withOpacity(0.1),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: IconButton(
-              onPressed: _nextMonth,
-              icon: const Icon(Icons.chevron_right),
-              style: IconButton.styleFrom(
-                backgroundColor: Colors.transparent,
-                foregroundColor: theme.colorScheme.onSurface,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                padding: const EdgeInsets.all(8),
-              ),
+              padding: const EdgeInsets.all(6),
+              minimumSize: const Size(36, 36),
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
           ),
         ],

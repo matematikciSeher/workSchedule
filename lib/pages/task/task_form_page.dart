@@ -86,29 +86,30 @@ class _TaskFormPageState extends State<TaskFormPage> {
     }
   }
 
+  DateTime? _buildDueDate() {
+    if (_selectedDate == null) return null;
+    if (_selectedTime != null) {
+      return DateTime(
+        _selectedDate!.year,
+        _selectedDate!.month,
+        _selectedDate!.day,
+        _selectedTime!.hour,
+        _selectedTime!.minute,
+      );
+    }
+    return DateTime(
+      _selectedDate!.year,
+      _selectedDate!.month,
+      _selectedDate!.day,
+    );
+  }
+
   void _saveTask() {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
 
-    DateTime? dueDate;
-    if (_selectedDate != null) {
-      if (_selectedTime != null) {
-        dueDate = DateTime(
-          _selectedDate!.year,
-          _selectedDate!.month,
-          _selectedDate!.day,
-          _selectedTime!.hour,
-          _selectedTime!.minute,
-        );
-      } else {
-        dueDate = DateTime(
-          _selectedDate!.year,
-          _selectedDate!.month,
-          _selectedDate!.day,
-        );
-      }
-    }
+    final dueDate = _buildDueDate();
 
     final now = DateTime.now();
     final task = TaskEntity(
@@ -131,6 +132,60 @@ class _TaskFormPageState extends State<TaskFormPage> {
     }
   }
 
+  Widget _buildNotificationPreview(BuildContext context) {
+    final preview = TaskNotificationHelper.previewSchedule(
+      dueDate: _buildDueDate(),
+      isCompleted: _existingTask?.isCompleted ?? false,
+    );
+    final theme = Theme.of(context);
+
+    if (_selectedDate == null) {
+      return const SizedBox.shrink();
+    }
+
+    return Card(
+      color: theme.colorScheme.primaryContainer.withValues(alpha: 0.35),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(Icons.notifications_active, color: theme.colorScheme.primary),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Bildirim zamanı',
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    preview.displayMessage ?? 'Bildirim planlanamıyor.',
+                    style: theme.textTheme.bodySmall,
+                  ),
+                  if (preview.success)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Text(
+                        'Bildirim çubuğu ve kilit ekranında görünür.',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isEditing = widget.taskId != null;
@@ -138,9 +193,19 @@ class _TaskFormPageState extends State<TaskFormPage> {
     return BlocListener<TaskBloc, TaskState>(
       listener: (context, state) {
         if (state is TaskCreated || state is TaskUpdated) {
+          final preview = TaskNotificationHelper.previewSchedule(
+            dueDate: _buildDueDate(),
+            isCompleted: _existingTask?.isCompleted ?? false,
+          );
+          final base = isEditing ? 'Görev güncellendi' : 'Görev eklendi';
+          final message = preview.displayMessage != null
+              ? '$base\n${preview.displayMessage}'
+              : base;
+
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(isEditing ? 'Görev güncellendi' : 'Görev eklendi'),
+              content: Text(message),
+              duration: const Duration(seconds: 5),
             ),
           );
           Navigator.pop(context);
@@ -211,6 +276,8 @@ class _TaskFormPageState extends State<TaskFormPage> {
                 trailing: const Icon(Icons.access_time),
                 onTap: _selectTime,
               ),
+              const SizedBox(height: 12),
+              _buildNotificationPreview(context),
               const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: _isLoading ? null : _saveTask,
@@ -225,54 +292,6 @@ class _TaskFormPageState extends State<TaskFormPage> {
                       )
                     : Text(isEditing ? 'Güncelle' : 'Kaydet'),
               ),
-              // Test butonu (sadece debug için)
-              if (!isEditing && _selectedTime != null && _selectedDate != null)
-                Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  child: OutlinedButton.icon(
-                    onPressed: () async {
-                      // Test için 1 dakika sonra bildirim gönder
-                      final testTime = DateTime.now().add(const Duration(minutes: 1));
-                      final task = TaskEntity(
-                        id: 'test_${DateTime.now().millisecondsSinceEpoch}',
-                        title: 'Test Görevi',
-                        description: 'Bu bir test görevidir',
-                        dueDate: testTime,
-                        createdAt: DateTime.now(),
-                        updatedAt: DateTime.now(),
-                      );
-                      try {
-                        await Future.microtask(() async {
-                          final helper = TaskNotificationHelper();
-                          await helper.scheduleTaskNotification(task);
-                        });
-                        if (mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Test bildirimi zamanlandı! 1 dakika sonra gelecek.'),
-                              backgroundColor: Colors.green,
-                            ),
-                          );
-                        }
-                      } catch (e) {
-                        if (mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Test hatası: $e'),
-                              backgroundColor: Colors.red,
-                            ),
-                          );
-                        }
-                      }
-                    },
-                    icon: const Icon(Icons.bug_report, size: 16),
-                    label: const Text('Test Bildirimi (1 dk)'),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.orange,
-                      minimumSize: const Size(double.infinity, 40),
-                    ),
-                  ),
-                ),
             ],
           ),
           ),
