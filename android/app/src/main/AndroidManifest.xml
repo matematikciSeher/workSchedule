@@ -6,7 +6,9 @@
     <!-- Bildirim izinleri -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission android:name="android.permission.VIBRATE" />
-    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+    <!-- Google Play politikası: tam ekran intent yalnızca alarm/telefon gibi
+         uygulamalara izin verilir; hatırlatıcı bildirimleri için gerekli değil. -->
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" tools:node="remove" />
     <!-- Android 13+ için bildirim izni -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <!-- Tam zamanlama için -->
