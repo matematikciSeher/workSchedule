@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import '../../domain/entities/event_entity.dart';
 import '../../domain/repositories/event_repository.dart';
 import '../../domain/repositories/task_repository.dart';
+import '../locale/app_localizations_helper.dart';
 import 'package:intl/intl.dart';
 
 /// AI Asistan Servisi - Takvim sorgulama ve akıllı yanıtlar için
@@ -178,12 +179,13 @@ class AiAssistantService {
 
   /// Bugünkü programı getir
   Future<String> _getTodaySchedule() async {
+    final l10n = systemL10n;
     final now = DateTime.now();
     final todayStart = DateTime(now.year, now.month, now.day, 0, 0);
     final todayEnd = DateTime(now.year, now.month, now.day, 23, 59);
 
     final buffer = StringBuffer();
-    buffer.writeln('📅 **Bugünkü Programınız**');
+    buffer.writeln('📅 **${l10n.aiTodaySchedule}**');
     buffer.writeln('');
 
     // Etkinlikleri getir
@@ -254,7 +256,7 @@ class AiAssistantService {
     }
 
     if (buffer.length < 50) {
-      return '✅ Bugün için planlanmış etkinlik veya görev görünmüyor. Rahat bir gününüz var! 🎉';
+      return l10n.aiTodayEmpty;
     }
 
     return buffer.toString();
@@ -262,12 +264,13 @@ class AiAssistantService {
 
   /// Yarınki programı getir
   Future<String> _getTomorrowSchedule() async {
+    final l10n = systemL10n;
     final tomorrow = DateTime.now().add(const Duration(days: 1));
     final tomorrowStart = DateTime(tomorrow.year, tomorrow.month, tomorrow.day, 0, 0);
     final tomorrowEnd = DateTime(tomorrow.year, tomorrow.month, tomorrow.day, 23, 59);
 
     final buffer = StringBuffer();
-    buffer.writeln('📅 **Yarınki Programınız**');
+    buffer.writeln('📅 **${l10n.aiTomorrowProgram}**');
     buffer.writeln('');
 
     var hasEvents = false;
@@ -293,7 +296,7 @@ class AiAssistantService {
           buffer.writeln('');
         }
       } catch (e) {
-        buffer.writeln('Etkinlikler yüklenirken bir hata oluştu.');
+        buffer.writeln(l10n.aiEventsLoadError);
       }
     }
 
@@ -327,7 +330,7 @@ class AiAssistantService {
     }
 
     if (!hasEvents && !hasTasks) {
-      return '✅ Yarın için henüz planlanmış etkinlik veya görev görünmüyor.';
+      return l10n.aiTomorrowEmpty;
     }
 
     return buffer.toString();
@@ -335,22 +338,23 @@ class AiAssistantService {
 
   /// Boş zaman analizi
   Future<String> _getFreeTimeAnalysis() async {
+    final l10n = systemL10n;
     final now = DateTime.now();
     final todayStart = DateTime(now.year, now.month, now.day, 8, 0); // 08:00'den başla
     final todayEnd = DateTime(now.year, now.month, now.day, 22, 0); // 22:00'ye kadar
 
     if (eventRepository == null) {
-      return 'Etkinlik bilgilerine erişilemiyor.';
+      return l10n.aiEventsUnavailable;
     }
 
     final freeTimeSlots = await _calculateFreeTimeSlots(todayStart, todayEnd);
 
     if (freeTimeSlots.isEmpty) {
-      return '🔴 Bugün çok yoğun görünüyorsunuz! Boş zaman bulunmuyor. Dinlenmeyi unutmayın! 😊';
+      return l10n.aiBusyToday;
     }
 
     final buffer = StringBuffer();
-    buffer.writeln('⏰ **Bugünkü Boş Zamanlarınız:**');
+    buffer.writeln('⏰ **${l10n.aiFreeTimeTitle}:**');
     buffer.writeln('');
 
     int totalFreeMinutes = 0;
@@ -426,8 +430,9 @@ class AiAssistantService {
 
   /// Görevler özeti
   Future<String> _getTasksSummary() async {
+    final l10n = systemL10n;
     if (taskRepository == null) {
-      return 'Görev bilgilerine erişilemiyor.';
+      return l10n.aiTasksUnavailable;
     }
 
     try {
@@ -436,7 +441,7 @@ class AiAssistantService {
       final completedTasks = tasks.where((t) => t.isCompleted).toList();
 
       final buffer = StringBuffer();
-      buffer.writeln('📋 **Görev Özeti**');
+      buffer.writeln('📋 **${l10n.aiTaskSummary}**');
       buffer.writeln('');
       buffer.writeln('✅ Tamamlanan: ${completedTasks.length}');
       buffer.writeln('⏳ Bekleyen: ${incompleteTasks.length}');
@@ -453,20 +458,22 @@ class AiAssistantService {
           }
         }
         if (incompleteTasks.length > 10) {
-          buffer.writeln('... ve ${incompleteTasks.length - 10} görev daha');
+          buffer.writeln(l10n.aiAndMoreTasks(incompleteTasks.length - 10));
         }
       }
 
       return buffer.toString();
     } catch (e) {
-      return 'Görevler yüklenirken bir hata oluştu.';
+      return l10n.aiTasksLoadError;
     }
   }
 
   /// Etkinlikler özeti
   Future<String> _getEventsSummary() async {
+    final l10n = systemL10n;
+    final dateLocale = systemDateFormatLocale();
     if (eventRepository == null) {
-      return 'Etkinlik bilgilerine erişilemiyor.';
+      return l10n.aiEventsUnavailable;
     }
 
     try {
@@ -477,11 +484,11 @@ class AiAssistantService {
       final events = await eventRepository!.getEventsByDateRange(weekStart, weekEnd);
 
       if (events.isEmpty) {
-        return 'Bu hafta için planlanmış etkinlik bulunmuyor.';
+        return l10n.aiNoEventsThisWeek;
       }
 
       final buffer = StringBuffer();
-      buffer.writeln('📅 **Bu Hafta Etkinlikleri**');
+      buffer.writeln('📅 **${l10n.aiWeekEventsTitle}**');
       buffer.writeln('');
 
       final eventsByDate = <DateTime, List<EventEntity>>{};
@@ -493,7 +500,7 @@ class AiAssistantService {
       final sortedDates = eventsByDate.keys.toList()..sort();
 
       for (var date in sortedDates) {
-        buffer.writeln('**${DateFormat('EEEE, dd MMMM', 'tr_TR').format(date)}:**');
+        buffer.writeln('**${DateFormat('EEEE, dd MMMM', dateLocale).format(date)}:**');
         for (var event in eventsByDate[date]!) {
           final timeStr = DateFormat('HH:mm').format(event.startDate);
           buffer.writeln('• $timeStr - ${event.title}');
@@ -503,12 +510,14 @@ class AiAssistantService {
 
       return buffer.toString();
     } catch (e) {
-      return 'Etkinlikler yüklenirken bir hata oluştu.';
+      return l10n.aiEventsLoadError;
     }
   }
 
   /// Hafta sonu programı
   Future<String> _getWeekendSchedule() async {
+    final l10n = systemL10n;
+    final dateLocale = systemDateFormatLocale();
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
 
@@ -528,7 +537,7 @@ class AiAssistantService {
     final weekendEnd = DateTime(sunday.year, sunday.month, sunday.day, 23, 59);
 
     final buffer = StringBuffer();
-    buffer.writeln('📅 **Hafta Sonu Planınız**');
+    buffer.writeln('📅 **${l10n.aiWeekendPlan}**');
     buffer.writeln('');
 
     if (eventRepository != null) {
@@ -541,18 +550,18 @@ class AiAssistantService {
         if (events.isNotEmpty) {
           events.sort((a, b) => a.startDate.compareTo(b.startDate));
           for (var event in events) {
-            final dateStr = DateFormat('EEEE dd.MM', 'tr_TR').format(event.startDate);
+            final dateStr = DateFormat('EEEE dd.MM', dateLocale).format(event.startDate);
             final timeStr = DateFormat('HH:mm').format(event.startDate);
             final endTimeStr = DateFormat('HH:mm').format(event.endDate);
             buffer.writeln('• $dateStr $timeStr-$endTimeStr: ${event.title}');
           }
           buffer.writeln('');
         } else {
-          buffer.writeln('Hafta sonu için planlanmış etkinlik bulunmuyor.');
+          buffer.writeln(l10n.aiWeekendNoEvents);
           buffer.writeln('');
         }
       } catch (e) {
-        buffer.writeln('Etkinlikler yüklenirken bir hata oluştu.');
+        buffer.writeln(l10n.aiEventsLoadError);
       }
     }
 
@@ -568,7 +577,7 @@ class AiAssistantService {
           buffer.writeln('✅ **Hafta Sonu Görevleri:**');
           for (var task in weekendTasks) {
             if (task.dueDate != null) {
-              final dayStr = DateFormat('EEEE', 'tr_TR').format(task.dueDate!);
+              final dayStr = DateFormat('EEEE', dateLocale).format(task.dueDate!);
               buffer.writeln('• [$dayStr] ${task.title}');
             } else {
               buffer.writeln('• ${task.title}');
@@ -581,7 +590,7 @@ class AiAssistantService {
     }
 
     if (buffer.length < 50) {
-      return '✅ Hafta sonu için henüz planlanmış bir şey görünmüyor. Dinlenmek için güzel bir fırsat! 🌿';
+      return l10n.aiWeekendEmpty;
     }
 
     return buffer.toString();
@@ -589,8 +598,9 @@ class AiAssistantService {
 
   /// Geciken görevler özeti
   Future<String> _getOverdueTasksSummary() async {
+    final l10n = systemL10n;
     if (taskRepository == null) {
-      return 'Görev bilgilerine erişilemiyor.';
+      return l10n.aiTasksUnavailable;
     }
 
     try {
@@ -605,11 +615,11 @@ class AiAssistantService {
         ..sort((a, b) => a.dueDate!.compareTo(b.dueDate!));
 
       if (overdueTasks.isEmpty) {
-        return '✅ Harika! Geciken göreviniz yok. Her şey yolunda! 🎉';
+        return l10n.aiNoOverdueTasks;
       }
 
       final buffer = StringBuffer();
-      buffer.writeln('⚠️ **Geciken Görevler** (${overdueTasks.length} adet)');
+      buffer.writeln('⚠️ **${l10n.aiOverdueTasksCount(overdueTasks.length)}**');
       buffer.writeln('');
 
       for (var task in overdueTasks.take(10)) {
@@ -617,24 +627,27 @@ class AiAssistantService {
         final daysLate = todayStart.difference(
           DateTime(task.dueDate!.year, task.dueDate!.month, task.dueDate!.day),
         ).inDays;
-        buffer.writeln('• $dateStr - ${task.title} ($daysLate gün gecikti)');
+        buffer.writeln(
+          '• $dateStr - ${task.title} (${l10n.aiDaysOverdue(daysLate)})',
+        );
       }
 
       if (overdueTasks.length > 10) {
-        buffer.writeln('... ve ${overdueTasks.length - 10} görev daha');
+        buffer.writeln(l10n.aiAndMoreTasks(overdueTasks.length - 10));
       }
 
-      buffer.writeln('\n💡 Bu görevleri önceliklendirmenizi öneririm.');
+      buffer.writeln(l10n.aiRecommendPrioritize);
       return buffer.toString();
     } catch (e) {
-      return 'Geciken görevler yüklenirken bir hata oluştu.';
+      return l10n.aiTasksLoadError;
     }
   }
 
   /// Öncelikli görevler özeti
   Future<String> _getPriorityTasksSummary() async {
+    final l10n = systemL10n;
     if (taskRepository == null) {
-      return 'Görev bilgilerine erişilemiyor.';
+      return l10n.aiTasksUnavailable;
     }
 
     try {
@@ -650,15 +663,17 @@ class AiAssistantService {
         });
 
       if (priorityTasks.isEmpty) {
-        return '✅ Yüksek öncelikli bekleyen göreviniz yok.';
+        return l10n.aiNoPriorityTasks;
       }
 
       final buffer = StringBuffer();
-      buffer.writeln('🔥 **Öncelikli Görevler**');
+      buffer.writeln('🔥 **${l10n.aiPriorityTasksTitle}**');
       buffer.writeln('');
 
       for (var task in priorityTasks.take(10)) {
-        final priorityLabel = task.priority == 3 ? 'Yüksek' : 'Orta';
+        final priorityLabel = task.priority == 3
+            ? l10n.priorityHigh
+            : l10n.priorityMedium;
         if (task.dueDate != null) {
           final dateStr = DateFormat('dd.MM.yyyy HH:mm').format(task.dueDate!);
           buffer.writeln('• [$priorityLabel] $dateStr - ${task.title}');
@@ -668,19 +683,21 @@ class AiAssistantService {
       }
 
       if (priorityTasks.length > 10) {
-        buffer.writeln('... ve ${priorityTasks.length - 10} görev daha');
+        buffer.writeln(l10n.aiAndMoreTasks(priorityTasks.length - 10));
       }
 
       return buffer.toString();
     } catch (e) {
-      return 'Öncelikli görevler yüklenirken bir hata oluştu.';
+      return l10n.aiTasksLoadError;
     }
   }
 
   /// Sıradaki etkinlik
   Future<String> _getNextEventSummary() async {
+    final l10n = systemL10n;
+    final dateLocale = systemDateFormatLocale();
     if (eventRepository == null) {
-      return 'Etkinlik bilgilerine erişilemiyor.';
+      return l10n.aiEventsUnavailable;
     }
 
     try {
@@ -691,16 +708,16 @@ class AiAssistantService {
         ..sort((a, b) => a.startDate.compareTo(b.startDate));
 
       if (upcoming.isEmpty) {
-        return '📭 Önümüzdeki 30 gün içinde planlanmış etkinlik bulunmuyor.';
+        return l10n.aiNoUpcomingEvents;
       }
 
       final next = upcoming.first;
-      final dateStr = DateFormat('EEEE, dd MMMM', 'tr_TR').format(next.startDate);
+      final dateStr = DateFormat('EEEE, dd MMMM', dateLocale).format(next.startDate);
       final timeStr = DateFormat('HH:mm').format(next.startDate);
       final endTimeStr = DateFormat('HH:mm').format(next.endDate);
 
       final buffer = StringBuffer();
-      buffer.writeln('📌 **Sıradaki Etkinliğiniz**');
+      buffer.writeln('📌 **${l10n.aiNextEventTitle}**');
       buffer.writeln('');
       buffer.writeln('• **${next.title}**');
       buffer.writeln('  📅 $dateStr');
@@ -724,34 +741,28 @@ class AiAssistantService {
 
       return buffer.toString();
     } catch (e) {
-      return 'Sıradaki etkinlik yüklenirken bir hata oluştu.';
+      return l10n.aiEventsLoadError;
     }
   }
 
   /// Selamlama yanıtı
   String _getGreetingMessage() {
+    final l10n = systemL10n;
     final hour = DateTime.now().hour;
     final greeting = hour < 12
-        ? 'Günaydın'
+        ? l10n.aiGreetingMorning
         : hour < 18
-            ? 'Merhaba'
-            : 'İyi akşamlar';
+            ? l10n.aiGreetingHello
+            : l10n.aiGreetingEvening;
 
-    return '''$greeting! 👋 Ben kişisel takvim asistanınızım.
-
-Size şunları sorabilirsiniz:
-• "Bugün ne yapmalıyım?"
-• "Sıradaki etkinliğim ne?"
-• "Geciken görevlerim var mı?"
-• "Boş zamanım var mı?"
-
-Tüm komutlar için "yardım" yazabilirsiniz.''';
+    return '$greeting! 👋 ${l10n.aiHelpIntro}';
   }
 
   /// Hafta özeti
   Future<String> _getWeekSummary() async {
+    final l10n = systemL10n;
     final buffer = StringBuffer();
-    buffer.writeln('📊 **Bu Hafta Özeti**');
+    buffer.writeln('📊 **${l10n.aiWeekSummaryTitle}**');
     buffer.writeln('');
 
     final eventsSummary = await _getEventsSummary();
@@ -766,33 +777,7 @@ Tüm komutlar için "yardım" yazabilirsiniz.''';
 
   /// Yardım mesajı
   String _getHelpMessage() {
-    return '''🤖 **AI Asistan Yardım**
-
-Ben size şu konularda yardımcı olabilirim:
-
-📅 **Günlük Plan:**
-• "Bugün ne yapmalıyım?"
-• "Yarın ne var?"
-• "Hafta sonu planım ne?"
-• "Boş zamanım var mı?"
-• "Bugün yoğun muyum?"
-
-📌 **Etkinlikler:**
-• "Sıradaki etkinliğim ne?"
-• "Bu hafta ne planlı?"
-• "Etkinliklerim neler?"
-
-✅ **Görevler:**
-• "Görevlerim neler?"
-• "Geciken görevlerim var mı?"
-• "Öncelikli görevlerim neler?"
-• "Tamamlanmamış görevler"
-
-📊 **Özet:**
-• "Bu hafta özeti"
-• "Haftalık özet"
-
-Sormak istediğiniz herhangi bir soruyu doğal dil ile sorabilirsiniz!''';
+    return systemL10n.aiHelpFull;
   }
 
   /// OpenAI API ile yanıt al (opsiyonel)
@@ -837,16 +822,7 @@ Sormak istediğiniz herhangi bir soruyu doğal dil ile sorabilirsiniz!''';
 
   /// Varsayılan yanıt
   String _getDefaultResponse(String question) {
-    return '''🤖 Anlamadım, ama şunları sorabilirsiniz:
-
-• "Bugün ne yapmalıyım?"
-• "Sıradaki etkinliğim ne?"
-• "Geciken görevlerim var mı?"
-• "Boş zamanım var mı?"
-• "Hafta sonu planım ne?"
-• "Bu hafta özeti"
-
-Daha fazla yardım için "yardım" yazabilirsiniz.''';
+    return systemL10n.aiDefaultResponse;
   }
 }
 

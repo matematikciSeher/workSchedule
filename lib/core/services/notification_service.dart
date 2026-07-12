@@ -6,6 +6,7 @@ import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'dart:io' show Platform;
 import '../../domain/entities/task_entity.dart';
+import '../locale/app_localizations_helper.dart';
 import 'notification_action_handler.dart';
 import 'notification_background.dart';
 import 'task_notification_helper.dart';
@@ -88,11 +89,12 @@ class NotificationService {
     final android = resolvePlatformSpecificImplementation();
     if (android == null) return;
 
-    const channels = [
+    final l10n = systemL10n;
+    final channels = [
       AndroidNotificationChannel(
         taskReminderChannelId,
-        'Görev Hatırlatıcıları',
-        description: 'Görevler için 1 saat ve 30 dakika önce hatırlatma',
+        l10n.taskReminderChannelName,
+        description: l10n.taskReminderChannelDesc,
         importance: Importance.high,
         playSound: true,
         enableVibration: true,
@@ -100,8 +102,8 @@ class NotificationService {
       ),
       AndroidNotificationChannel(
         'event_reminders',
-        'Hatırlatıcı Bildirimleri',
-        description: 'Etkinlik hatırlatıcıları',
+        l10n.eventReminderChannelName,
+        description: l10n.eventReminderChannelDesc,
         importance: Importance.high,
         playSound: true,
         enableVibration: true,
@@ -109,8 +111,8 @@ class NotificationService {
       ),
       AndroidNotificationChannel(
         'task_feedback',
-        'Görev Bildirimleri',
-        description: 'Tamamlama ve erteleme bildirimleri',
+        l10n.taskNotificationChannelName,
+        description: l10n.taskNotificationChannelDesc,
         importance: Importance.defaultImportance,
       ),
     ];
@@ -227,9 +229,8 @@ class NotificationService {
       scheduledDate: scheduledDate,
       payload: 'task:$taskId:reminder',
       channelId: taskReminderChannelId,
-      channelName: 'Görev Hatırlatıcıları',
-      channelDescription:
-          'Görevler için 1 saat ve 30 dakika önce hatırlatma bildirimleri',
+      channelName: systemL10n.taskReminderChannelName,
+      channelDescription: systemL10n.taskReminderChannelDesc,
       withTaskActions: true,
     );
   }
@@ -244,19 +245,20 @@ class NotificationService {
     final statusColor =
         isCompleted ? const Color(0xFF2E7D32) : const Color(0xFFD32F2F);
 
+    final l10n = systemL10n;
     final title =
-        isCompleted ? 'Görev Tamamlandı ✓' : 'Görev Tamamlanmadı';
+        isCompleted ? l10n.taskCompletedTitle : l10n.taskNotCompletedTitle;
     final dueTime = task.dueDate != null
         ? '${task.dueDate!.hour.toString().padLeft(2, '0')}:${task.dueDate!.minute.toString().padLeft(2, '0')}'
         : '';
     final body = isCompleted
-        ? '"${task.title}" $dueTime için zamanında tamamlanmış.'
-        : '"${task.title}" süresi doldu ($dueTime). Henüz tamamlanmadı.';
+        ? l10n.taskCompletedOnTime(task.title, dueTime)
+        : l10n.taskNotCompletedOverdue(task.title, dueTime);
 
     final androidDetails = AndroidNotificationDetails(
       taskReminderChannelId,
-      'Görev Hatırlatıcıları',
-      channelDescription: 'Görev vade durumu bildirimleri',
+      l10n.taskReminderChannelName,
+      channelDescription: l10n.taskReminderChannelDesc,
       importance: Importance.high,
       priority: Priority.high,
       color: statusColor,
@@ -267,15 +269,15 @@ class NotificationService {
       actions: isCompleted
           ? null
           : <AndroidNotificationAction>[
-              const AndroidNotificationAction(
+              AndroidNotificationAction(
                 snoozeActionId,
-                'Ertele',
+                l10n.snoozeAction,
                 showsUserInterface: true,
                 cancelNotification: true,
               ),
-              const AndroidNotificationAction(
+              AndroidNotificationAction(
                 completeActionId,
-                'Tamamla',
+                l10n.completeAction,
                 showsUserInterface: false,
                 cancelNotification: true,
               ),
@@ -313,10 +315,11 @@ class NotificationService {
             ? const Color(0xFF2E7D32)
             : const Color(0xFFD32F2F);
 
+    final l10n = systemL10n;
     final androidDetails = AndroidNotificationDetails(
       'task_feedback',
-      'Görev Bildirimleri',
-      channelDescription: 'Görev tamamlama ve erteleme bildirimleri',
+      l10n.taskNotificationChannelName,
+      channelDescription: l10n.taskNotificationChannelDesc,
       importance: Importance.defaultImportance,
       priority: Priority.defaultPriority,
       visibility: NotificationVisibility.public,
@@ -345,13 +348,19 @@ class NotificationService {
     required String body,
     required DateTime scheduledDate,
     String? payload,
-    String channelId = 'event_reminders',
-    String channelName = 'Hatırlatıcı Bildirimleri',
-    String channelDescription =
-        'Etkinlikler ve görevler için hatırlatıcı bildirimleri',
+    String? channelId,
+    String? channelName,
+    String? channelDescription,
     bool withTaskActions = false,
   }) async {
     if (!_initialized) await initialize();
+
+    final l10n = systemL10n;
+    final resolvedChannelId = channelId ?? 'event_reminders';
+    final resolvedChannelName =
+        channelName ?? l10n.eventReminderChannelName;
+    final resolvedChannelDescription =
+        channelDescription ?? l10n.eventReminderChannelDesc;
 
     // Geçmiş bir tarihse bildirim gönderme
     // Ama 5 dakika tolerans ver (kullanıcı kaydetme sırasında birkaç saniye geçebilir)
@@ -372,16 +381,14 @@ class NotificationService {
       if (Platform.isAndroid) {
         final granted = await ensurePermissions();
         if (!granted) {
-          throw Exception(
-            'Bildirim izni verilmedi. Ayarlar > Bildirimler bölümünden izin verin.',
-          );
+          throw Exception(l10n.notificationPermissionRequired);
         }
       }
 
       final androidDetails = AndroidNotificationDetails(
-        channelId,
-        channelName,
-        channelDescription: channelDescription,
+        resolvedChannelId,
+        resolvedChannelName,
+        channelDescription: resolvedChannelDescription,
         importance: Importance.high,
         priority: Priority.high,
         showWhen: true,
@@ -393,9 +400,9 @@ class NotificationService {
         styleInformation: BigTextStyleInformation(body),
         actions: withTaskActions
             ? <AndroidNotificationAction>[
-                const AndroidNotificationAction(
+                AndroidNotificationAction(
                   snoozeActionId,
-                  'Ertele',
+                  l10n.snoozeAction,
                   showsUserInterface: true,
                   cancelNotification: true,
                 ),
@@ -493,8 +500,7 @@ class NotificationService {
             print('❌ Alternatif yöntem de başarısız: $e2');
             throw PlatformException(
               code: 'exact_alarms_not_permitted',
-              message: 'Exact alarm izni gerekli. Lütfen ayarlardan açın.',
-              details: 'Ayarlar > Uygulamalar > Work Schedule > İzinler > Saat ve Alarm > Kesin alarmlar',
+              message: l10n.exactAlarmPermissionRequired,
             );
           }
         } else {
@@ -670,10 +676,11 @@ class NotificationService {
   Future<void> sendImmediateTestNotification() async {
     if (!_initialized) await initialize();
     
-    const androidDetails = AndroidNotificationDetails(
+    final l10n = systemL10n;
+    final androidDetails = AndroidNotificationDetails(
       'event_reminders',
-      'Hatırlatıcı Bildirimleri',
-      channelDescription: 'Etkinlikler ve görevler için hatırlatıcı bildirimleri',
+      l10n.eventReminderChannelName,
+      channelDescription: l10n.eventReminderChannelDesc,
       importance: Importance.high,
       priority: Priority.high,
       showWhen: true,
@@ -695,8 +702,8 @@ class NotificationService {
     try {
       await _notifications.show(
         999997,
-        'Test Bildirimi',
-        'Eğer bunu görüyorsanız bildirimler çalışıyor!',
+        l10n.testNotificationTitle,
+        l10n.testNotificationBody,
         notificationDetails,
       );
       print('✅ Anında test bildirimi gönderildi');

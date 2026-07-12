@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../../../core/locale/app_localizations_helper.dart';
 import '../models/wear_os_models.dart';
 
 /// Wear OS için görev kartı
@@ -19,7 +20,8 @@ class WearOsTaskCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dateFormatter = DateFormat('d MMM', 'tr_TR');
+    final dateFormatter = DateFormat('d MMM', systemDateFormatLocale());
+    final l10n = systemL10n;
     final isOverdue = task.dueDate != null &&
         task.dueDate!.isBefore(DateTime.now()) &&
         !task.isCompleted;
@@ -114,7 +116,7 @@ class WearOsTaskCard extends StatelessWidget {
                         const SizedBox(width: 4),
                         Text(
                           isOverdue
-                              ? 'Süresi doldu'
+                              ? l10n.wearOsOverdue
                               : dateFormatter.format(task.dueDate!),
                           style: TextStyle(
                             color: isOverdue ? Colors.red : Colors.white70,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/app_localizations.dart';
 
 class SyncSettingsPage extends StatefulWidget {
   const SyncSettingsPage({super.key});
@@ -15,17 +16,18 @@ class _SyncSettingsPageState extends State<SyncSettingsPage> {
   @override
   Widget build(BuildContext context) {
     final padding = 16.0;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Senkronizasyon Ayarları'),
+        title: Text(l10n.syncSettings),
       ),
       body: ListView(
         padding: EdgeInsets.all(padding),
         children: [
           SwitchListTile(
-            title: const Text('Senkronizasyonu Etkinleştir'),
-            subtitle: const Text('Bulut senkronizasyonu aç/kapat'),
+            title: Text(l10n.enableSync),
+            subtitle: Text(l10n.enableSyncSubtitle),
             value: _syncEnabled,
             onChanged: (value) {
               setState(() {
@@ -35,9 +37,8 @@ class _SyncSettingsPageState extends State<SyncSettingsPage> {
           ),
           const Divider(),
           SwitchListTile(
-            title: const Text('Otomatik Senkronizasyon'),
-            subtitle:
-                const Text('Değişiklikleri otomatik olarak senkronize et'),
+            title: Text(l10n.autoSync),
+            subtitle: Text(l10n.autoSyncSubtitle),
             value: _autoSync,
             onChanged: _syncEnabled
                 ? (value) {
@@ -49,8 +50,8 @@ class _SyncSettingsPageState extends State<SyncSettingsPage> {
           ),
           const Divider(),
           SwitchListTile(
-            title: const Text('Sadece Wi-Fi\'da Senkronize Et'),
-            subtitle: const Text('Mobil veri kullanımını azalt'),
+            title: Text(l10n.wifiOnlySync),
+            subtitle: Text(l10n.wifiOnlySyncSubtitle),
             value: _wifiOnly,
             onChanged: _syncEnabled
                 ? (value) {
@@ -62,16 +63,14 @@ class _SyncSettingsPageState extends State<SyncSettingsPage> {
           ),
           const Divider(),
           ListTile(
-            title: const Text('Manuel Senkronizasyon'),
-            subtitle: const Text('Şimdi senkronize et'),
+            title: Text(l10n.manualSync),
+            subtitle: Text(l10n.syncNow),
             trailing: const Icon(Icons.sync),
             enabled: _syncEnabled,
             onTap: _syncEnabled
                 ? () {
-                    // Manuel senkronizasyon işlemi
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          content: Text('Senkronizasyon başlatıldı')),
+                      SnackBar(content: Text(l10n.syncStarted)),
                     );
                   }
                 : null,
@@ -84,12 +83,12 @@ class _SyncSettingsPageState extends State<SyncSettingsPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Son Senkronizasyon',
+                    l10n.lastSync,
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Henüz senkronize edilmedi',
+                    l10n.notSyncedYet,
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                 ],

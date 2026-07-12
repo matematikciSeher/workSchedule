@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../domain/entities/event_entity.dart';
 import '../../../domain/repositories/event_repository.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// Performans optimizasyonlu paginated event list widget'ı
 /// Lazy loading ve pagination desteği ile büyük veri setlerini verimli şekilde listeler
@@ -133,6 +134,7 @@ class _PaginatedEventListWidgetState extends State<PaginatedEventListWidget> {
     }
 
     if (_error != null) {
+      final l10n = AppLocalizations.of(context)!;
       return widget.errorBuilder?.call(context, _error!) ??
           Center(
             child: Column(
@@ -141,14 +143,14 @@ class _PaginatedEventListWidgetState extends State<PaginatedEventListWidget> {
                 const Icon(Icons.error_outline, size: 64, color: Colors.red),
                 const SizedBox(height: 16),
                 Text(
-                  'Hata: $_error',
+                  l10n.errorWithMessage(_error!),
                   textAlign: TextAlign.center,
                   style: const TextStyle(color: Colors.red),
                 ),
                 const SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: _refresh,
-                  child: const Text('Tekrar Dene'),
+                  child: Text(l10n.tryAgain),
                 ),
               ],
             ),

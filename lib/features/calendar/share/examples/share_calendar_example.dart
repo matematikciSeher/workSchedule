@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../domain/entities/event_entity.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../bloc/share_calendar_bloc.dart';
 import '../bloc/events/share_calendar_event.dart';
 import '../bloc/states/share_calendar_state.dart';
@@ -14,9 +15,11 @@ class ShareCalendarExample extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Takvim Paylaşım Örnekleri'),
+        title: Text(l10n.shareExamplesTitle),
       ),
       body: BlocListener<ShareCalendarBloc, ShareCalendarState>(
         listener: (context, state) {
@@ -38,14 +41,14 @@ class ShareCalendarExample extends StatelessWidget {
             showDialog(
               context: context,
               builder: (context) => AlertDialog(
-                title: const Text('İçe Aktarma Başarılı'),
+                title: Text(l10n.importSuccessful),
                 content: Text(
-                  '${state.importedEvents.length} etkinlik başarıyla içe aktarıldı.',
+                  l10n.importSuccessCount(state.importedEvents.length),
                 ),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('Tamam'),
+                    child: Text(l10n.ok),
                   ),
                 ],
               ),
@@ -70,6 +73,7 @@ class ShareCalendarExample extends StatelessWidget {
   }
 
   Widget _buildExampleEventCard(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final exampleEvent = EventEntity(
       id: 'example-1',
       title: 'Örnek Toplantı',
@@ -99,7 +103,7 @@ class ShareCalendarExample extends StatelessWidget {
               Text(exampleEvent.description!),
             const SizedBox(height: 8),
             Text(
-              'Başlangıç: ${exampleEvent.startDate.toString()}',
+              '${l10n.startTime}: ${exampleEvent.startDate.toString()}',
               style: TextStyle(color: Colors.grey[600]),
             ),
           ],
@@ -109,6 +113,7 @@ class ShareCalendarExample extends StatelessWidget {
   }
 
   Widget _buildShareButtons(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final exampleEvent = EventEntity(
       id: 'example-1',
       title: 'Örnek Toplantı',
@@ -143,7 +148,7 @@ class ShareCalendarExample extends StatelessWidget {
             );
           },
           icon: const Icon(Icons.share),
-          label: const Text('Tek Etkinlik Paylaş'),
+          label: Text(l10n.shareSingleEvent),
         ),
         const SizedBox(height: 8),
         ElevatedButton.icon(
@@ -152,18 +157,20 @@ class ShareCalendarExample extends StatelessWidget {
               context: context,
               builder: (context) => ShareCalendarDialog(
                 events: exampleEvents,
-                calendarName: 'Örnek Takvim',
+                calendarName: l10n.calendarShareTitle,
               ),
             );
           },
           icon: const Icon(Icons.calendar_today),
-          label: const Text('Tüm Takvimi Paylaş'),
+          label: Text(l10n.shareAllCalendar),
         ),
       ],
     );
   }
 
   Widget _buildImportButton(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return ElevatedButton.icon(
       onPressed: () {
         showDialog(
@@ -172,7 +179,7 @@ class ShareCalendarExample extends StatelessWidget {
         );
       },
       icon: const Icon(Icons.upload_file),
-      label: const Text('Takvim İçe Aktar'),
+      label: Text(l10n.importCalendar),
     );
   }
 }
@@ -233,4 +240,3 @@ class ProgrammaticShareExample {
     );
   }
 }
-

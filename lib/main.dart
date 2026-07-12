@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -12,6 +11,8 @@ import 'core/services/notification_navigation_service.dart';
 import 'core/services/task_due_worker.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/app_theme_controller.dart';
+import 'core/locale/app_locale.dart';
+import 'l10n/app_localizations.dart';
 import 'features/task/bloc/task_bloc.dart';
 import 'data/local/database_helper.dart';
 import 'features/task/data/datasources/task_local_datasource.dart';
@@ -78,8 +79,11 @@ class _MyAppState extends State<MyApp> {
         builder: (context, _) {
           if (_themeController.isLoading) {
             return MaterialApp(
-              title: 'Çalışma Takvimi',
+              title: 'Work Schedule',
               debugShowCheckedModeBanner: false,
+              localeResolutionCallback: AppLocale.localeResolutionCallback,
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              supportedLocales: AppLocale.supportedLocales,
               home: Scaffold(
                 backgroundColor: Colors.white,
                 body: LayoutBuilder(
@@ -122,18 +126,11 @@ class _MyAppState extends State<MyApp> {
             ],
             child: MaterialApp(
               navigatorKey: NotificationNavigationService.navigatorKey,
-              title: 'Çalışma Takvimi',
+              title: 'Work Schedule',
               debugShowCheckedModeBanner: false,
-              locale: const Locale('tr', 'TR'),
-              localizationsDelegates: const [
-                GlobalMaterialLocalizations.delegate,
-                GlobalWidgetsLocalizations.delegate,
-                GlobalCupertinoLocalizations.delegate,
-              ],
-              supportedLocales: const [
-                Locale('tr', 'TR'),
-                Locale('en', 'US'),
-              ],
+              localeResolutionCallback: AppLocale.localeResolutionCallback,
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              supportedLocales: AppLocale.supportedLocales,
               themeMode: _themeController.themeMode,
               theme: lightTheme(
                 _themeController.textScaleFactor,

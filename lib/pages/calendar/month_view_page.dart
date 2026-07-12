@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import '../../core/extensions/locale_extensions.dart';
+import '../../l10n/app_localizations.dart';
 import '../../shared/widgets/decorative_background.dart';
 
 class MonthViewPage extends StatefulWidget {
@@ -14,11 +17,13 @@ class _MonthViewPageState extends State<MonthViewPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
+    final localeStr = context.dateFormatLocale;
+    final title = DateFormat('MMMM yyyy', localeStr).format(_selectedDate);
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          '${_selectedDate.year} ${_getMonthName(_selectedDate.month)}',
-        ),
+        title: Text(title),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
@@ -31,30 +36,11 @@ class _MonthViewPageState extends State<MonthViewPage> {
         style: BackgroundStyle.vibrant,
         child: Center(
           child: Text(
-            'Ay Görünümü',
+            l10n.monthView,
             style: theme.textTheme.headlineMedium,
           ),
         ),
       ),
     );
   }
-
-  String _getMonthName(int month) {
-    const months = [
-      'Ocak',
-      'Şubat',
-      'Mart',
-      'Nisan',
-      'Mayıs',
-      'Haziran',
-      'Temmuz',
-      'Ağustos',
-      'Eylül',
-      'Ekim',
-      'Kasım',
-      'Aralık'
-    ];
-    return months[month - 1];
-  }
 }
-

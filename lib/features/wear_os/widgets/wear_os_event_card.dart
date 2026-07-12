@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../../../l10n/app_localizations.dart';
 import '../models/wear_os_models.dart';
 
 /// Wear OS için etkinlik kartı
@@ -15,6 +16,7 @@ class WearOsEventCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final timeFormatter = DateFormat('HH:mm');
     final isNowOrPassed = event.startDate.isBefore(DateTime.now());
 
@@ -99,7 +101,7 @@ class WearOsEventCard extends StatelessWidget {
                 const SizedBox(width: 4),
                 Text(
                   event.isAllDay
-                      ? 'Tüm Gün'
+                      ? l10n.allDay
                       : '${timeFormatter.format(event.startDate)} - ${timeFormatter.format(event.endDate)}',
                   style: const TextStyle(
                     color: Colors.white70,

@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../domain/repositories/task_repository.dart';
 import '../../../core/services/task_notification_helper.dart';
+import '../../../core/locale/app_localizations_helper.dart';
 import 'task_event.dart';
 import 'task_state.dart';
 
@@ -191,7 +192,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
         final tasks = await taskRepository.getAllTasks(userId: task.userId);
         emit(TaskLoaded(tasks));
       } else {
-        emit(TaskError('Görev bulunamadı'));
+        emit(TaskError(systemL10n.taskNotFound));
       }
     } catch (e) {
       emit(TaskError(e.toString()));
@@ -220,7 +221,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
         final tasks = await taskRepository.getAllTasks(userId: task.userId);
         emit(TaskLoaded(tasks));
       } else {
-        emit(TaskError('Görev bulunamadı'));
+        emit(TaskError(systemL10n.taskNotFound));
       }
     } catch (e) {
       emit(TaskError(e.toString()));
@@ -249,7 +250,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
         final tasks = await taskRepository.getAllTasks(userId: task.userId);
         emit(TaskLoaded(tasks));
       } else {
-        emit(TaskError('Görev bulunamadı'));
+        emit(TaskError(systemL10n.taskNotFound));
       }
     } catch (e) {
       emit(TaskError(e.toString()));
@@ -283,7 +284,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
         final tasks = await taskRepository.getAllTasks(userId: task.userId);
         emit(TaskLoaded(tasks));
       } else {
-        emit(TaskError('Görev bulunamadı'));
+        emit(TaskError(systemL10n.taskNotFound));
       }
     } catch (e) {
       emit(TaskError(e.toString()));
@@ -311,7 +312,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
         final tasks = await taskRepository.getAllTasks(userId: task.userId);
         emit(TaskLoaded(tasks));
       } else {
-        emit(TaskError('Görev bulunamadı'));
+        emit(TaskError(systemL10n.taskNotFound));
       }
     } catch (e) {
       emit(TaskError(e.toString()));

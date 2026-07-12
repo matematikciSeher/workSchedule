@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/routes/app_routes.dart';
+import '../../l10n/app_localizations.dart';
 import '../../shared/widgets/decorative_background.dart';
 import 'about_page.dart';
 import 'notification_settings_page.dart';
@@ -12,10 +13,11 @@ class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Ayarlar'),
+        title: Text(l10n.settings),
         elevation: 0,
         backgroundColor: Colors.transparent,
       ),
@@ -28,13 +30,13 @@ class SettingsPage extends StatelessWidget {
             _SettingsHeader(theme: theme),
             const SizedBox(height: 28),
             SettingsSection(
-              title: 'Genel',
+              title: l10n.sectionGeneral,
               children: [
                 SettingsTile(
                   icon: Icons.cloud_sync_rounded,
                   iconColor: theme.colorScheme.primary,
-                  title: 'Senkronizasyon Ayarları',
-                  subtitle: 'Bulut senkronizasyon ve yedekleme',
+                  title: l10n.syncSettings,
+                  subtitle: l10n.syncSettingsSubtitle,
                   onTap: () {
                     Navigator.pushNamed(context, AppRoutes.syncSettings);
                   },
@@ -42,8 +44,8 @@ class SettingsPage extends StatelessWidget {
                 SettingsTile(
                   icon: Icons.widgets_outlined,
                   iconColor: theme.colorScheme.secondary,
-                  title: 'Widget Önizleme',
-                  subtitle: 'Ana ekran widget\'ını önizle',
+                  title: l10n.widgetPreview,
+                  subtitle: l10n.widgetPreviewSubtitle,
                   showDivider: false,
                   onTap: () {
                     Navigator.pushNamed(context, AppRoutes.widgetPreview);
@@ -53,13 +55,13 @@ class SettingsPage extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             SettingsSection(
-              title: 'Kişiselleştirme',
+              title: l10n.sectionPersonalization,
               children: [
                 SettingsTile(
                   icon: Icons.notifications_active_outlined,
                   iconColor: theme.colorScheme.tertiary,
-                  title: 'Bildirimler',
-                  subtitle: 'Bildirim izinleri ve ayarları',
+                  title: l10n.notifications,
+                  subtitle: l10n.notificationsSubtitle,
                   onTap: () {
                     Navigator.push(
                       context,
@@ -72,8 +74,8 @@ class SettingsPage extends StatelessWidget {
                 SettingsTile(
                   icon: Icons.palette_outlined,
                   iconColor: const Color(0xFF9C27B0),
-                  title: 'Tema ve Yazı Tipi',
-                  subtitle: 'Açık/koyu tema, renkler ve yazı ayarları',
+                  title: l10n.themeAndFont,
+                  subtitle: l10n.themeAndFontSubtitle,
                   showDivider: false,
                   onTap: () {
                     Navigator.pushNamed(context, AppRoutes.themeSettings);
@@ -83,13 +85,13 @@ class SettingsPage extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             SettingsSection(
-              title: 'Uygulama',
+              title: l10n.sectionApp,
               children: [
                 SettingsTile(
                   icon: Icons.privacy_tip_outlined,
                   iconColor: const Color(0xFF2E7D32),
-                  title: 'Gizlilik Politikası',
-                  subtitle: 'Veri kullanımı ve KVKK bilgileri',
+                  title: l10n.privacyPolicy,
+                  subtitle: l10n.privacyPolicySubtitle,
                   onTap: () {
                     Navigator.push(
                       context,
@@ -102,8 +104,8 @@ class SettingsPage extends StatelessWidget {
                 SettingsTile(
                   icon: Icons.info_outline_rounded,
                   iconColor: theme.colorScheme.primary,
-                  title: 'Hakkında',
-                  subtitle: 'Uygulama bilgileri ve sürüm',
+                  title: l10n.about,
+                  subtitle: l10n.aboutSubtitle,
                   showDivider: false,
                   onTap: () {
                     Navigator.push(
@@ -130,6 +132,8 @@ class _SettingsHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -174,7 +178,7 @@ class _SettingsHeader extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Tercihlerinizi Yönetin',
+                  l10n.managePreferences,
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w700,
                     letterSpacing: 0.2,
@@ -182,7 +186,7 @@ class _SettingsHeader extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Senkronizasyon, bildirimler ve görünüm ayarlarını buradan düzenleyin.',
+                  l10n.settingsHeaderSubtitle,
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                     height: 1.4,

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../../../core/extensions/date_extensions.dart';
+import '../../../core/extensions/locale_extensions.dart';
 import '../../../shared/models/task_model.dart';
 
 /// Seçili ayın tamamını gösteren kompakt takvim grid widget'ı
@@ -27,8 +29,16 @@ class _WeeklyCalendarWidgetState extends State<WeeklyCalendarWidget>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
 
-  static const _dayLabels = ['P', 'S', 'Ç', 'P', 'C', 'C', 'P'];
   static const _cellSize = 34.0;
+  static final _referenceMonday = DateTime(2024, 1, 1);
+
+  List<String> _dayLabels(BuildContext context) {
+    final localeStr = widget.locale?.toString() ?? context.dateFormatLocale;
+    return List.generate(7, (index) {
+      final date = _referenceMonday.add(Duration(days: index));
+      return DateFormat('EEEEE', localeStr).format(date).toUpperCase();
+    });
+  }
 
   @override
   void initState() {
@@ -96,6 +106,7 @@ class _WeeklyCalendarWidgetState extends State<WeeklyCalendarWidget>
     final theme = Theme.of(context);
     final monthDays = _getMonthDays();
     final weekCount = monthDays.length ~/ 7;
+    final dayLabels = _dayLabels(context);
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(12, 4, 12, 8),
@@ -103,7 +114,7 @@ class _WeeklyCalendarWidgetState extends State<WeeklyCalendarWidget>
         mainAxisSize: MainAxisSize.min,
         children: [
           Row(
-            children: _dayLabels
+            children: dayLabels
                 .map(
                   (dayName) => Expanded(
                     child: Center(

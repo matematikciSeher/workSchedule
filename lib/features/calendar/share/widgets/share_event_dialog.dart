@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../domain/entities/event_entity.dart';
 import '../../../../core/services/timezone_service.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../bloc/share_calendar_bloc.dart';
 import '../bloc/events/share_calendar_event.dart';
 import '../bloc/states/share_calendar_state.dart';
@@ -85,6 +86,8 @@ class _ShareEventDialogState extends State<ShareEventDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return BlocListener<ShareCalendarBloc, ShareCalendarState>(
       listener: (context, state) {
         if (state is ShareCalendarSuccess) {
@@ -114,9 +117,9 @@ class _ShareEventDialogState extends State<ShareEventDialog> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Etkinliği Paylaş',
-                style: TextStyle(
+              Text(
+                l10n.shareEvent,
+                style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
@@ -139,9 +142,9 @@ class _ShareEventDialogState extends State<ShareEventDialog> {
                   ),
                 ),
               const SizedBox(height: 20),
-              const Text(
-                'Alıcının Zaman Dilimi (Opsiyonel)',
-                style: TextStyle(
+              Text(
+                l10n.recipientTimezoneOptional,
+                style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
                 ),
@@ -149,9 +152,9 @@ class _ShareEventDialogState extends State<ShareEventDialog> {
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
                 value: _selectedTimezone,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  hintText: 'Zaman dilimi seçin',
+                decoration: InputDecoration(
+                  border: const OutlineInputBorder(),
+                  hintText: l10n.selectTimezone,
                 ),
                 items: _availableTimezones.map((tz) {
                   final displayName =
@@ -205,7 +208,7 @@ class _ShareEventDialogState extends State<ShareEventDialog> {
                         onPressed: isLoading
                             ? null
                             : () => Navigator.of(context).pop(),
-                        child: const Text('İptal'),
+                        child: Text(l10n.cancel),
                       ),
                       const SizedBox(width: 8),
                       ElevatedButton(
@@ -220,7 +223,7 @@ class _ShareEventDialogState extends State<ShareEventDialog> {
                                   strokeWidth: 2,
                                 ),
                               )
-                            : const Text('Paylaş'),
+                            : Text(l10n.share),
                       ),
                     ],
                   );
@@ -234,25 +237,26 @@ class _ShareEventDialogState extends State<ShareEventDialog> {
   }
 
   void _showTimezoneWarningDialog(BuildContext context, String message) {
+    final l10n = AppLocalizations.of(context)!;
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Row(
+        title: Row(
           children: [
-            Icon(Icons.warning, color: Colors.orange),
-            SizedBox(width: 8),
-            Text('Zaman Dilimi Uyarısı'),
+            const Icon(Icons.warning, color: Colors.orange),
+            const SizedBox(width: 8),
+            Text(l10n.timezoneWarning),
           ],
         ),
         content: Text(message),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Tamam'),
+            child: Text(l10n.ok),
           ),
         ],
       ),
     );
   }
 }
-

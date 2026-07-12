@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
+import '../../l10n/app_localizations.dart';
 import '../../shared/widgets/decorative_background.dart';
 
 class AboutPage extends StatelessWidget {
   const AboutPage({super.key});
 
-  static const String appName = 'Çalışma Takvimi';
   static const String appVersion = '1.0.0';
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Hakkında'),
+        title: Text(l10n.about),
         elevation: 0,
         backgroundColor: Colors.transparent,
       ),
@@ -39,7 +40,7 @@ class AboutPage extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             Text(
-              appName,
+              l10n.appName,
               textAlign: TextAlign.center,
               style: theme.textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.bold,
@@ -47,7 +48,7 @@ class AboutPage extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              'Sürüm $appVersion',
+              l10n.versionLabel(appVersion),
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
@@ -55,15 +56,13 @@ class AboutPage extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             Text(
-              'Görevlerinizi ve etkinliklerinizi tek bir yerden yönetmenizi sağlayan akıllı takvim uygulaması. '
-              'Günlük planlamadan haftalık görünüme, hatırlatıcılardan bulut senkronizasyonuna kadar '
-              'ihtiyacınız olan tüm araçlar elinizin altında.',
+              l10n.aboutDescription,
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyLarge,
             ),
             const SizedBox(height: 32),
             Text(
-              'Özellikler',
+              l10n.features,
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w600,
               ),
@@ -71,33 +70,33 @@ class AboutPage extends StatelessWidget {
             const SizedBox(height: 12),
             _FeatureTile(
               icon: Icons.task_alt,
-              title: 'Görev Yönetimi',
-              subtitle: 'Görev oluşturun, düzenleyin ve takip edin',
+              title: l10n.featureTaskManagement,
+              subtitle: l10n.featureTaskManagementSubtitle,
             ),
             _FeatureTile(
               icon: Icons.event,
-              title: 'Etkinlik Takvimi',
-              subtitle: 'Gün, hafta, ay ve yıl görünümleri',
+              title: l10n.featureEventCalendar,
+              subtitle: l10n.featureEventCalendarSubtitle,
             ),
             _FeatureTile(
               icon: Icons.notifications_active,
-              title: 'Hatırlatıcılar',
-              subtitle: 'Zamanında bildirimler alın',
+              title: l10n.featureReminders,
+              subtitle: l10n.featureRemindersSubtitle,
             ),
             _FeatureTile(
               icon: Icons.cloud_sync,
-              title: 'Bulut Senkronizasyonu',
-              subtitle: 'Verilerinizi güvenle yedekleyin ve senkronize edin',
+              title: l10n.featureCloudSync,
+              subtitle: l10n.featureCloudSyncSubtitle,
             ),
             _FeatureTile(
               icon: Icons.smart_toy_outlined,
-              title: 'AI Asistan',
-              subtitle: 'Programınız hakkında sorular sorun',
+              title: l10n.aiAssistant,
+              subtitle: l10n.featureAiAssistantSubtitle,
             ),
             _FeatureTile(
               icon: Icons.palette_outlined,
-              title: 'Kişiselleştirme',
-              subtitle: 'Tema renkleri ve yazı tipi boyutu',
+              title: l10n.featurePersonalization,
+              subtitle: l10n.featurePersonalizationSubtitle,
             ),
             const SizedBox(height: 32),
             Card(
@@ -116,7 +115,7 @@ class AboutPage extends StatelessWidget {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          'Geliştirici Notu',
+                          l10n.developerNote,
                           style: theme.textTheme.titleSmall?.copyWith(
                             color: theme.colorScheme.primary,
                           ),
@@ -125,8 +124,7 @@ class AboutPage extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Bu uygulama Flutter ile geliştirilmiştir. '
-                      'Geri bildirimleriniz ve önerileriniz bizim için değerlidir.',
+                      l10n.developerNoteBody,
                       style: theme.textTheme.bodySmall,
                     ),
                   ],
@@ -135,7 +133,7 @@ class AboutPage extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             Text(
-              '© ${DateTime.now().year} $appName',
+              l10n.copyright(DateTime.now().year, l10n.appName),
               textAlign: TextAlign.center,
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,

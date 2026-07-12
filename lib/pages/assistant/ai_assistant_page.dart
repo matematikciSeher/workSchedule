@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import '../../core/services/ai_assistant_service.dart';
+import '../../core/extensions/locale_extensions.dart';
 import '../../domain/repositories/event_repository.dart';
 import '../../domain/repositories/task_repository.dart';
 import '../../shared/widgets/decorative_background.dart';
+import '../../l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 
 /// AI Asistan Chat Sayfası
@@ -27,6 +29,7 @@ class _AiAssistantPageState extends State<AiAssistantPage> {
   final ScrollController _scrollController = ScrollController();
   final List<ChatMessage> _messages = [];
   bool _isLoading = false;
+  bool _welcomeAdded = false;
 
   late AiAssistantService _aiService;
 
@@ -38,9 +41,15 @@ class _AiAssistantPageState extends State<AiAssistantPage> {
       taskRepository: widget.taskRepository,
       apiKey: widget.apiKey,
     );
+  }
 
-    // Hoş geldin mesajı
-    _addWelcomeMessage();
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_welcomeAdded) {
+      _welcomeAdded = true;
+      _addWelcomeMessage();
+    }
   }
 
   @override
@@ -51,19 +60,11 @@ class _AiAssistantPageState extends State<AiAssistantPage> {
   }
 
   void _addWelcomeMessage() {
+    final l10n = AppLocalizations.of(context)!;
     setState(() {
       _messages.add(
         ChatMessage(
-          text: '''Merhaba! 👋 Ben kişisel takvim asistanınızım. 
-
-Size şu konularda yardımcı olabilirim:
-• 📅 Günlük ve haftalık programınız
-• ⏰ Boş zaman analizi
-• ✅ Görevler ve öncelikler
-• 📌 Sıradaki etkinlikler
-• ⚠️ Geciken görevler
-
-"Bugün ne yapmalıyım?" veya "Sıradaki etkinliğim ne?" gibi sorular sorabilirsiniz!''',
+          text: l10n.aiWelcomeMessage,
           isUser: false,
           timestamp: DateTime.now(),
         ),
@@ -106,10 +107,12 @@ Size şu konularda yardımcı olabilirim:
         _isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
+      final l10n = AppLocalizations.of(context)!;
       setState(() {
         _messages.add(
           ChatMessage(
-            text: 'Üzgünüm, bir hata oluştu. Lütfen tekrar deneyin.',
+            text: l10n.aiErrorMessage,
             isUser: false,
             timestamp: DateTime.now(),
           ),
@@ -140,15 +143,16 @@ Size şu konularda yardımcı olabilirim:
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Row(
+        title: Row(
           children: [
-            Icon(Icons.smart_toy, color: Colors.blue),
-            SizedBox(width: 8),
-            Text('AI Asistan'),
+            const Icon(Icons.smart_toy, color: Colors.blue),
+            const SizedBox(width: 8),
+            Text(l10n.aiAssistant),
           ],
         ),
         elevation: 0,
@@ -173,7 +177,7 @@ Size şu konularda yardımcı olabilirim:
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          'Takvim asistanınız hazır!',
+                          l10n.aiReady,
                           style: theme.textTheme.titleMedium?.copyWith(
                             color: theme.colorScheme.onSurface.withOpacity(0.6),
                           ),
@@ -219,7 +223,7 @@ Size şu konularda yardımcı olabilirim:
                     child: TextField(
                       controller: _messageController,
                       decoration: InputDecoration(
-                        hintText: 'Sorunuzu yazın...',
+                        hintText: l10n.aiInputHint,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(24),
                         ),
@@ -334,7 +338,7 @@ class ChatBubble extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    DateFormat('HH:mm', 'tr_TR').format(message.timestamp),
+                    DateFormat('HH:mm', context.dateFormatLocale).format(message.timestamp),
                     style: TextStyle(
                       color: message.isUser
                           ? Colors.white.withOpacity(0.7)
@@ -372,15 +376,16 @@ class _QuickSuggestions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final suggestions = [
-      'Bugün ne yapmalıyım?',
-      'Sıradaki etkinliğim ne?',
-      'Boş zamanım var mı?',
-      'Geciken görevlerim var mı?',
-      'Yarın ne var?',
-      'Hafta sonu planım ne?',
-      'Öncelikli görevlerim neler?',
-      'Bu hafta özeti',
+      l10n.aiSuggestionToday,
+      l10n.aiSuggestionNextEvent,
+      l10n.aiSuggestionFreeTime,
+      l10n.aiSuggestionOverdue,
+      l10n.aiSuggestionTomorrow,
+      l10n.aiSuggestionWeekend,
+      l10n.aiSuggestionPriorities,
+      l10n.aiSuggestionWeekSummary,
     ];
 
     return Container(
@@ -401,4 +406,3 @@ class _QuickSuggestions extends StatelessWidget {
     );
   }
 }
-

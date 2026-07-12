@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../../core/routes/app_routes.dart';
+import '../../l10n/app_localizations.dart';
 import '../../core/services/notification_action_handler.dart';
 import '../../core/services/notification_navigation_service.dart';
 import '../../core/services/task_refresh_notifier.dart';
@@ -122,16 +123,16 @@ class _HomePageState extends State<HomePage>
   }
 
   void _handleTaskDelete(TaskModel task) {
-    // Silme onayı göster
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Görevi Sil'),
-        content: Text('${task.title} görevini silmek istediğinize emin misiniz?'),
+        title: Text(l10n.deleteTaskTitle),
+        content: Text(l10n.deleteTaskConfirm(task.title)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('İptal'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () {
@@ -141,7 +142,7 @@ class _HomePageState extends State<HomePage>
             style: TextButton.styleFrom(
               foregroundColor: Theme.of(context).colorScheme.error,
             ),
-            child: const Text('Sil'),
+            child: Text(l10n.delete),
           ),
         ],
       ),
@@ -156,6 +157,7 @@ class _HomePageState extends State<HomePage>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return BlocListener<TaskBloc, TaskState>(
       listener: (context, state) {
@@ -205,7 +207,7 @@ class _HomePageState extends State<HomePage>
               ),
               child: AppBar(
                 title: Text(
-                  'Çalışma Takvimi',
+                  l10n.appName,
                   style: theme.textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.w700,
                     letterSpacing: 0.5,
@@ -235,7 +237,7 @@ class _HomePageState extends State<HomePage>
                       onPressed: () {
                         Navigator.pushNamed(context, AppRoutes.aiAssistant);
                       },
-                      tooltip: 'AI Asistan',
+                      tooltip: l10n.aiAssistant,
                     ),
                   ),
                   Container(
@@ -255,7 +257,7 @@ class _HomePageState extends State<HomePage>
                       onPressed: () {
                         Navigator.pushNamed(context, AppRoutes.settings);
                       },
-                      tooltip: 'Ayarlar',
+                      tooltip: l10n.settings,
                     ),
                   ),
                 ],
@@ -338,8 +340,8 @@ class _HomePageState extends State<HomePage>
           backgroundColor: Colors.transparent,
           elevation: 0,
           icon: const Icon(Icons.add),
-          label: const Text('Yeni Görev'),
-          tooltip: 'Yeni görev ekle',
+          label: Text(l10n.newTask),
+          tooltip: l10n.addNewTask,
         ),
       ),
           );

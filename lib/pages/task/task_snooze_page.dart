@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../../core/extensions/locale_extensions.dart';
 import '../../core/services/notification_action_handler.dart';
+import '../../l10n/app_localizations.dart';
 import '../../data/local/database_helper.dart';
 import '../../domain/entities/task_entity.dart';
 import '../../features/task/data/datasources/task_local_datasource.dart';
@@ -44,7 +46,7 @@ class _TaskSnoozePageState extends State<TaskSnoozePage> {
       if (task == null) {
         setState(() {
           _isLoading = false;
-          _error = 'Görev bulunamadı';
+          _error = AppLocalizations.of(context)!.taskNotFound;
         });
         return;
       }
@@ -60,7 +62,7 @@ class _TaskSnoozePageState extends State<TaskSnoozePage> {
       if (!mounted) return;
       setState(() {
         _isLoading = false;
-        _error = 'Görev yüklenemedi';
+        _error = AppLocalizations.of(context)!.taskLoadFailed;
       });
     }
   }
@@ -127,7 +129,7 @@ class _TaskSnoozePageState extends State<TaskSnoozePage> {
       initialDate: _selectedDate ?? DateTime.now(),
       firstDate: DateTime.now(),
       lastDate: DateTime(2100),
-      locale: const Locale('tr', 'TR'),
+      locale: Localizations.localeOf(context),
     );
     if (picked != null) {
       final time = _selectedTime ?? TimeOfDay.now();
@@ -159,20 +161,21 @@ class _TaskSnoozePageState extends State<TaskSnoozePage> {
   }
 
   Future<void> _snooze() async {
+    final l10n = AppLocalizations.of(context)!;
     final task = _task;
     if (task == null) return;
 
     final newDueDate = _buildSnoozeDateTime();
     if (newDueDate == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Lütfen tarih ve saat seçin')),
+        SnackBar(content: Text(l10n.pleaseSelectDateAndTime)),
       );
       return;
     }
 
     if (!newDueDate.isAfter(DateTime.now())) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Erteleme zamanı gelecekte olmalı')),
+        SnackBar(content: Text(l10n.snoozeMustBeFuture)),
       );
       return;
     }
@@ -187,7 +190,7 @@ class _TaskSnoozePageState extends State<TaskSnoozePage> {
       if (!mounted) return;
       setState(() => _isSaving = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erteleme başarısız: $e')),
+        SnackBar(content: Text(l10n.snoozeFailed(e.toString()))),
       );
     }
   }
@@ -195,12 +198,14 @@ class _TaskSnoozePageState extends State<TaskSnoozePage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final dateFormat = DateFormat('d MMMM yyyy', 'tr_TR');
+    final l10n = AppLocalizations.of(context)!;
+    final localeStr = context.dateFormatLocale;
+    final dateFormat = DateFormat('d MMMM yyyy', localeStr);
     final snoozeDateTime = _buildSnoozeDateTime();
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Ertele'),
+        title: Text(l10n.snooze),
         elevation: 0,
         backgroundColor: Colors.transparent,
       ),
@@ -228,7 +233,10 @@ class _TaskSnoozePageState extends State<TaskSnoozePage> {
                               if (_task!.dueDate != null) ...[
                                 const SizedBox(height: 8),
                                 Text(
-                                  'Mevcut vade: ${DateFormat('d MMM yyyy HH:mm', 'tr_TR').format(_task!.dueDate!)}',
+                                  l10n.currentDueDate(
+                                    DateFormat('d MMM yyyy HH:mm', localeStr)
+                                        .format(_task!.dueDate!),
+                                  ),
                                   style: theme.textTheme.bodySmall?.copyWith(
                                     color: theme.colorScheme.onSurface
                                         .withValues(alpha: 0.7),
@@ -241,7 +249,7 @@ class _TaskSnoozePageState extends State<TaskSnoozePage> {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'Hızlı seçenekler',
+                        l10n.quickOptions,
                         style: theme.textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.w600,
                         ),
@@ -251,16 +259,16 @@ class _TaskSnoozePageState extends State<TaskSnoozePage> {
                         spacing: 8,
                         runSpacing: 8,
                         children: [
-                          _quickSnoozeChip('15 dk', _QuickSnooze.min15),
-                          _quickSnoozeChip('30 dk', _QuickSnooze.min30),
-                          _quickSnoozeChip('1 saat', _QuickSnooze.hour1),
-                          _quickSnoozeChip('3 saat', _QuickSnooze.hour3),
-                          _quickSnoozeChip('Yarın', _QuickSnooze.tomorrow),
+                          _quickSnoozeChip(l10n.snooze15Min, _QuickSnooze.min15),
+                          _quickSnoozeChip(l10n.snooze30Min, _QuickSnooze.min30),
+                          _quickSnoozeChip(l10n.snooze1Hour, _QuickSnooze.hour1),
+                          _quickSnoozeChip(l10n.snooze3Hours, _QuickSnooze.hour3),
+                          _quickSnoozeChip(l10n.tomorrow, _QuickSnooze.tomorrow),
                         ],
                       ),
                       const SizedBox(height: 20),
                       Text(
-                        'Özel tarih ve saat',
+                        l10n.customDateAndTime,
                         style: theme.textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.w600,
                         ),
@@ -273,10 +281,10 @@ class _TaskSnoozePageState extends State<TaskSnoozePage> {
                             color: theme.colorScheme.outline.withValues(alpha: 0.3),
                           ),
                         ),
-                        title: const Text('Tarih'),
+                        title: Text(l10n.date),
                         subtitle: Text(
                           _selectedDate == null
-                              ? 'Tarih seçilmedi'
+                              ? l10n.dateNotSelected
                               : dateFormat.format(_selectedDate!),
                         ),
                         trailing: const Icon(Icons.calendar_today),
@@ -290,10 +298,10 @@ class _TaskSnoozePageState extends State<TaskSnoozePage> {
                             color: theme.colorScheme.outline.withValues(alpha: 0.3),
                           ),
                         ),
-                        title: const Text('Saat'),
+                        title: Text(l10n.time),
                         subtitle: Text(
                           _selectedTime == null
-                              ? 'Saat seçilmedi'
+                              ? l10n.timeNotSelected
                               : _selectedTime!.format(context),
                         ),
                         trailing: const Icon(Icons.access_time),
@@ -315,7 +323,10 @@ class _TaskSnoozePageState extends State<TaskSnoozePage> {
                                 const SizedBox(width: 12),
                                 Expanded(
                                   child: Text(
-                                    'Yeni hatırlatma: ${DateFormat('d MMM yyyy HH:mm', 'tr_TR').format(snoozeDateTime)}',
+                                    l10n.newReminderAt(
+                                      DateFormat('d MMM yyyy HH:mm', localeStr)
+                                          .format(snoozeDateTime),
+                                    ),
                                     style: theme.textTheme.bodyMedium,
                                   ),
                                 ),
@@ -336,7 +347,7 @@ class _TaskSnoozePageState extends State<TaskSnoozePage> {
                                 width: 20,
                                 child: CircularProgressIndicator(strokeWidth: 2),
                               )
-                            : const Text('Ertele'),
+                            : Text(l10n.snooze),
                       ),
                     ],
                   ),

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import '../../core/locale/theme_localizations.dart';
 import '../../core/theme/app_font_families.dart';
 import '../../core/theme/app_theme_controller.dart';
 import '../../core/theme/theme_models.dart';
+import '../../l10n/app_localizations.dart';
 import '../../shared/widgets/decorative_background.dart';
 
 class ThemeSettingsPage extends StatelessWidget {
@@ -11,9 +13,10 @@ class ThemeSettingsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = AppThemeScope.maybeOf(context);
     if (controller == null) {
-      return const Scaffold(
+      final l10n = AppLocalizations.of(context)!;
+      return Scaffold(
         body: Center(
-          child: Text('Tema ayarları yüklenemedi.'),
+          child: Text(l10n.themeSettingsLoadFailed),
         ),
       );
     }
@@ -21,9 +24,10 @@ class ThemeSettingsPage extends StatelessWidget {
     return ListenableBuilder(
       listenable: controller,
       builder: (context, _) {
+        final l10n = AppLocalizations.of(context)!;
         return Scaffold(
           appBar: AppBar(
-            title: const Text('Tema ve Yazı Tipi'),
+            title: Text(l10n.themeAndFont),
             elevation: 0,
             backgroundColor: Colors.transparent,
             toolbarHeight: 48,
@@ -37,7 +41,7 @@ class ThemeSettingsPage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    _SectionLabel(title: 'Görünüm'),
+                    _SectionLabel(title: l10n.appearance),
                     const SizedBox(height: 6),
                     _SectionBox(
                       child: _ThemeModeSelector(
@@ -46,7 +50,7 @@ class ThemeSettingsPage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    _SectionLabel(title: 'Tema Renkleri'),
+                    _SectionLabel(title: l10n.themeColors),
                     const SizedBox(height: 6),
                     _SectionBox(
                       child: _ThemeColorButtons(
@@ -56,7 +60,7 @@ class ThemeSettingsPage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    _SectionLabel(title: 'Yazı Tipi & Boyut'),
+                    _SectionLabel(title: l10n.fontAndSize),
                     const SizedBox(height: 6),
                     Expanded(
                       child: _SectionBox(
@@ -135,6 +139,7 @@ class _ThemeModeSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return SizedBox(
       height: 40,
@@ -142,7 +147,7 @@ class _ThemeModeSelector extends StatelessWidget {
         children: [
           Expanded(
             child: _ModeButton(
-              label: 'Açık',
+              label: l10n.lightMode,
               icon: Icons.light_mode_rounded,
               isSelected: selected == ThemeMode.light,
               onTap: () => onChanged(ThemeMode.light),
@@ -154,7 +159,7 @@ class _ThemeModeSelector extends StatelessWidget {
           const SizedBox(width: 8),
           Expanded(
             child: _ModeButton(
-              label: 'Koyu',
+              label: l10n.darkMode,
               icon: Icons.dark_mode_rounded,
               isSelected: selected == ThemeMode.dark,
               onTap: () => onChanged(ThemeMode.dark),
@@ -242,6 +247,8 @@ class _ThemeColorButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return SizedBox(
       height: 64,
       child: ListView.separated(
@@ -256,7 +263,7 @@ class _ThemeColorButtons extends StatelessWidget {
               : themeModel.lightColorScheme;
 
           return _ThemeColorButton(
-            name: themeModel.name,
+            name: localizedThemeName(l10n, themeModel.id),
             primary: scheme.primary,
             secondary: scheme.secondary,
             isSelected: isSelected,
@@ -375,6 +382,7 @@ class _FontSettingsPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -472,7 +480,7 @@ class _FontSettingsPanel extends StatelessWidget {
                 child: FittedBox(
                   fit: BoxFit.scaleDown,
                   child: Text(
-                    'Örnek metin — Çalışma Takvimi',
+                    l10n.fontPreviewSample,
                     textAlign: TextAlign.center,
                     maxLines: 2,
                     style: selectedFont.style(

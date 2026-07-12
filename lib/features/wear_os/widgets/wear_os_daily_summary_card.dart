@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../../../core/locale/app_localizations_helper.dart';
 import '../models/wear_os_models.dart';
 
 /// Wear OS için günlük özet kartı
@@ -15,7 +16,8 @@ class WearOsDailySummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dateFormatter = DateFormat('d MMMM yyyy', 'tr_TR');
+    final dateFormatter = DateFormat('d MMMM yyyy', systemDateFormatLocale());
+    final l10n = systemL10n;
     final percentage = (summary.completionPercentage * 100).toInt();
 
     return GestureDetector(
@@ -58,7 +60,7 @@ class WearOsDailySummaryCard extends StatelessWidget {
                 Expanded(
                   child: _buildStatItem(
                     icon: Icons.task_alt,
-                    label: 'Görevler',
+                    label: l10n.wearOsTasksLabel,
                     value:
                         '${summary.completedTasksCount}/${summary.totalTasksCount}',
                     color: Colors.green,
@@ -69,7 +71,7 @@ class WearOsDailySummaryCard extends StatelessWidget {
                 Expanded(
                   child: _buildStatItem(
                     icon: Icons.calendar_today,
-                    label: 'Etkinlikler',
+                    label: l10n.wearOsEventsLabel,
                     value: '${summary.events.length}',
                     color: Colors.blue,
                   ),

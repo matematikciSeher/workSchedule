@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/app_localizations.dart';
 
 /// Genel error widget'ı
 class CustomErrorWidget extends StatelessWidget {
@@ -13,6 +14,8 @@ class CustomErrorWidget extends StatelessWidget {
   
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -35,7 +38,7 @@ class CustomErrorWidget extends StatelessWidget {
               ElevatedButton.icon(
                 onPressed: onRetry,
                 icon: const Icon(Icons.refresh),
-                label: const Text('Tekrar Dene'),
+                label: Text(l10n.tryAgain),
               ),
             ],
           ],
@@ -44,4 +47,3 @@ class CustomErrorWidget extends StatelessWidget {
     );
   }
 }
-

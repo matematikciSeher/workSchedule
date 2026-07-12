@@ -7,6 +7,7 @@ import 'package:path/path.dart' as path;
 import '../../domain/entities/event_entity.dart';
 import '../../domain/repositories/event_repository.dart';
 import '../../shared/widgets/decorative_background.dart';
+import '../../l10n/app_localizations.dart';
 
 class EventFormPage extends StatefulWidget {
   final String? eventId; // null ise yeni etkinlik, değilse düzenleme
@@ -93,8 +94,9 @@ class _EventFormPageState extends State<EventFormPage> {
       }
     } catch (e) {
       if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Hata: $e')),
+          SnackBar(content: Text(l10n.errorWithMessage(e.toString()))),
         );
       }
     } finally {
@@ -199,8 +201,9 @@ class _EventFormPageState extends State<EventFormPage> {
       }
     } catch (e) {
       if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Fotoğraf seçilirken hata: $e')),
+          SnackBar(content: Text(l10n.photoSelectError(e.toString()))),
         );
       }
     }
@@ -242,8 +245,9 @@ class _EventFormPageState extends State<EventFormPage> {
       }
     } catch (e) {
       if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Dosya seçilirken hata: $e')),
+          SnackBar(content: Text(l10n.fileSelectError(e.toString()))),
         );
       }
     }
@@ -263,10 +267,11 @@ class _EventFormPageState extends State<EventFormPage> {
   Future<void> _saveEvent() async {
     if (!_formKey.currentState!.validate()) return;
 
+    final l10n = AppLocalizations.of(context)!;
+
     if (_selectedStartDate == null || _selectedEndDate == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Lütfen başlangıç ve bitiş tarihlerini seçin')),
+        SnackBar(content: Text(l10n.pleaseSelectStartEndDates)),
       );
       return;
     }
@@ -335,8 +340,8 @@ class _EventFormPageState extends State<EventFormPage> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(widget.eventId != null
-                  ? 'Etkinlik güncellendi'
-                  : 'Etkinlik oluşturuldu'),
+                  ? l10n.eventUpdated
+                  : l10n.eventCreated),
             ),
           );
           Navigator.pop(context, event);
@@ -351,7 +356,7 @@ class _EventFormPageState extends State<EventFormPage> {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Hata: $e'),
+            content: Text(l10n.errorWithMessage(e.toString())),
             backgroundColor: Colors.red,
           ),
         );
@@ -360,6 +365,8 @@ class _EventFormPageState extends State<EventFormPage> {
   }
 
   void _showImageSourceDialog() {
+    final l10n = AppLocalizations.of(context)!;
+
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
@@ -368,7 +375,7 @@ class _EventFormPageState extends State<EventFormPage> {
             children: [
               ListTile(
                 leading: const Icon(Icons.photo_library),
-                title: const Text('Galeriden Seç'),
+                title: Text(l10n.chooseFromGallery),
                 onTap: () {
                   Navigator.pop(context);
                   _pickImage(ImageSource.gallery);
@@ -376,7 +383,7 @@ class _EventFormPageState extends State<EventFormPage> {
               ),
               ListTile(
                 leading: const Icon(Icons.camera_alt),
-                title: const Text('Kamera ile Çek'),
+                title: Text(l10n.takeWithCamera),
                 onTap: () {
                   Navigator.pop(context);
                   _pickImage(ImageSource.camera);
@@ -391,11 +398,12 @@ class _EventFormPageState extends State<EventFormPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final isEditing = widget.eventId != null;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(isEditing ? 'Etkinliği Düzenle' : 'Yeni Etkinlik'),
+        title: Text(isEditing ? l10n.editEvent : l10n.newEvent),
         elevation: 0,
         backgroundColor: Colors.transparent,
       ),
@@ -411,13 +419,13 @@ class _EventFormPageState extends State<EventFormPage> {
                 children: [
                   TextFormField(
                     controller: _titleController,
-                    decoration: const InputDecoration(
-                      labelText: 'Başlık *',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: l10n.titleRequired,
+                      border: const OutlineInputBorder(),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Lütfen başlık girin';
+                        return l10n.pleaseEnterTitle;
                       }
                       return null;
                     },
@@ -425,25 +433,25 @@ class _EventFormPageState extends State<EventFormPage> {
                   const SizedBox(height: 16),
                   TextFormField(
                     controller: _descriptionController,
-                    decoration: const InputDecoration(
-                      labelText: 'Açıklama',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: l10n.description,
+                      border: const OutlineInputBorder(),
                     ),
                     maxLines: 5,
                   ),
                   const SizedBox(height: 16),
                   TextFormField(
                     controller: _locationController,
-                    decoration: const InputDecoration(
-                      labelText: 'Konum',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.location_on),
+                    decoration: InputDecoration(
+                      labelText: l10n.location,
+                      border: const OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.location_on),
                     ),
                   ),
                   const SizedBox(height: 16),
                   SwitchListTile(
-                    title: const Text('Tüm Gün'),
-                    subtitle: const Text('Etkinlik tüm gün sürer'),
+                    title: Text(l10n.allDay),
+                    subtitle: Text(l10n.allDaySubtitle),
                     value: _isAllDay,
                     onChanged: (value) {
                       setState(() {
@@ -454,10 +462,10 @@ class _EventFormPageState extends State<EventFormPage> {
                   const Divider(),
                   // Başlangıç Tarihi
                   ListTile(
-                    title: const Text('Başlangıç Tarihi'),
+                    title: Text(l10n.startDate),
                     subtitle: Text(
                       _selectedStartDate == null
-                          ? 'Tarih seçilmedi'
+                          ? l10n.dateNotSelected
                           : '${_selectedStartDate!.day}/${_selectedStartDate!.month}/${_selectedStartDate!.year}',
                     ),
                     trailing: const Icon(Icons.calendar_today),
@@ -465,10 +473,10 @@ class _EventFormPageState extends State<EventFormPage> {
                   ),
                   if (!_isAllDay)
                     ListTile(
-                      title: const Text('Başlangıç Saati'),
+                      title: Text(l10n.startTime),
                       subtitle: Text(
                         _selectedStartTime == null
-                            ? 'Saat seçilmedi'
+                            ? l10n.timeNotSelected
                             : _selectedStartTime!.format(context),
                       ),
                       trailing: const Icon(Icons.access_time),
@@ -476,10 +484,10 @@ class _EventFormPageState extends State<EventFormPage> {
                     ),
                   // Bitiş Tarihi
                   ListTile(
-                    title: const Text('Bitiş Tarihi'),
+                    title: Text(l10n.endDate),
                     subtitle: Text(
                       _selectedEndDate == null
-                          ? 'Tarih seçilmedi'
+                          ? l10n.dateNotSelected
                           : '${_selectedEndDate!.day}/${_selectedEndDate!.month}/${_selectedEndDate!.year}',
                     ),
                     trailing: const Icon(Icons.calendar_today),
@@ -487,10 +495,10 @@ class _EventFormPageState extends State<EventFormPage> {
                   ),
                   if (!_isAllDay)
                     ListTile(
-                      title: const Text('Bitiş Saati'),
+                      title: Text(l10n.endTime),
                       subtitle: Text(
                         _selectedEndTime == null
-                            ? 'Saat seçilmedi'
+                            ? l10n.timeNotSelected
                             : _selectedEndTime!.format(context),
                       ),
                       trailing: const Icon(Icons.access_time),
@@ -505,9 +513,9 @@ class _EventFormPageState extends State<EventFormPage> {
                       children: [
                         const Icon(Icons.attach_file),
                         const SizedBox(width: 8),
-                        const Text(
-                          'Ekler',
-                          style: TextStyle(
+                        Text(
+                          l10n.attachments,
+                          style: const TextStyle(
                               fontSize: 16, fontWeight: FontWeight.bold),
                         ),
                       ],
@@ -519,7 +527,7 @@ class _EventFormPageState extends State<EventFormPage> {
                       Expanded(
                         child: OutlinedButton.icon(
                           icon: const Icon(Icons.photo),
-                          label: const Text('Fotoğraf'),
+                          label: Text(l10n.photo),
                           onPressed: _showImageSourceDialog,
                         ),
                       ),
@@ -527,7 +535,7 @@ class _EventFormPageState extends State<EventFormPage> {
                       Expanded(
                         child: OutlinedButton.icon(
                           icon: const Icon(Icons.insert_drive_file),
-                          label: const Text('Dosya'),
+                          label: Text(l10n.file),
                           onPressed: _pickFile,
                         ),
                       ),
@@ -536,10 +544,10 @@ class _EventFormPageState extends State<EventFormPage> {
                   const SizedBox(height: 16),
                   // Seçilen Fotoğraflar
                   if (_selectedImages.isNotEmpty) ...[
-                    const Text(
-                      'Seçilen Fotoğraflar',
-                      style:
-                          TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                    Text(
+                      l10n.selectedPhotos,
+                      style: const TextStyle(
+                          fontSize: 14, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 8),
                     SizedBox(
@@ -586,10 +594,10 @@ class _EventFormPageState extends State<EventFormPage> {
                   ],
                   // Seçilen Dosyalar
                   if (_selectedFiles.isNotEmpty) ...[
-                    const Text(
-                      'Seçilen Dosyalar',
-                      style:
-                          TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                    Text(
+                      l10n.selectedFiles,
+                      style: const TextStyle(
+                          fontSize: 14, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 8),
                     ..._selectedFiles.asMap().entries.map((entry) {
@@ -624,7 +632,7 @@ class _EventFormPageState extends State<EventFormPage> {
                             width: 20,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
-                        : Text(isEditing ? 'Güncelle' : 'Kaydet'),
+                        : Text(isEditing ? l10n.update : l10n.save),
                   ),
                 ],
               ),

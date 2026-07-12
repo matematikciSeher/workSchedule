@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/locale/app_localizations_helper.dart';
 import '../services/wear_os_data_service.dart';
 import '../models/wear_os_models.dart';
 import '../../../domain/entities/event_entity.dart';
@@ -42,9 +43,10 @@ class WearOsIntegrationExample {
       final summary = await _wearOsService.getDailySummary(today);
       
       if (summary == null) {
-        return const Text('Veri bulunamadı');
+        return Text(systemL10n.wearOsNoData);
       }
 
+      final l10n = systemL10n;
       return Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
@@ -54,17 +56,17 @@ class WearOsIntegrationExample {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              '📊 Bugünün Özeti',
-              style: TextStyle(
+            Text(
+              l10n.wearOsDailySummaryTitle,
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 8),
-            Text('Etkinlikler: ${summary.events.length}'),
+            Text('${l10n.wearOsEventsLabel}: ${summary.events.length}'),
             Text(
-              'Görevler: ${summary.completedTasksCount}/${summary.totalTasksCount}',
+              '${l10n.wearOsTasksLabel}: ${summary.completedTasksCount}/${summary.totalTasksCount}',
             ),
             const SizedBox(height: 8),
             LinearProgressIndicator(
@@ -74,7 +76,7 @@ class WearOsIntegrationExample {
         ),
       );
     } catch (e) {
-      return Text('Hata: $e');
+      return Text(systemL10n.errorWithMessage(e.toString()));
     }
   }
 

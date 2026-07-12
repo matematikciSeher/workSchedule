@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../../core/extensions/date_extensions.dart';
+import '../../../core/extensions/locale_extensions.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../shared/models/task_model.dart';
 
 /// Material 3 prensiplerine göre görev listesi panel widget'ı
@@ -40,25 +42,27 @@ class TaskListPanelWidget extends StatelessWidget {
       });
   }
 
-  String _getDateTitle() {
-    if (selectedDate == null) return 'Bir gün seçin';
+  String _getDateTitle(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    if (selectedDate == null) return l10n.selectADay;
     final date = selectedDate!;
-    final localeStr = locale?.toString() ?? 'tr_TR';
+    final localeStr = locale?.toString() ?? context.dateFormatLocale;
 
-    if (date.isToday) return 'Bugün';
-    if (date.isTomorrow) return 'Yarın';
-    if (date.isYesterday) return 'Dün';
+    if (date.isToday) return l10n.today;
+    if (date.isTomorrow) return l10n.tomorrow;
+    if (date.isYesterday) return l10n.yesterday;
     return DateFormat('EEEE, d MMMM', localeStr).format(date);
   }
 
-  String? _getDateSubtitle(int totalTasks, int completedTasks) {
+  String? _getDateSubtitle(BuildContext context, int totalTasks, int completedTasks) {
+    final l10n = AppLocalizations.of(context)!;
     if (selectedDate == null) return null;
     if (totalTasks > 0) {
       final pending = totalTasks - completedTasks;
-      if (pending == 0) return 'Tüm görevler tamamlandı';
-      return '$pending bekleyen • $completedTasks tamamlandı';
+      if (pending == 0) return l10n.allTasksCompleted;
+      return l10n.taskProgressSummary(pending, completedTasks);
     }
-    final localeStr = locale?.toString() ?? 'tr_TR';
+    final localeStr = locale?.toString() ?? context.dateFormatLocale;
     return DateFormat('d MMMM yyyy', localeStr).format(selectedDate!);
   }
 
@@ -76,8 +80,8 @@ class TaskListPanelWidget extends StatelessWidget {
         children: [
           _PanelHeader(
             theme: theme,
-            title: _getDateTitle(),
-            subtitle: _getDateSubtitle(totalTasks, completedTasks),
+            title: _getDateTitle(context),
+            subtitle: _getDateSubtitle(context, totalTasks, completedTasks),
             totalTasks: totalTasks,
             completedTasks: completedTasks,
             selectedDate: selectedDate,
@@ -119,8 +123,8 @@ class TaskListPanelWidget extends StatelessWidget {
           _PanelHandle(theme: theme),
           _PanelHeader(
             theme: theme,
-            title: _getDateTitle(),
-            subtitle: _getDateSubtitle(totalTasks, completedTasks),
+            title: _getDateTitle(context),
+            subtitle: _getDateSubtitle(context, totalTasks, completedTasks),
             totalTasks: totalTasks,
             completedTasks: completedTasks,
             selectedDate: selectedDate,
@@ -139,12 +143,13 @@ class TaskListPanelWidget extends StatelessWidget {
     ThemeData theme,
     List<TaskModel> dateTasks,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     if (selectedDate == null) {
       return _EmptyState(
         theme: theme,
         icon: Icons.touch_app_outlined,
-        title: 'Bir gün seçin',
-        subtitle: 'Takvimden bir tarihe dokunarak görevlerinizi görüntüleyin',
+        title: l10n.selectADay,
+        subtitle: l10n.selectDayHint,
       );
     }
 
@@ -152,8 +157,8 @@ class TaskListPanelWidget extends StatelessWidget {
       return _EmptyState(
         theme: theme,
         icon: Icons.event_available_outlined,
-        title: 'Bu güne ait görev yok',
-        subtitle: 'Yeni görev eklemek için + butonuna dokunun',
+        title: l10n.noTasksForDay,
+        subtitle: l10n.addTaskHint,
       );
     }
 
@@ -173,12 +178,13 @@ class TaskListPanelWidget extends StatelessWidget {
     List<TaskModel> dateTasks, {
     required bool neverScroll,
   }) {
+    final l10n = AppLocalizations.of(context)!;
     if (selectedDate == null) {
       return _EmptyState(
         theme: theme,
         icon: Icons.touch_app_outlined,
-        title: 'Bir gün seçin',
-        subtitle: 'Takvimden bir tarihe dokunarak görevlerinizi görüntüleyin',
+        title: l10n.selectADay,
+        subtitle: l10n.selectDayHint,
       );
     }
 
@@ -186,8 +192,8 @@ class TaskListPanelWidget extends StatelessWidget {
       return _EmptyState(
         theme: theme,
         icon: Icons.event_available_outlined,
-        title: 'Bu güne ait görev yok',
-        subtitle: 'Yeni görev eklemek için + butonuna dokunun',
+        title: l10n.noTasksForDay,
+        subtitle: l10n.addTaskHint,
       );
     }
 
@@ -379,7 +385,7 @@ class _DateBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final localeStr = 'tr_TR';
+    final localeStr = context.dateFormatLocale;
     final dayName = DateFormat('EEE', localeStr).format(date).toUpperCase();
 
     return Container(
@@ -609,7 +615,7 @@ class _TaskListItem extends StatelessWidget {
     final status = _TaskStatusColors.resolve(task);
     final statusColor = _TaskStatusColors.colorFor(status);
     final timeStr = task.dueDate != null
-        ? DateFormat('HH:mm', 'tr_TR').format(task.dueDate!)
+        ? DateFormat('HH:mm', context.dateFormatLocale).format(task.dueDate!)
         : null;
 
     return Material(

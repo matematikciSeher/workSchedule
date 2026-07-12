@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'dart:io' show Platform;
 import '../../core/services/notification_service.dart';
+import '../../l10n/app_localizations.dart';
 import '../../shared/widgets/decorative_background.dart';
 
 class NotificationSettingsPage extends StatefulWidget {
@@ -38,7 +39,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
         _isLoading = false;
       });
     } catch (e) {
-      print('İzin kontrolü hatası: $e');
+      print('Permission check error: $e');
       setState(() => _isLoading = false);
     }
   }
@@ -48,21 +49,20 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
     await _checkPermissionStatus();
     if (!mounted) return;
 
+    final l10n = AppLocalizations.of(context)!;
     if (_hasExactAlarm) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Kesin alarm izni açık.'),
+        SnackBar(
+          content: Text(l10n.exactAlarmEnabledMsg),
           backgroundColor: Colors.green,
         ),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Kesin alarm izni hâlâ kapalı. Açılan ayar ekranından "Kesin alarmlar"ı etkinleştirin.',
-          ),
+        SnackBar(
+          content: Text(l10n.exactAlarmStillDisabledMsg),
           backgroundColor: Colors.orange,
-          duration: Duration(seconds: 6),
+          duration: const Duration(seconds: 6),
         ),
       );
     }
@@ -86,18 +86,20 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
 
           if (granted == true) {
             if (mounted) {
+              final l10n = AppLocalizations.of(context)!;
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Bildirim izni verildi!'),
+                SnackBar(
+                  content: Text(l10n.notificationPermissionGranted),
                   backgroundColor: Colors.green,
                 ),
               );
             }
           } else {
             if (mounted) {
+              final l10n = AppLocalizations.of(context)!;
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Bildirim izni reddedildi. Ayarlardan manuel olarak açabilirsiniz.'),
+                SnackBar(
+                  content: Text(l10n.notificationPermissionDenied),
                   backgroundColor: Colors.orange,
                 ),
               );
@@ -106,12 +108,13 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
         }
       }
     } catch (e) {
-      print('İzin isteği hatası: $e');
+      print('Permission request error: $e');
       setState(() => _isLoading = false);
       if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Hata: $e'),
+            content: Text(l10n.errorWithMessage(e.toString())),
             backgroundColor: Colors.red,
           ),
         );
@@ -122,12 +125,10 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
   Future<void> _openAppSettings() async {
     try {
       if (Platform.isAndroid) {
-        // Android ayarlarını aç
         const platform = MethodChannel('app.settings/open');
         try {
           await platform.invokeMethod('openAppSettings');
         } catch (e) {
-          // Method channel yoksa bilgi göster
           if (mounted) {
             _showSettingsInfo();
           }
@@ -141,22 +142,16 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
   }
 
   void _showSettingsInfo() {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Bildirim İzni'),
-        content: const Text(
-          'Lütfen cihaz ayarlarından "Work Schedule" uygulamasının bildirim izinlerini açın:\n\n'
-          '1. Ayarlar uygulamasını açın\n'
-          '2. "Uygulamalar" veya "Apps" seçeneğine gidin\n'
-          '3. "Work Schedule" uygulamasını bulun\n'
-          '4. "Bildirimler" (Notifications) seçeneğine gidin\n'
-          '5. Bildirimleri etkinleştirin',
-        ),
+        title: Text(l10n.notificationPermissionDialogTitle),
+        content: Text(l10n.notificationPermissionInstructions),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Tamam'),
+            child: Text(l10n.ok),
           ),
         ],
       ),
@@ -164,25 +159,23 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
   }
 
   void _showExactAlarmHelp() {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Kesin Alarm İzni'),
-        content: const Text(
-          'Zamanında hatırlatma için:\n\n'
-          'Ayarlar → Uygulamalar → Work Schedule → İzinler → Saat ve Alarm → Kesin alarmlar',
-        ),
+        title: Text(l10n.exactAlarmPermissionTitle),
+        content: Text(l10n.exactAlarmInstructions),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Tamam'),
+            child: Text(l10n.ok),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildExactAlarmSection(ThemeData theme) {
+  Widget _buildExactAlarmSection(ThemeData theme, AppLocalizations l10n) {
     final granted = _hasExactAlarm;
     final accent = granted
         ? theme.colorScheme.primary
@@ -208,7 +201,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Kesin alarm izni',
+                      l10n.exactAlarmPermissionLabel,
                       style: theme.textTheme.labelLarge?.copyWith(
                         fontWeight: FontWeight.w600,
                       ),
@@ -216,8 +209,8 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                     const SizedBox(height: 2),
                     Text(
                       granted
-                          ? 'Hatırlatıcılar zamanında gönderilebilir.'
-                          : 'Kapalıysa bildirimler gecikebilir.',
+                          ? l10n.exactAlarmEnabledHint
+                          : l10n.exactAlarmDisabledHint,
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: theme.colorScheme.onSurface.withValues(alpha: 0.65),
                       ),
@@ -235,7 +228,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  granted ? 'Açık' : 'Kapalı',
+                  granted ? l10n.statusOn : l10n.statusOff,
                   style: theme.textTheme.labelSmall?.copyWith(
                     color: accent,
                     fontWeight: FontWeight.w600,
@@ -256,7 +249,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                     minimumSize: Size.zero,
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
-                  child: const Text('İzin iste'),
+                  child: Text(l10n.requestPermission),
                 ),
                 TextButton(
                   onPressed: _openAppSettings,
@@ -266,7 +259,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                     minimumSize: Size.zero,
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
-                  child: const Text('Ayarlara git'),
+                  child: Text(l10n.goToSettings),
                 ),
                 const Spacer(),
                 IconButton(
@@ -275,7 +268,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                   visualDensity: VisualDensity.compact,
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-                  tooltip: 'Nasıl açılır?',
+                  tooltip: l10n.howToEnable,
                 ),
               ],
             ),
@@ -288,10 +281,11 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Bildirim Ayarları'),
+        title: Text(l10n.notificationSettings),
         elevation: 0,
         backgroundColor: Colors.transparent,
       ),
@@ -301,7 +295,6 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
         child: ListView(
           padding: const EdgeInsets.all(16.0),
           children: [
-            // İzin Durumu Kartı
             Card(
               elevation: 2,
               child: Padding(
@@ -317,7 +310,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          'Bildirim İzni',
+                          l10n.notificationPermissionDialogTitle,
                           style: theme.textTheme.titleLarge,
                         ),
                       ],
@@ -325,8 +318,8 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                     const SizedBox(height: 8),
                     Text(
                       _hasPermission
-                          ? 'Bildirim izni verildi. Görev hatırlatıcıları aktif.'
-                          : 'Bildirim izni verilmedi. Görev hatırlatıcıları çalışmayacak.',
+                          ? l10n.notificationGrantedActive
+                          : l10n.notificationDeniedInactive,
                       style: theme.textTheme.bodyMedium,
                     ),
                     if (_isLoading)
@@ -340,12 +333,11 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
             ),
             const SizedBox(height: 16),
 
-            // İzin İste Butonu
             if (!_hasPermission)
               ElevatedButton.icon(
                 onPressed: _isLoading ? null : _requestPermission,
                 icon: const Icon(Icons.notifications_active),
-                label: const Text('Bildirim İzni İste'),
+                label: Text(l10n.requestNotificationPermission),
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 48),
                   backgroundColor: theme.colorScheme.primary,
@@ -355,12 +347,11 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
             
             if (!_hasPermission) const SizedBox(height: 8),
 
-            // Ayarlara Git Butonu
             if (!_hasPermission)
               OutlinedButton.icon(
                 onPressed: _openAppSettings,
                 icon: const Icon(Icons.settings),
-                label: const Text('Ayarlara Git'),
+                label: Text(l10n.goToSettings),
                 style: OutlinedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 48),
                 ),
@@ -368,12 +359,11 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
 
             if (_hasPermission) const SizedBox(height: 16),
 
-            // Yenile Butonu
             if (_hasPermission)
               OutlinedButton.icon(
                 onPressed: _checkPermissionStatus,
                 icon: const Icon(Icons.refresh),
-                label: const Text('Durumu Yenile'),
+                label: Text(l10n.refreshStatus),
                 style: OutlinedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 48),
                 ),
@@ -383,7 +373,6 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
             const Divider(),
             const SizedBox(height: 8),
 
-            // Bekleyen bildirimler
             Card(
               child: Padding(
                 padding: const EdgeInsets.all(16),
@@ -391,20 +380,20 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Zamanlanmış Bildirimler',
+                      l10n.scheduledNotifications,
                       style: theme.textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Görev bildirimleri 1 saat ve 30 dakika önce gelir; vade anında durum bildirilir.',
+                      l10n.scheduledNotificationsDesc,
                       style: theme.textTheme.bodySmall,
                     ),
                     const SizedBox(height: 8),
                     if (_pendingNotifications.isEmpty)
                       Text(
-                        'Bekleyen bildirim yok. Tarih ve saatli görev ekleyin.',
+                        l10n.noPendingNotifications,
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                         ),
@@ -414,7 +403,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                         (n) => Padding(
                           padding: const EdgeInsets.only(bottom: 6),
                           child: Text(
-                            '• ${n.title ?? 'Bildirim'} — ${n.body ?? ''}',
+                            '• ${n.title ?? l10n.notificationDefaultTitle} — ${n.body ?? ''}',
                             style: theme.textTheme.bodySmall,
                           ),
                         ),
@@ -423,7 +412,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                     OutlinedButton.icon(
                       onPressed: _checkPermissionStatus,
                       icon: const Icon(Icons.refresh, size: 16),
-                      label: const Text('Listeyi Yenile'),
+                      label: Text(l10n.refreshList),
                     ),
                   ],
                 ),
@@ -432,14 +421,13 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
 
             if (Platform.isAndroid) ...[
               const SizedBox(height: 12),
-              _buildExactAlarmSection(theme),
+              _buildExactAlarmSection(theme, l10n),
             ],
 
             const SizedBox(height: 16),
             const Divider(),
             const SizedBox(height: 8),
 
-            // Bilgi Kartı
             Card(
               color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
               child: Padding(
@@ -455,7 +443,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          'Bilgi',
+                          l10n.infoTitle,
                           style: theme.textTheme.titleSmall?.copyWith(
                             color: theme.colorScheme.primary,
                           ),
@@ -464,14 +452,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Görev bildirimleri görev saatinden 1 saat ve 30 dakika önce gelir.\n'
-                      '  Örnek: Görev 15:00 → 14:00 ve 14:30\n\n'
-                      '• Vade anında tamamlanma durumu renkli bildirimle gösterilir.\n'
-                      '  Yeşil: tamamlandı, Kırmızı: tamamlanmadı\n\n'
-                      '• Bildirime dokunmak veya Ertele tuşu görevi 30 dk erteler.\n'
-                      '  Yeni saat takvimde otomatik güncellenir.\n\n'
-                      '• Saat seçilmezse görev 09:00 varsayılır.\n\n'
-                      '• Bildirim izni + Kesin alarmlar izni birlikte açık olmalıdır.',
+                      l10n.notificationInfoBlock,
                       style: theme.textTheme.bodySmall,
                     ),
                   ],
@@ -484,4 +465,3 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
     );
   }
 }
-

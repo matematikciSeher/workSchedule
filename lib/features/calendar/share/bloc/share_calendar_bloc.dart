@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/locale/app_localizations_helper.dart';
 import '../../../../core/services/icalendar_service.dart';
 import '../../../../core/services/share_service.dart';
 import '../../../../core/services/timezone_service.dart';
@@ -81,17 +82,17 @@ class ShareCalendarBloc extends Bloc<ShareCalendarEvent, ShareCalendarState> {
       await _shareService.shareICalContent(
         icalContent,
         subject: eventToShare.title,
-        text: 'Etkinlik: ${eventToShare.title}',
+        text: systemL10n.shareEventText(eventToShare.title),
         fileName: 'event_${event.event.id}.ics',
       );
 
       emit(ShareCalendarSuccess(
         method: ShareMethod.file,
-        message: 'Etkinlik başarıyla paylaşıldı',
+        message: systemL10n.eventSharedSuccess,
       ));
     } catch (e) {
       emit(ShareCalendarError(
-        message: 'Paylaşım hatası: ${e.toString()}',
+        message: systemL10n.shareError(e.toString()),
         errorCode: 'SHARE_ERROR',
       ));
     }
@@ -142,15 +143,17 @@ class ShareCalendarBloc extends Bloc<ShareCalendarEvent, ShareCalendarState> {
             sourceTimezone,
             event.targetTimezone!,
           );
-          timezoneWarning =
-              '$timezoneWarning\n\n${eventsToShare.length} etkinlik zaman dilimine göre ayarlandı.';
+          timezoneWarning = systemL10n.eventsTimezoneAdjustWarning(
+            timezoneWarning,
+            eventsToShare.length,
+          );
         }
       }
 
       // .ics formatına çevir
       final icalContent = _icalService.exportEventsToICal(
         eventsToShare,
-        calendarName: event.calendarName ?? 'WorkSchedule Takvimi',
+        calendarName: event.calendarName ?? systemL10n.defaultCalendarName,
       );
 
       emit(ICalContentReady(
@@ -162,18 +165,18 @@ class ShareCalendarBloc extends Bloc<ShareCalendarEvent, ShareCalendarState> {
       // Otomatik paylaş
       await _shareService.shareICalContent(
         icalContent,
-        subject: event.calendarName ?? 'Takvim Paylaşımı',
-        text: 'İşte tüm takviminiz',
+        subject: event.calendarName ?? systemL10n.calendarShareTitle,
+        text: systemL10n.calendarShareBody,
         fileName: 'calendar_${DateTime.now().millisecondsSinceEpoch}.ics',
       );
 
       emit(ShareCalendarSuccess(
         method: ShareMethod.file,
-        message: '${eventsToShare.length} etkinlik başarıyla paylaşıldı',
+        message: systemL10n.eventsSharedSuccess(eventsToShare.length),
       ));
     } catch (e) {
       emit(ShareCalendarError(
-        message: 'Paylaşım hatası: ${e.toString()}',
+        message: systemL10n.shareError(e.toString()),
         errorCode: 'SHARE_ERROR',
       ));
     }
@@ -220,7 +223,7 @@ class ShareCalendarBloc extends Bloc<ShareCalendarEvent, ShareCalendarState> {
           }
 
           timezoneWarning =
-              '${importedEvents.length} etkinlik zaman diliminize göre ayarlandı.';
+              systemL10n.eventsAdjustedForTimezone(importedEvents.length);
 
           emit(ImportCalendarSuccess(
             importedEvents: adjustedEvents,
@@ -236,7 +239,7 @@ class ShareCalendarBloc extends Bloc<ShareCalendarEvent, ShareCalendarState> {
       ));
     } catch (e) {
       emit(ShareCalendarError(
-        message: 'İçe aktarma hatası: ${e.toString()}',
+        message: systemL10n.importError(e.toString()),
         errorCode: 'IMPORT_ERROR',
       ));
     }
@@ -289,7 +292,7 @@ class ShareCalendarBloc extends Bloc<ShareCalendarEvent, ShareCalendarState> {
       ));
     } catch (e) {
       emit(ShareCalendarError(
-        message: 'Zaman dilimi kontrol hatası: ${e.toString()}',
+        message: systemL10n.timezoneCheckError(e.toString()),
         errorCode: 'TIMEZONE_ERROR',
       ));
     }

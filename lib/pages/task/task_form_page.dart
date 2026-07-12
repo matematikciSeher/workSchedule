@@ -6,6 +6,7 @@ import '../../features/task/bloc/task_state.dart';
 import '../../domain/entities/task_entity.dart';
 import '../../shared/widgets/decorative_background.dart';
 import '../../core/services/task_notification_helper.dart';
+import '../../l10n/app_localizations.dart';
 
 class TaskFormPage extends StatefulWidget {
   final String? taskId; // null ise yeni görev, değilse düzenleme
@@ -133,9 +134,11 @@ class _TaskFormPageState extends State<TaskFormPage> {
   }
 
   Widget _buildNotificationPreview(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final preview = TaskNotificationHelper.previewSchedule(
       dueDate: _buildDueDate(),
       isCompleted: _existingTask?.isCompleted ?? false,
+      l10n: l10n,
     );
     final theme = Theme.of(context);
 
@@ -157,21 +160,21 @@ class _TaskFormPageState extends State<TaskFormPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Bildirim zamanı',
+                    l10n.notificationTime,
                     style: theme.textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    preview.displayMessage ?? 'Bildirim planlanamıyor.',
+                    preview.displayMessage ?? l10n.notificationCannotBeScheduled,
                     style: theme.textTheme.bodySmall,
                   ),
                   if (preview.success)
                     Padding(
                       padding: const EdgeInsets.only(top: 4),
                       child: Text(
-                        'Bildirim çubuğu ve kilit ekranında görünür.',
+                        l10n.notificationVisibleOnLockScreen,
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                         ),
@@ -188,6 +191,7 @@ class _TaskFormPageState extends State<TaskFormPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final isEditing = widget.taskId != null;
 
     return BlocListener<TaskBloc, TaskState>(
@@ -196,8 +200,9 @@ class _TaskFormPageState extends State<TaskFormPage> {
           final preview = TaskNotificationHelper.previewSchedule(
             dueDate: _buildDueDate(),
             isCompleted: _existingTask?.isCompleted ?? false,
+            l10n: l10n,
           );
-          final base = isEditing ? 'Görev güncellendi' : 'Görev eklendi';
+          final base = isEditing ? l10n.taskUpdated : l10n.taskAdded;
           final message = preview.displayMessage != null
               ? '$base\n${preview.displayMessage}'
               : base;
@@ -213,7 +218,7 @@ class _TaskFormPageState extends State<TaskFormPage> {
           setState(() => _isLoading = false);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Hata: ${state.message}'),
+              content: Text(l10n.errorWithMessage(state.message)),
               backgroundColor: Colors.red,
             ),
           );
@@ -221,7 +226,7 @@ class _TaskFormPageState extends State<TaskFormPage> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text(isEditing ? 'Görevi Düzenle' : 'Yeni Görev'),
+          title: Text(isEditing ? l10n.editTask : l10n.newTask),
           elevation: 0,
           backgroundColor: Colors.transparent,
         ),
@@ -235,13 +240,13 @@ class _TaskFormPageState extends State<TaskFormPage> {
             children: [
               TextFormField(
                 controller: _titleController,
-                decoration: const InputDecoration(
-                  labelText: 'Başlık *',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: l10n.titleRequired,
+                  border: const OutlineInputBorder(),
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Lütfen başlık girin';
+                    return l10n.pleaseEnterTitle;
                   }
                   return null;
                 },
@@ -249,28 +254,28 @@ class _TaskFormPageState extends State<TaskFormPage> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: _descriptionController,
-                decoration: const InputDecoration(
-                  labelText: 'Açıklama',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: l10n.description,
+                  border: const OutlineInputBorder(),
                 ),
                 maxLines: 5,
               ),
               const SizedBox(height: 16),
               ListTile(
-                title: const Text('Tarih'),
+                title: Text(l10n.date),
                 subtitle: Text(
                   _selectedDate == null
-                      ? 'Tarih seçilmedi'
+                      ? l10n.dateNotSelected
                       : '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}',
                 ),
                 trailing: const Icon(Icons.calendar_today),
                 onTap: _selectDate,
               ),
               ListTile(
-                title: const Text('Saat'),
+                title: Text(l10n.time),
                 subtitle: Text(
                   _selectedTime == null
-                      ? 'Saat seçilmedi'
+                      ? l10n.timeNotSelected
                       : _selectedTime!.format(context),
                 ),
                 trailing: const Icon(Icons.access_time),
@@ -290,7 +295,7 @@ class _TaskFormPageState extends State<TaskFormPage> {
                         width: 20,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : Text(isEditing ? 'Güncelle' : 'Kaydet'),
+                    : Text(isEditing ? l10n.update : l10n.save),
               ),
             ],
           ),
@@ -300,4 +305,3 @@ class _TaskFormPageState extends State<TaskFormPage> {
     );
   }
 }
-

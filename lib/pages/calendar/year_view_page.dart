@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../domain/repositories/event_repository.dart';
 import '../../shared/widgets/heatmap_widget.dart';
 import '../../core/routes/route_generator.dart';
+import '../../l10n/app_localizations.dart';
 
 class YearViewPage extends StatefulWidget {
   final EventRepository? eventRepository;
@@ -36,10 +37,13 @@ class _YearViewPageState extends State<YearViewPage> {
     try {
       final repository = widget.eventRepository ?? _getDefaultRepository();
       if (repository == null) {
-        setState(() {
-          _errorMessage = 'Event repository bulunamadı';
-          _isLoading = false;
-        });
+        if (mounted) {
+          final l10n = AppLocalizations.of(context)!;
+          setState(() {
+            _errorMessage = l10n.eventRepositoryNotFound;
+            _isLoading = false;
+          });
+        }
         return;
       }
 
@@ -51,10 +55,8 @@ class _YearViewPageState extends State<YearViewPage> {
         endDate,
       );
 
-      // Etkinlikleri tarihe göre grupla ve say
       final counts = <DateTime, int>{};
       for (final event in events) {
-        // Etkinliğin tüm günlerini işle
         final start = DateTime(
           event.startDate.year,
           event.startDate.month,
@@ -86,8 +88,9 @@ class _YearViewPageState extends State<YearViewPage> {
       }
     } catch (e) {
       if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
         setState(() {
-          _errorMessage = 'Etkinlikler yüklenirken hata oluştu: $e';
+          _errorMessage = l10n.eventsLoadError(e.toString());
           _isLoading = false;
         });
       }
@@ -110,17 +113,19 @@ class _YearViewPageState extends State<YearViewPage> {
   }
 
   void _onDayTap(DateTime date) {
+    final l10n = AppLocalizations.of(context)!;
+    final normalizedDate = DateTime(date.year, date.month, date.day);
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: Text('${date.day}/${date.month}/${date.year}'),
         content: Text(
-          'Bu tarihte ${_eventCounts[date] ?? 0} etkinlik var.',
+          l10n.eventsOnDate(_eventCounts[normalizedDate] ?? 0),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Tamam'),
+            child: Text(l10n.ok),
           ),
         ],
       ),
@@ -129,9 +134,11 @@ class _YearViewPageState extends State<YearViewPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('$_selectedYear Yılı'),
+        title: Text(l10n.yearTitle(_selectedYear)),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
@@ -140,12 +147,12 @@ class _YearViewPageState extends State<YearViewPage> {
           IconButton(
             icon: const Icon(Icons.chevron_left),
             onPressed: () => _changeYear(-1),
-            tooltip: 'Önceki yıl',
+            tooltip: l10n.previousYear,
           ),
           IconButton(
             icon: const Icon(Icons.chevron_right),
             onPressed: () => _changeYear(1),
-            tooltip: 'Sonraki yıl',
+            tooltip: l10n.nextYear,
           ),
         ],
       ),
@@ -170,7 +177,7 @@ class _YearViewPageState extends State<YearViewPage> {
                       const SizedBox(height: 16),
                       ElevatedButton(
                         onPressed: () => _loadEventsForYear(_selectedYear),
-                        child: const Text('Yeniden Dene'),
+                        child: Text(l10n.retry),
                       ),
                     ],
                   ),
@@ -189,4 +196,3 @@ class _YearViewPageState extends State<YearViewPage> {
     );
   }
 }
-

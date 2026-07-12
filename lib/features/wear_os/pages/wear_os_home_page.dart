@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../l10n/app_localizations.dart';
 import '../models/wear_os_models.dart';
 import '../services/wear_os_data_service.dart';
 import '../widgets/wear_os_daily_summary_card.dart';
@@ -51,6 +52,7 @@ class _WearOsHomePageState extends State<WearOsHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: Colors.black,
       body: _isLoading
@@ -63,9 +65,9 @@ class _WearOsHomePageState extends State<WearOsHomePage> {
                   SliverAppBar(
                     floating: true,
                     backgroundColor: Colors.black,
-                    title: const Text(
-                      'Work Schedule',
-                      style: TextStyle(color: Colors.white, fontSize: 18),
+                    title: Text(
+                      l10n.appName,
+                      style: const TextStyle(color: Colors.white, fontSize: 18),
                     ),
                     actions: [
                       IconButton(
@@ -104,9 +106,9 @@ class _WearOsHomePageState extends State<WearOsHomePage> {
                               const Icon(Icons.calendar_today,
                                   color: Colors.blue, size: 16),
                               const SizedBox(width: 8),
-                              const Text(
-                                'Sonraki Etkinlik',
-                                style: TextStyle(
+                              Text(
+                                l10n.wearOsNextEvent,
+                                style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 14,
                                     fontWeight: FontWeight.bold),
@@ -142,7 +144,8 @@ class _WearOsHomePageState extends State<WearOsHomePage> {
                                   color: Colors.red, size: 16),
                               const SizedBox(width: 8),
                               Text(
-                                'Acil Görevler (${_dailySummary!.urgentTasks.length})',
+                                l10n.wearOsUrgentTasks(
+                                    _dailySummary!.urgentTasks.length),
                                 style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 14,
@@ -186,7 +189,7 @@ class _WearOsHomePageState extends State<WearOsHomePage> {
                                   color: Colors.green, size: 16),
                               const SizedBox(width: 8),
                               Text(
-                                'Bugünkü Görevler',
+                                l10n.wearOsTodayTasks,
                                 style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 14,

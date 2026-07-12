@@ -1,0 +1,780 @@
+{
+  "@@locale": "en",
+  "appName": "Work Schedule",
+  "settings": "Settings",
+  "aiAssistant": "AI Assistant",
+  "newTask": "New Task",
+  "addNewTask": "Add new task",
+  "deleteTaskTitle": "Delete Task",
+  "deleteTaskConfirm": "Are you sure you want to delete \"{taskTitle}\"?",
+  "@deleteTaskConfirm": {
+    "placeholders": {
+      "taskTitle": {
+        "type": "String"
+      }
+    }
+  },
+  "cancel": "Cancel",
+  "delete": "Delete",
+  "ok": "OK",
+  "save": "Save",
+  "update": "Update",
+  "edit": "Edit",
+  "selectADay": "Select a day",
+  "selectDayHint": "Tap a date on the calendar to view your tasks",
+  "noTasksForDay": "No tasks for this day",
+  "addTaskHint": "Tap + to add a new task",
+  "allTasksCompleted": "All tasks completed",
+  "taskProgressSummary": "{pending} pending • {completed} completed",
+  "@taskProgressSummary": {
+    "placeholders": {
+      "pending": {
+        "type": "int"
+      },
+      "completed": {
+        "type": "int"
+      }
+    }
+  },
+  "today": "Today",
+  "tomorrow": "Tomorrow",
+  "yesterday": "Yesterday",
+  "editTask": "Edit Task",
+  "notificationTime": "Notification time",
+  "notificationCannotBeScheduled": "Notification cannot be scheduled.",
+  "notificationVisibleOnLockScreen": "Visible in notification bar and lock screen.",
+  "taskUpdated": "Task updated",
+  "taskAdded": "Task added",
+  "myTasks": "My Tasks",
+  "noTasksYet": "No tasks yet",
+  "addTaskTapPlus": "Tap + to add a new task",
+  "taskDeleted": "Task deleted",
+  "priorityLow": "Low",
+  "priorityMedium": "Medium",
+  "priorityHigh": "High",
+  "priorityUnspecified": "Unspecified",
+  "snooze": "Snooze",
+  "taskNotFound": "Task not found",
+  "taskLoadFailed": "Failed to load task",
+  "pleaseSelectDateAndTime": "Please select date and time",
+  "snoozeMustBeFuture": "Snooze time must be in the future",
+  "snoozeFailed": "Snooze failed: {error}",
+  "@snoozeFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "currentDueDate": "Current due: {datetime}",
+  "@currentDueDate": {
+    "placeholders": {
+      "datetime": {
+        "type": "String"
+      }
+    }
+  },
+  "quickOptions": "Quick options",
+  "snooze15Min": "15 min",
+  "snooze30Min": "30 min",
+  "snooze1Hour": "1 hour",
+  "snooze3Hours": "3 hours",
+  "customDateAndTime": "Custom date and time",
+  "newReminderAt": "New reminder: {datetime}",
+  "@newReminderAt": {
+    "placeholders": {
+      "datetime": {
+        "type": "String"
+      }
+    }
+  },
+  "editEvent": "Edit Event",
+  "newEvent": "New Event",
+  "location": "Location",
+  "allDay": "All Day",
+  "allDaySubtitle": "Event lasts all day",
+  "startDate": "Start Date",
+  "startTime": "Start Time",
+  "endDate": "End Date",
+  "endTime": "End Time",
+  "pleaseSelectStartEndDates": "Please select start and end dates",
+  "pleaseEnterTitle": "Please enter a title",
+  "titleRequired": "Title *",
+  "description": "Description",
+  "date": "Date",
+  "time": "Time",
+  "dateNotSelected": "No date selected",
+  "timeNotSelected": "No time selected",
+  "eventUpdated": "Event updated",
+  "eventCreated": "Event created",
+  "eventDetails": "Event Details",
+  "monthView": "Month View",
+  "weekView": "Week View",
+  "dayView": "Day View",
+  "yearTitle": "Year {year}",
+  "@yearTitle": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "previousYear": "Previous year",
+  "nextYear": "Next year",
+  "managePreferences": "Manage Your Preferences",
+  "settingsHeaderSubtitle": "Adjust sync, notifications, and appearance settings here.",
+  "sectionGeneral": "General",
+  "syncSettings": "Sync Settings",
+  "syncSettingsSubtitle": "Cloud sync and backup",
+  "widgetPreview": "Widget Preview",
+  "widgetPreviewSubtitle": "Preview home screen widget",
+  "sectionPersonalization": "Personalization",
+  "notifications": "Notifications",
+  "notificationsSubtitle": "Notification permissions and settings",
+  "themeAndFont": "Theme & Font",
+  "themeAndFontSubtitle": "Light/dark theme, colors, and text settings",
+  "sectionApp": "App",
+  "privacyPolicy": "Privacy Policy",
+  "privacyPolicySubtitle": "Data usage and privacy information",
+  "about": "About",
+  "aboutSubtitle": "App info and version",
+  "versionLabel": "Version {version}",
+  "@versionLabel": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "aboutDescription": "A smart calendar app that lets you manage tasks and events in one place. From daily planning to weekly views, reminders to cloud sync — all the tools you need are at your fingertips.",
+  "features": "Features",
+  "featureTaskManagement": "Task Management",
+  "featureTaskManagementSubtitle": "Create, edit, and track tasks",
+  "featureEventCalendar": "Event Calendar",
+  "featureEventCalendarSubtitle": "Day, week, month, and year views",
+  "featureReminders": "Reminders",
+  "featureRemindersSubtitle": "Get timely notifications",
+  "featureCloudSync": "Cloud Sync",
+  "featureCloudSyncSubtitle": "Safely back up and sync your data",
+  "featureAiAssistantSubtitle": "Ask questions about your schedule",
+  "featurePersonalization": "Personalization",
+  "featurePersonalizationSubtitle": "Theme colors and font size",
+  "developerNote": "Developer Note",
+  "developerNoteBody": "This app is built with Flutter. Your feedback and suggestions are valuable to us.",
+  "copyright": "© {year} {appName}",
+  "@copyright": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      },
+      "appName": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationSettings": "Notification Settings",
+  "enableSync": "Enable Sync",
+  "enableSyncSubtitle": "Turn cloud sync on/off",
+  "autoSync": "Auto Sync",
+  "autoSyncSubtitle": "Automatically sync changes",
+  "wifiOnlySync": "Sync on Wi-Fi Only",
+  "wifiOnlySyncSubtitle": "Reduce mobile data usage",
+  "manualSync": "Manual Sync",
+  "syncNow": "Sync now",
+  "syncStarted": "Sync started",
+  "lastSync": "Last Sync",
+  "notSyncedYet": "Not synced yet",
+  "appearance": "Appearance",
+  "themeColors": "Theme Colors",
+  "fontAndSize": "Font & Size",
+  "lightMode": "Light",
+  "darkMode": "Dark",
+  "error": "Error",
+  "taskIdRequired": "Task ID required",
+  "eventIdRequired": "Event ID required",
+  "eventSharing": "Event Sharing",
+  "eventIdLabel": "Event ID: {eventId}",
+  "@eventIdLabel": {
+    "placeholders": {
+      "eventId": {
+        "type": "String"
+      }
+    }
+  },
+  "eventInfoNotFound": "Event information not found",
+  "calendarOperations": "Calendar Operations",
+  "featureComingSoon": "This feature is coming soon",
+  "pageNotFound": "Page Not Found",
+  "pageNotFoundWithRoute": "Page not found: {routeName}",
+  "@pageNotFoundWithRoute": {
+    "placeholders": {
+      "routeName": {
+        "type": "String"
+      }
+    }
+  },
+  "unknown": "Unknown",
+  "timezoneLabel": "Timezone: {timezone}",
+  "@timezoneLabel": {
+    "placeholders": {
+      "timezone": {
+        "type": "String"
+      }
+    }
+  },
+  "calendarSharing": "Calendar Sharing",
+  "calendarNameLabel": "Calendar: {calendarName}",
+  "@calendarNameLabel": {
+    "placeholders": {
+      "calendarName": {
+        "type": "String"
+      }
+    }
+  },
+  "calendarImport": "Calendar Import",
+  "importingCalendar": "Importing calendar...",
+  "sourceTimezoneLabel": "Source Timezone: {timezone}",
+  "@sourceTimezoneLabel": {
+    "placeholders": {
+      "timezone": {
+        "type": "String"
+      }
+    }
+  },
+  "invalidDeepLink": "Invalid deep link",
+  "tryAgain": "Try Again",
+  "errorWithMessage": "Error: {message}",
+  "@errorWithMessage": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "shareEvent": "Share Event",
+  "shareCalendar": "Share Calendar",
+  "importCalendar": "Import Calendar",
+  "share": "Share",
+  "aiWelcomeMessage": "Hello! 👋 I'm your personal calendar assistant. Ask me anything about your schedule.",
+  "aiErrorMessage": "Sorry, an error occurred. Please try again.",
+  "aiReady": "Your calendar assistant is ready!",
+  "aiInputHint": "Type your question...",
+  "aiSuggestionToday": "What should I do today?",
+  "aiSuggestionNextEvent": "What's my next event?",
+  "aiSuggestionFreeTime": "Do I have free time?",
+  "aiSuggestionOverdue": "Do I have overdue tasks?",
+  "aiSuggestionTomorrow": "What's on tomorrow?",
+  "aiSuggestionWeekend": "What's my weekend plan?",
+  "aiSuggestionPriorities": "What are my priority tasks?",
+  "aiSuggestionWeekSummary": "This week's summary",
+  "noNotificationNoDate": "No notification scheduled because no date was selected.",
+  "noNotificationPastTask": "No notification scheduled for a past task.",
+  "noRemindersTaskTooSoon": "• No reminders (task is too soon)",
+  "reminderBefore": "• {label} before: {datetime}",
+  "@reminderBefore": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "datetime": {
+        "type": "String"
+      }
+    }
+  },
+  "oneHour": "1 hour",
+  "thirtyMinutes": "30 minutes",
+  "themeSettingsLoadFailed": "Failed to load theme settings.",
+  "fontPreviewSample": "Sample text — Work Schedule",
+  "themeColorBlue": "Blue",
+  "themeColorPurple": "Purple",
+  "themeColorGreen": "Green",
+  "themeColorOrange": "Orange",
+  "themeColorRed": "Red",
+  "themeColorPink": "Pink",
+  "themeColorTeal": "Teal",
+  "themeColorCyan": "Cyan",
+  "themeColorIndigo": "Indigo",
+  "themeColorBrown": "Brown",
+  "themeColorGrey": "Grey",
+  "themeColorAmber": "Amber",
+  "themeColorDeepPurple": "Deep Purple",
+  "themeColorLightBlue": "Light Blue",
+  "themeColorLime": "Lime",
+  "themeColorDeepOrange": "Deep Orange",
+  "themeColorBlueGrey": "Blue Grey",
+  "themeColorYellow": "Yellow",
+  "themeColorLightGreen": "Light Green",
+  "themeColorRedAccent": "Red Accent",
+  "themeColorGreenAccent": "Green Accent",
+  "themeColorBlueAccent": "Blue Accent",
+  "photoSelectError": "Error selecting photo: {error}",
+  "@photoSelectError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "fileSelectError": "Error selecting file: {error}",
+  "@fileSelectError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "chooseFromGallery": "Choose from Gallery",
+  "takeWithCamera": "Take with Camera",
+  "attachments": "Attachments",
+  "photo": "Photo",
+  "file": "File",
+  "selectedPhotos": "Selected Photos",
+  "selectedFiles": "Selected Files",
+  "eventTitle": "Title",
+  "eventDescriptionPlaceholder": "Enter a description (optional)",
+  "weekPrefix": "Week: ",
+  "eventRepositoryNotFound": "Event repository not found",
+  "eventsLoadError": "Error loading events: {error}",
+  "@eventsLoadError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "eventsOnDate": "{count} events on this date",
+  "@eventsOnDate": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "retry": "Retry",
+  "yearEventDensity": "{year} Event Density",
+  "@yearEventDensity": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "heatmapSubtitle": "Annual calendar colored by daily event count",
+  "heatmapLegendLess": "Less",
+  "heatmapLegendMore": "More",
+  "eventsCount": "{count} events",
+  "@eventsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "lightTheme": "Light Theme",
+  "darkTheme": "Dark Theme",
+  "themeSettings": "Theme Settings",
+  "appearanceMode": "Appearance Mode",
+  "colorScheme": "Color Scheme",
+  "previewControls": "Preview Controls",
+  "selectMonth": "Select Month",
+  "selectToday": "Select Today",
+  "sampleTasks": "Sample Tasks",
+  "tasksLoaded": "{count} tasks loaded",
+  "@tasksLoaded": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "refresh": "Refresh",
+  "livePreview": "Live Preview",
+  "livePreviewSubtitle": "Preview how calendar and task widgets look here.",
+  "calendarWidget": "Calendar Widget",
+  "taskListWidget": "Task List Widget",
+  "taskTapped": "Task tapped: {taskTitle}",
+  "@taskTapped": {
+    "placeholders": {
+      "taskTitle": {
+        "type": "String"
+      }
+    }
+  },
+  "previewInfo": "Change your theme settings to test different widget appearances.",
+  "recipientTimezoneOptional": "Recipient Timezone (Optional)",
+  "selectTimezone": "Select timezone",
+  "timezoneWarning": "Timezone Warning",
+  "eventsWillBeShared": "{count} events will be shared",
+  "@eventsWillBeShared": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "eventsTimezoneAdjustWarning": "{warning}\n\n{count} events will be adjusted for the timezone.",
+  "@eventsTimezoneAdjustWarning": {
+    "placeholders": {
+      "warning": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "selectIcsFile": "Select a calendar file in .ics format",
+  "sourceTimezoneOptional": "Source Timezone (Optional)",
+  "senderTimezone": "Sender timezone",
+  "autoDetect": "Auto Detect",
+  "chooseFile": "Choose File",
+  "fileSelectionError": "File selection error: {error}",
+  "@fileSelectionError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "importSuccessCount": "{count} events imported successfully!",
+  "@importSuccessCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "importFailed": "Events could not be imported.",
+  "importSuccessful": "Import Successful",
+  "shareExamplesTitle": "Calendar Sharing Examples",
+  "shareSingleEvent": "Share Single Event",
+  "shareAllCalendar": "Share All Calendar",
+  "eventSharedSuccess": "Event shared successfully",
+  "shareError": "Share error: {error}",
+  "@shareError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "calendarShareTitle": "Calendar Sharing",
+  "calendarShareBody": "Here is your full calendar",
+  "eventsSharedSuccess": "{count} events shared successfully",
+  "@eventsSharedSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "eventsAdjustedForTimezone": "{count} events adjusted for your timezone.",
+  "@eventsAdjustedForTimezone": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "importError": "Import error: {error}",
+  "@importError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "exactAlarmEnabledMsg": "Exact alarm permission is enabled.",
+  "exactAlarmStillDisabledMsg": "Exact alarm permission is still disabled. Enable \"Exact alarms\" in the settings screen that opens.",
+  "notificationPermissionGranted": "Notification permission granted!",
+  "notificationPermissionDenied": "Notification permission denied. You can enable it manually in Settings.",
+  "notificationPermissionDialogTitle": "Notification Permission",
+  "notificationPermissionInstructions": "Please enable notification permissions for \"Work Schedule\" in device settings:\n\n1. Open the Settings app\n2. Go to \"Apps\" or \"Applications\"\n3. Find the \"Work Schedule\" app\n4. Go to \"Notifications\"\n5. Enable notifications",
+  "exactAlarmPermissionTitle": "Exact Alarm Permission",
+  "exactAlarmInstructions": "For on-time reminders:\n\nSettings → Apps → Work Schedule → Permissions → Alarms & reminders → Exact alarms",
+  "exactAlarmPermissionLabel": "Exact alarm permission",
+  "exactAlarmEnabledHint": "Reminders can be sent on time.",
+  "exactAlarmDisabledHint": "If disabled, notifications may be delayed.",
+  "statusOn": "On",
+  "statusOff": "Off",
+  "requestPermission": "Request Permission",
+  "goToSettings": "Go to Settings",
+  "howToEnable": "How to enable?",
+  "notificationGrantedActive": "Notification permission granted. Task reminders are active.",
+  "notificationDeniedInactive": "Notification permission not granted. Task reminders will not work.",
+  "requestNotificationPermission": "Request Notification Permission",
+  "refreshStatus": "Refresh Status",
+  "scheduledNotifications": "Scheduled Notifications",
+  "scheduledNotificationsDesc": "Task notifications arrive 1 hour and 30 minutes before; status is reported at due time.",
+  "noPendingNotifications": "No pending notifications. Add tasks with date and time.",
+  "notificationDefaultTitle": "Notification",
+  "refreshList": "Refresh List",
+  "infoTitle": "Info",
+  "notificationInfoBlock": "Task notifications arrive 1 hour and 30 minutes before the task time.\n  Example: Task at 15:00 → 14:00 and 14:30\n\n• Completion status at due time is shown with a colored notification.\n  Green: completed, Red: not completed\n\n• Tapping the notification or Snooze postpones the task by 30 min.\n  The new time is updated automatically in the calendar.\n\n• If no time is selected, the task defaults to 09:00.\n\n• Notification permission + Exact alarms permission must both be enabled.",
+  "lastUpdatedLabel": "Last updated: {date}",
+  "@lastUpdatedLabel": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "privacyLastUpdatedDate": "June 8, 2026",
+  "privacyIntroTitle": "Introduction",
+  "privacyIntroBody": "This Privacy Policy explains how your personal data is collected, used, stored, and protected when you use the Work Schedule mobile app. By using the app, you are deemed to have accepted this policy.",
+  "privacyDataControllerTitle": "Data Controller",
+  "privacyDataControllerBullet1": "Data controller: {controller}",
+  "@privacyDataControllerBullet1": {
+    "placeholders": {
+      "controller": {
+        "type": "String"
+      }
+    }
+  },
+  "privacyDataControllerBullet2": "App: Work Schedule",
+  "privacyDataControllerBullet3": "Package name: com.Appworkschedule.app",
+  "privacyDataControllerBullet4": "Contact: {email}",
+  "@privacyDataControllerBullet4": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "privacyDataCollectedTitle": "Data Collected",
+  "privacyDataCollectedIntro": "The app may collect the following categories of data:",
+  "privacyDataCollectedBullet1": "Account information: email, password (securely processed by Firebase), Google profile information",
+  "privacyDataCollectedBullet2": "Task and event data: title, description, dates, priority, location, attendees",
+  "privacyDataCollectedBullet3": "Event attachments: photos and files",
+  "privacyDataCollectedBullet4": "Google Calendar data (if sync is enabled)",
+  "privacyDataCollectedBullet5": "Preferences: theme, notification, and sync settings",
+  "privacyDataCollectedBullet6": "Device timezone (for reminders)",
+  "privacyDataCollectedBullet7": "Login credentials saved with \"Remember me\" (stored locally on device)",
+  "privacyDataUseTitle": "Purposes of Data Use",
+  "privacyDataUseBullet1": "Account creation and authentication",
+  "privacyDataUseBullet2": "Task and event management",
+  "privacyDataUseBullet3": "Reminder and notification delivery",
+  "privacyDataUseBullet4": "Cloud sync and backup",
+  "privacyDataUseBullet5": "Google Calendar synchronization",
+  "privacyDataUseBullet6": "Calendar sharing and export",
+  "privacyDataUseBullet7": "Providing schedule information via AI Assistant",
+  "privacyDataUseBullet8": "App security",
+  "privacyLegalBasisTitle": "Legal Basis (KVKK)",
+  "privacyLegalBasisBody": "Your personal data is processed based on contract performance, legitimate interest, and your explicit consent (Google connection, notifications, camera/gallery permissions) under KVKK.",
+  "privacyStorageTitle": "Data Storage",
+  "privacyStorageBullet1": "Tasks and events are stored in the SQLite database on your device",
+  "privacyStorageBullet2": "If sync is enabled, data is stored on Google Firebase (Firestore)",
+  "privacyStorageBullet3": "Settings are stored on your device with SharedPreferences",
+  "privacyStorageBullet4": "Attachments are stored in the app documents directory",
+  "privacyStorageBody": "Your data is retained while your account is active. Upon account deletion request, your data will be deleted subject to legal obligations.",
+  "privacyThirdPartyTitle": "Third-Party Services",
+  "privacyThirdPartyBullet1": "Google Firebase (authentication and cloud database)",
+  "privacyThirdPartyBullet2": "Google Sign-In and Google Calendar API (optional)",
+  "privacyThirdPartyBullet3": "Google Fonts (fonts; IP address may be transmitted)",
+  "privacyThirdPartyBody": "These service providers are subject to their own privacy policies.",
+  "privacyPermissionsTitle": "Device Permissions",
+  "privacyPermissionsBullet1": "Notifications: for reminders",
+  "privacyPermissionsBullet2": "Camera and gallery: for event photos",
+  "privacyPermissionsBullet3": "File access: for import/export",
+  "privacyPermissionsBullet4": "Internet: for cloud sync",
+  "privacyPermissionsBullet5": "Device reboot: to reschedule reminders",
+  "privacyPermissionsBody": "You can revoke permissions at any time from your device settings.",
+  "privacyAiTitle": "AI Assistant",
+  "privacyAiBody": "The AI Assistant runs in local mode by default; it accesses your task and event data but does not send it to third parties. If an external AI API is configured, your question text may be sent to the relevant provider.",
+  "privacySecurityTitle": "Data Security",
+  "privacySecurityBody": "Industry-standard security measures are applied to protect your data. Firebase communication is conducted over encrypted connections (HTTPS/TLS).",
+  "privacySharingTitle": "Data Sharing",
+  "privacySharingBody": "We do not sell your personal data. Data is shared only with providers necessary for service delivery, at your request (sharing/export), or when legally required.",
+  "privacyRightsTitle": "Your Rights (KVKK Article 11)",
+  "privacyRightsBullet1": "Learn whether your data is being processed",
+  "privacyRightsBullet2": "Request information if processed",
+  "privacyRightsBullet3": "Request correction of incomplete or inaccurate data",
+  "privacyRightsBullet4": "Request deletion or destruction of data",
+  "privacyRightsBullet5": "Object to automated analysis results",
+  "privacyRightsBullet6": "Request compensation for damages",
+  "privacyRightsBody": "To exercise your rights, contact {email}. Your request will be answered within 30 days at the latest.",
+  "@privacyRightsBody": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "privacyChildrenTitle": "Children's Privacy",
+  "privacyChildrenBody": "The app is not intended for children under 13. We do not knowingly collect personal data from this age group.",
+  "privacyTransferTitle": "International Data Transfer",
+  "privacyTransferBody": "Firebase and Google services may process your data on servers outside Turkey. This transfer takes place within the safeguards of KVKK Article 9.",
+  "privacyChangesTitle": "Policy Changes",
+  "privacyChangesBody": "This policy may be updated from time to time. For significant changes, you will be notified via in-app notification or an updated date.",
+  "privacyContactTitle": "Contact",
+  "privacyContactBody": "For questions about the privacy policy or your personal data, contact the data controller {controller} at {email}.",
+  "@privacyContactBody": {
+    "placeholders": {
+      "controller": {
+        "type": "String"
+      },
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "packageName": "com.Appworkschedule.app",
+  "taskReminderChannelName": "Task Reminders",
+  "taskReminderChannelDesc": "Reminders 1 hour and 30 minutes before tasks",
+  "eventReminderChannelName": "Reminder Notifications",
+  "eventReminderChannelDesc": "Event reminders",
+  "taskNotificationChannelName": "Task Notifications",
+  "taskNotificationChannelDesc": "Completion and snooze notifications",
+  "taskCompletedTitle": "Task Completed ✓",
+  "taskNotCompletedTitle": "Task Not Completed",
+  "taskCompletedOnTime": "\"{title}\" was completed on time for {dueTime}.",
+  "@taskCompletedOnTime": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "dueTime": {
+        "type": "String"
+      }
+    }
+  },
+  "taskNotCompletedOverdue": "\"{title}\" is overdue ({dueTime}). Not completed yet.",
+  "@taskNotCompletedOverdue": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "dueTime": {
+        "type": "String"
+      }
+    }
+  },
+  "completeAction": "Complete",
+  "snoozeAction": "Snooze",
+  "notificationPermissionRequired": "Notification permission not granted. Enable it in Settings > Notifications.",
+  "exactAlarmPermissionRequired": "Exact alarm permission required. Enable it in Settings > Permissions > Alarms & reminders.",
+  "testNotificationTitle": "Test Notification",
+  "testNotificationBody": "If you see this, notifications are working!",
+  "taskCompletedNotificationTitle": "Task Completed",
+  "taskCompletedNotificationBody": "\"{title}\" marked as completed.",
+  "@taskCompletedNotificationBody": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "taskSnoozedTitle": "Task Snoozed",
+  "taskSnoozedBody": "\"{title}\" → {datetime}",
+  "@taskSnoozedBody": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "datetime": {
+        "type": "String"
+      }
+    }
+  },
+  "taskReminderTitle": "Task Reminder",
+  "taskReminderBody": "{dueDate} at {dueTime} — {label} left",
+  "@taskReminderBody": {
+    "placeholders": {
+      "dueDate": {
+        "type": "String"
+      },
+      "dueTime": {
+        "type": "String"
+      },
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationScheduled": "Notification scheduled",
+  "notificationNotScheduled": "Notification could not be scheduled",
+  "eventReminderTitle": "Event Reminder",
+  "aiTodaySchedule": "Today's Schedule",
+  "aiTasksUnavailable": "Task information is unavailable.",
+  "aiGreetingHello": "Hello",
+  "aiGreetingMorning": "Good morning",
+  "aiGreetingEvening": "Good evening",
+  "aiHelpIntro": "I'm your personal calendar assistant. You can ask me:\n• \"What should I do today?\"\n• \"What's my next event?\"\n• \"Do I have overdue tasks?\"\n• \"Do I have free time?\"\n\nType \"help\" for all commands.",
+  "shareEventText": "Event: {title}",
+  "@shareEventText": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "defaultCalendarName": "WorkSchedule Calendar",
+  "timezoneCheckError": "Timezone check error: {error}",
+  "@timezoneCheckError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "aiEventsLoadError": "An error occurred while loading events.",
+  "aiEventsUnavailable": "Event information is unavailable.",
+  "aiTasksLoadError": "An error occurred while loading tasks.",
+  "aiNoEventsThisWeek": "No events scheduled this week.",
+  "aiWeekendPlan": "Your Weekend Plan",
+  "aiWeekendNoEvents": "No events scheduled for the weekend.",
+  "aiWeekendEmpty": "Nothing scheduled for the weekend yet. A good chance to rest! 🌿",
+  "aiNoOverdueTasks": "Great! You have no overdue tasks. Everything is on track! 🎉",
+  "aiOverdueTasksTitle": "Overdue Tasks",
+  "aiOverdueTasksCount": "Overdue Tasks ({count})",
+  "@aiOverdueTasksCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "aiNoPriorityTasks": "You have no high-priority pending tasks.",
+  "aiPriorityTasksTitle": "Priority Tasks",
+  "aiNextEventTitle": "Your Next Event",
+  "aiNoUpcomingEvents": "No events scheduled in the next 30 days.",
+  "aiTomorrowProgram": "Tomorrow's Schedule",
+  "aiTomorrowEmpty": "No events or tasks scheduled for tomorrow yet.",
+  "aiFreeTimeTitle": "Your Free Time Today",
+  "aiBusyToday": "You look very busy today! No free time available. Don't forget to rest! 😊",
+  "aiTaskSummary": "Task Summary",
+  "aiWeekSummaryTitle": "This Week Summary",
+  "aiWeekEventsTitle": "Events This Week",
+  "aiTodayEmpty": "No events or tasks scheduled for today. You have a relaxed day! 🎉",
+  "aiHelpFull": "🤖 **AI Assistant Help**\n\nI can help you with:\n\n📅 **Daily Plan:**\n• \"What should I do today?\"\n• \"What's on tomorrow?\"\n• \"What's my weekend plan?\"\n• \"Do I have free time?\"\n• \"Am I busy today?\"\n\n📌 **Events:**\n• \"What's my next event?\"\n• \"What's planned this week?\"\n• \"What are my events?\"\n\n✅ **Tasks:**\n• \"What are my tasks?\"\n• \"Do I have overdue tasks?\"\n• \"What are my priority tasks?\"\n• \"Incomplete tasks\"\n\n📊 **Summary:**\n• \"This week's summary\"\n• \"Weekly summary\"\n\nYou can ask any question in natural language!",
+  "aiDefaultResponse": "🤖 I didn't understand, but you can ask:\n\n• \"What should I do today?\"\n• \"What's my next event?\"\n• \"Do I have overdue tasks?\"\n• \"Do I have free time?\"\n• \"What's my weekend plan?\"\n• \"This week's summary\"\n\nType \"help\" for more assistance.",
+  "wearOsNextEvent": "Next Event",
+  "wearOsUrgentTasks": "Urgent Tasks ({count})",
+  "@wearOsUrgentTasks": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "wearOsTodayTasks": "Today's Tasks",
+  "wearOsTasksLabel": "Tasks",
+  "wearOsEventsLabel": "Events",
+  "wearOsOverdue": "Overdue",
+  "eventCardExamplesTitle": "Event Card Examples",
+  "aiAndMoreTasks": "... and {count} more tasks",
+  "@aiAndMoreTasks": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "aiDaysOverdue": "{days} days overdue",
+  "@aiDaysOverdue": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "aiRecommendPrioritize": "\n💡 I recommend prioritizing these tasks.",
+  "wearOsNoData": "No data found",
+  "wearOsDailySummaryTitle": "📊 Today's Summary"
+}

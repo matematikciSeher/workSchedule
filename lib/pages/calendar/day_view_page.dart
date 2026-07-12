@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import '../../core/extensions/locale_extensions.dart';
+import '../../l10n/app_localizations.dart';
 import '../../shared/widgets/decorative_background.dart';
 
 class DayViewPage extends StatefulWidget {
@@ -14,11 +17,13 @@ class _DayViewPageState extends State<DayViewPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
+    final localeStr = context.dateFormatLocale;
+    final title = DateFormat('d MMMM yyyy', localeStr).format(_selectedDate);
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          '${_selectedDate.day} ${_getMonthName(_selectedDate.month)} ${_selectedDate.year}',
-        ),
+        title: Text(title),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
@@ -31,30 +36,11 @@ class _DayViewPageState extends State<DayViewPage> {
         style: BackgroundStyle.modern,
         child: Center(
           child: Text(
-            'Gün Görünümü',
+            l10n.dayView,
             style: theme.textTheme.headlineMedium,
           ),
         ),
       ),
     );
   }
-
-  String _getMonthName(int month) {
-    const months = [
-      'Ocak',
-      'Şubat',
-      'Mart',
-      'Nisan',
-      'Mayıs',
-      'Haziran',
-      'Temmuz',
-      'Ağustos',
-      'Eylül',
-      'Ekim',
-      'Kasım',
-      'Aralık'
-    ];
-    return months[month - 1];
-  }
 }
-

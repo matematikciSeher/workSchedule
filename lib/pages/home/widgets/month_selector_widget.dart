@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../../../core/extensions/locale_extensions.dart';
 
 /// Material 3 prensiplerine göre ay seçici widget'ı
 class MonthSelectorWidget extends StatelessWidget {
@@ -44,7 +45,7 @@ class MonthSelectorWidget extends StatelessWidget {
       firstDate: firstDate,
       lastDate: lastDate,
       initialDatePickerMode: DatePickerMode.year,
-      locale: locale,
+      locale: locale ?? Localizations.localeOf(context),
       builder: (context, child) {
         return Theme(
           data: Theme.of(context),
@@ -61,8 +62,10 @@ class MonthSelectorWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final monthName = DateFormat('MMMM yyyy', locale?.toString() ?? 'tr_TR')
-        .format(selectedMonth);
+    final monthName = DateFormat(
+      'MMMM yyyy',
+      locale?.toString() ?? context.dateFormatLocale,
+    ).format(selectedMonth);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),

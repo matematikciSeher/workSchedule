@@ -1,3 +1,7 @@
+import 'package:intl/intl.dart';
+
+import '../locale/app_localizations_helper.dart';
+
 /// Bildirim zamanlama sonucu
 class NotificationScheduleResult {
   final bool success;
@@ -21,19 +25,16 @@ class NotificationScheduleResult {
   String? get displayMessage => success ? infoMessage : errorMessage;
 
   String get userMessage {
+    final l10n = systemL10n;
     if (!success) {
-      return errorMessage ?? 'Bildirim zamanlanamadı.';
+      return errorMessage ?? l10n.notificationCannotBeScheduled;
     }
     if (infoMessage != null) return infoMessage!;
-    if (reminderAt == null) return 'Bildirim zamanlandı.';
-    return 'Bildirim ${_format(reminderAt!)} tarihinde gelecek.';
+    if (reminderAt == null) return l10n.notificationScheduled;
+    return l10n.newReminderAt(_format(reminderAt!));
   }
 
   String _format(DateTime dt) {
-    final day = dt.day.toString().padLeft(2, '0');
-    final month = dt.month.toString().padLeft(2, '0');
-    final hour = dt.hour.toString().padLeft(2, '0');
-    final minute = dt.minute.toString().padLeft(2, '0');
-    return '$day.$month.${dt.year} $hour:$minute';
+    return DateFormat('dd.MM.yyyy HH:mm', systemDateFormatLocale()).format(dt);
   }
 }

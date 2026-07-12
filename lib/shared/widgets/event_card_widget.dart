@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
+import '../../l10n/app_localizations.dart';
 
 /// Etkinlik kartı widget'ı
 /// Modern tasarım, animasyonlar ve interaktif özellikler içerir
@@ -389,9 +390,10 @@ class EventCardExample extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Etkinlik Kartı Örnekleri'),
+        title: Text(l10n.eventCardExamplesTitle),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),

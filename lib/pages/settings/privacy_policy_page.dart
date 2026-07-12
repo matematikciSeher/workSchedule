@@ -1,20 +1,21 @@
 import 'package:flutter/material.dart';
+import '../../l10n/app_localizations.dart';
 import '../../shared/widgets/decorative_background.dart';
 
 class PrivacyPolicyPage extends StatelessWidget {
   const PrivacyPolicyPage({super.key});
 
-  static const String lastUpdated = '8 Haziran 2026';
   static const String dataController = 'Seher Aydın';
   static const String contactEmail = 'seheraydin4241@gmail.com';
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Gizlilik Politikası'),
+        title: Text(l10n.privacyPolicy),
         elevation: 0,
         backgroundColor: Colors.transparent,
       ),
@@ -24,163 +25,135 @@ class PrivacyPolicyPage extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(24, 8, 24, 32),
           children: [
             Text(
-              'Çalışma Takvimi',
+              l10n.appName,
               style: theme.textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 4),
             Text(
-              'Son güncelleme: $lastUpdated',
+              l10n.lastUpdatedLabel(l10n.privacyLastUpdatedDate),
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
             ),
             const SizedBox(height: 20),
-            const _PolicySection(
-              title: 'Giriş',
-              content:
-                  'Bu Gizlilik Politikası, Çalışma Takvimi mobil uygulamasını kullandığınızda '
-                  'kişisel verilerinizin nasıl toplandığını, kullanıldığını, saklandığını ve '
-                  'korunduğunu açıklar. Uygulamayı kullanarak bu politikayı kabul etmiş sayılırsınız.',
+            _PolicySection(
+              title: l10n.privacyIntroTitle,
+              content: l10n.privacyIntroBody,
             ),
             _PolicySection(
-              title: 'Veri Sorumlusu',
+              title: l10n.privacyDataControllerTitle,
               bullets: [
-                'Veri sorumlusu: $dataController',
-                'Uygulama: Çalışma Takvimi',
-                'Paket adı: com.Appworkschedule.app',
-                'İletişim: $contactEmail',
+                l10n.privacyDataControllerBullet1(dataController),
+                l10n.privacyDataControllerBullet2,
+                l10n.privacyDataControllerBullet3,
+                l10n.privacyDataControllerBullet4(contactEmail),
               ],
-            ),
-            const _PolicySection(
-              title: 'Toplanan Veriler',
-              content: 'Uygulama aşağıdaki veri kategorilerini toplayabilir:',
-              bullets: [
-                'Hesap bilgileri: e-posta, şifre (Firebase tarafından güvenli işlenir), Google profil bilgileri',
-                'Görev ve etkinlik verileri: başlık, açıklama, tarihler, öncelik, konum, katılımcılar',
-                'Etkinlik ekleri: fotoğraf ve dosyalar',
-                'Google Takvim verileri (senkronizasyon etkinse)',
-                'Tercihler: tema, bildirim ve senkronizasyon ayarları',
-                'Cihaz saat dilimi (hatırlatıcılar için)',
-                '“Beni hatırla” seçeneğiyle kaydedilen giriş bilgileri (cihazda yerel)',
-              ],
-            ),
-            const _PolicySection(
-              title: 'Verilerin Kullanım Amaçları',
-              bullets: [
-                'Hesap oluşturma ve kimlik doğrulama',
-                'Görev ve etkinlik yönetimi',
-                'Hatırlatıcı ve bildirim gönderimi',
-                'Bulut senkronizasyonu ve yedekleme',
-                'Google Takvim senkronizasyonu',
-                'Takvim paylaşımı ve dışa aktarma',
-                'AI Asistan ile program bilgisi sunma',
-                'Uygulama güvenliği',
-              ],
-            ),
-            const _PolicySection(
-              title: 'Hukuki Dayanak (KVKK)',
-              content:
-                  'Kişisel verileriniz KVKK kapsamında sözleşmenin ifası, meşru menfaat ve '
-                  'açık rızanız (Google bağlantısı, bildirim, kamera/galeri izinleri) '
-                  'hukuki sebeplerine dayanılarak işlenir.',
-            ),
-            const _PolicySection(
-              title: 'Verilerin Saklanması',
-              bullets: [
-                'Görev ve etkinlikler cihazınızdaki SQLite veritabanında saklanır',
-                'Senkronizasyon etkinse veriler Google Firebase (Firestore) üzerinde saklanır',
-                'Ayarlar SharedPreferences ile cihazınızda saklanır',
-                'Ekler uygulama belgeler dizininde saklanır',
-              ],
-              content:
-                  'Verileriniz hesabınız aktif olduğu sürece saklanır. Hesap silme talebinde '
-                  'yasal yükümlülükler saklı kalmak kaydıyla verileriniz silinir.',
-            ),
-            const _PolicySection(
-              title: 'Üçüncü Taraf Hizmetler',
-              bullets: [
-                'Google Firebase (kimlik doğrulama ve bulut veritabanı)',
-                'Google Sign-In ve Google Takvim API (isteğe bağlı)',
-                'Google Fonts (yazı tipleri; IP adresi iletilebilir)',
-              ],
-              content:
-                  'Bu hizmet sağlayıcılar kendi gizlilik politikalarına tabidir.',
-            ),
-            const _PolicySection(
-              title: 'Cihaz İzinleri',
-              bullets: [
-                'Bildirimler: hatırlatıcılar için',
-                'Kamera ve galeri: etkinlik fotoğrafları için',
-                'Dosya erişimi: içe/dışa aktarma için',
-                'İnternet: bulut senkronizasyonu için',
-                'Cihaz yeniden başlatma: hatırlatıcıları yeniden planlamak için',
-              ],
-              content: 'İzinleri cihaz ayarlarınızdan istediğiniz zaman geri alabilirsiniz.',
-            ),
-            const _PolicySection(
-              title: 'AI Asistan',
-              content:
-                  'AI Asistan varsayılan olarak yerel modda çalışır; görev ve etkinlik verilerinize '
-                  'erişir ancak bunları üçüncü taraflara göndermez. Harici bir yapay zeka API’si '
-                  'yapılandırılırsa soru metniniz ilgili sağlayıcıya iletilebilir.',
-            ),
-            const _PolicySection(
-              title: 'Veri Güvenliği',
-              content:
-                  'Verilerinizi korumak için endüstri standardı güvenlik önlemleri uygulanır. '
-                  'Firebase iletişimi şifrelenmiş bağlantılar (HTTPS/TLS) üzerinden gerçekleştirilir.',
-            ),
-            const _PolicySection(
-              title: 'Veri Paylaşımı',
-              content:
-                  'Kişisel verilerinizi satmayız. Veriler yalnızca hizmet sunumu için gerekli '
-                  'sağlayıcılarla, sizin talebinizle (paylaşım/dışa aktarma) veya yasal '
-                  'zorunluluk halinde paylaşılabilir.',
-            ),
-            const _PolicySection(
-              title: 'Kullanıcı Haklarınız (KVKK Madde 11)',
-              bullets: [
-                'Verilerinizin işlenip işlenmediğini öğrenme',
-                'İşlenmişse bilgi talep etme',
-                'Eksik veya yanlış verilerin düzeltilmesini isteme',
-                'Verilerin silinmesini veya yok edilmesini isteme',
-                'Otomatik analiz sonuçlarına itiraz etme',
-                'Zararın giderilmesini talep etme',
-              ],
-              content:
-                  'Haklarınızı kullanmak için $contactEmail adresine başvurabilirsiniz. '
-                  'Talebiniz en geç 30 gün içinde yanıtlanacaktır.',
-            ),
-            const _PolicySection(
-              title: 'Çocukların Gizliliği',
-              content:
-                  'Uygulama 13 yaşın altındaki çocuklara yönelik değildir. Bilerek bu yaş '
-                  'grubundan kişisel veri toplamıyoruz.',
-            ),
-            const _PolicySection(
-              title: 'Uluslararası Veri Aktarımı',
-              content:
-                  'Firebase ve Google hizmetleri verilerinizi Türkiye dışındaki sunucularda '
-                  'işleyebilir. Bu aktarım KVKK’nın 9. maddesi kapsamındaki güvenceler '
-                  'çerçevesinde gerçekleşir.',
-            ),
-            const _PolicySection(
-              title: 'Politika Değişiklikleri',
-              content:
-                  'Bu politika zaman zaman güncellenebilir. Önemli değişikliklerde uygulama '
-                  'içi bildirim veya güncellenmiş tarih ile bilgilendirilirsiniz.',
             ),
             _PolicySection(
-              title: 'İletişim',
-              content:
-                  'Gizlilik politikası veya kişisel verileriniz hakkında sorularınız için '
-                  'veri sorumlusu $dataController ($contactEmail) adresine yazabilirsiniz.',
+              title: l10n.privacyDataCollectedTitle,
+              content: l10n.privacyDataCollectedIntro,
+              bullets: [
+                l10n.privacyDataCollectedBullet1,
+                l10n.privacyDataCollectedBullet2,
+                l10n.privacyDataCollectedBullet3,
+                l10n.privacyDataCollectedBullet4,
+                l10n.privacyDataCollectedBullet5,
+                l10n.privacyDataCollectedBullet6,
+                l10n.privacyDataCollectedBullet7,
+              ],
+            ),
+            _PolicySection(
+              title: l10n.privacyDataUseTitle,
+              bullets: [
+                l10n.privacyDataUseBullet1,
+                l10n.privacyDataUseBullet2,
+                l10n.privacyDataUseBullet3,
+                l10n.privacyDataUseBullet4,
+                l10n.privacyDataUseBullet5,
+                l10n.privacyDataUseBullet6,
+                l10n.privacyDataUseBullet7,
+                l10n.privacyDataUseBullet8,
+              ],
+            ),
+            _PolicySection(
+              title: l10n.privacyLegalBasisTitle,
+              content: l10n.privacyLegalBasisBody,
+            ),
+            _PolicySection(
+              title: l10n.privacyStorageTitle,
+              bullets: [
+                l10n.privacyStorageBullet1,
+                l10n.privacyStorageBullet2,
+                l10n.privacyStorageBullet3,
+                l10n.privacyStorageBullet4,
+              ],
+              content: l10n.privacyStorageBody,
+            ),
+            _PolicySection(
+              title: l10n.privacyThirdPartyTitle,
+              bullets: [
+                l10n.privacyThirdPartyBullet1,
+                l10n.privacyThirdPartyBullet2,
+                l10n.privacyThirdPartyBullet3,
+              ],
+              content: l10n.privacyThirdPartyBody,
+            ),
+            _PolicySection(
+              title: l10n.privacyPermissionsTitle,
+              bullets: [
+                l10n.privacyPermissionsBullet1,
+                l10n.privacyPermissionsBullet2,
+                l10n.privacyPermissionsBullet3,
+                l10n.privacyPermissionsBullet4,
+                l10n.privacyPermissionsBullet5,
+              ],
+              content: l10n.privacyPermissionsBody,
+            ),
+            _PolicySection(
+              title: l10n.privacyAiTitle,
+              content: l10n.privacyAiBody,
+            ),
+            _PolicySection(
+              title: l10n.privacySecurityTitle,
+              content: l10n.privacySecurityBody,
+            ),
+            _PolicySection(
+              title: l10n.privacySharingTitle,
+              content: l10n.privacySharingBody,
+            ),
+            _PolicySection(
+              title: l10n.privacyRightsTitle,
+              bullets: [
+                l10n.privacyRightsBullet1,
+                l10n.privacyRightsBullet2,
+                l10n.privacyRightsBullet3,
+                l10n.privacyRightsBullet4,
+                l10n.privacyRightsBullet5,
+                l10n.privacyRightsBullet6,
+              ],
+              content: l10n.privacyRightsBody(contactEmail),
+            ),
+            _PolicySection(
+              title: l10n.privacyChildrenTitle,
+              content: l10n.privacyChildrenBody,
+            ),
+            _PolicySection(
+              title: l10n.privacyTransferTitle,
+              content: l10n.privacyTransferBody,
+            ),
+            _PolicySection(
+              title: l10n.privacyChangesTitle,
+              content: l10n.privacyChangesBody,
+            ),
+            _PolicySection(
+              title: l10n.privacyContactTitle,
+              content: l10n.privacyContactBody(dataController, contactEmail),
             ),
             const SizedBox(height: 16),
             Text(
-              '© ${DateTime.now().year} Çalışma Takvimi',
+              l10n.copyright(DateTime.now().year, l10n.appName),
               textAlign: TextAlign.center,
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,

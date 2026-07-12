@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:file_picker/file_picker.dart';
 import '../../../../core/services/icalendar_service.dart';
 import '../../../../core/services/timezone_service.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../bloc/share_calendar_bloc.dart';
 import '../bloc/events/share_calendar_event.dart';
 import '../bloc/states/share_calendar_state.dart';
@@ -30,6 +31,8 @@ class _ImportCalendarDialogState extends State<ImportCalendarDialog> {
   ];
 
   Future<void> _pickFileAndImport(BuildContext context) async {
+    final l10n = AppLocalizations.of(context)!;
+
     try {
       final result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
@@ -53,7 +56,7 @@ class _ImportCalendarDialogState extends State<ImportCalendarDialog> {
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Dosya seçim hatası: $e'),
+          content: Text(l10n.fileSelectionError(e.toString())),
           backgroundColor: Colors.red,
         ),
       );
@@ -66,19 +69,21 @@ class _ImportCalendarDialogState extends State<ImportCalendarDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return BlocListener<ShareCalendarBloc, ShareCalendarState>(
       listener: (context, state) {
         if (state is ImportCalendarSuccess) {
           Navigator.of(context).pop();
           
           final message = state.importedEvents.isNotEmpty
-              ? '${state.importedEvents.length} etkinlik başarıyla içe aktarıldı!'
-              : 'Etkinlik içe aktarılamadı.';
+              ? l10n.importSuccessCount(state.importedEvents.length)
+              : l10n.importFailed;
 
           showDialog(
             context: context,
             builder: (context) => AlertDialog(
-              title: const Text('İçe Aktarma Başarılı'),
+              title: Text(l10n.importSuccessful),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -116,7 +121,7 @@ class _ImportCalendarDialogState extends State<ImportCalendarDialog> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('Tamam'),
+                  child: Text(l10n.ok),
                 ),
               ],
             ),
@@ -137,25 +142,25 @@ class _ImportCalendarDialogState extends State<ImportCalendarDialog> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Takvim İçe Aktar',
-                style: TextStyle(
+              Text(
+                l10n.importCalendar,
+                style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 16),
-              const Text(
-                '.ics formatında bir takvim dosyası seçin',
-                style: TextStyle(
+              Text(
+                l10n.selectIcsFile,
+                style: const TextStyle(
                   fontSize: 14,
                   color: Colors.grey,
                 ),
               ),
               const SizedBox(height: 20),
-              const Text(
-                'Kaynak Zaman Dilimi (Opsiyonel)',
-                style: TextStyle(
+              Text(
+                l10n.sourceTimezoneOptional,
+                style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
                 ),
@@ -163,14 +168,14 @@ class _ImportCalendarDialogState extends State<ImportCalendarDialog> {
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
                 value: _selectedSourceTimezone,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  hintText: 'Gönderenin zaman dilimi',
+                decoration: InputDecoration(
+                  border: const OutlineInputBorder(),
+                  hintText: l10n.senderTimezone,
                 ),
                 items: [
-                  const DropdownMenuItem(
+                  DropdownMenuItem(
                     value: null,
-                    child: Text('Otomatik Tespit'),
+                    child: Text(l10n.autoDetect),
                   ),
                   ..._availableTimezones.map((tz) {
                     final displayName =
@@ -198,7 +203,7 @@ class _ImportCalendarDialogState extends State<ImportCalendarDialog> {
                         onPressed: isLoading
                             ? null
                             : () => Navigator.of(context).pop(),
-                        child: const Text('İptal'),
+                        child: Text(l10n.cancel),
                       ),
                       const SizedBox(width: 8),
                       ElevatedButton.icon(
@@ -214,7 +219,7 @@ class _ImportCalendarDialogState extends State<ImportCalendarDialog> {
                                 ),
                               )
                             : const Icon(Icons.upload_file),
-                        label: const Text('Dosya Seç'),
+                        label: Text(l10n.chooseFile),
                       ),
                     ],
                   );
@@ -227,4 +232,3 @@ class _ImportCalendarDialogState extends State<ImportCalendarDialog> {
     );
   }
 }
-

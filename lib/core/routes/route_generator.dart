@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../l10n/app_localizations.dart';
 import '../../pages/home/home_page.dart';
 import '../../pages/task/task_form_page.dart';
 import '../../pages/task/task_snooze_page.dart';
@@ -61,10 +62,13 @@ class RouteGenerator {
           );
         }
         return MaterialPageRoute(
-          builder: (_) => Scaffold(
-            appBar: AppBar(title: const Text('Hata')),
-            body: const Center(child: Text('Görev ID gerekli')),
-          ),
+          builder: (context) {
+            final l10n = AppLocalizations.of(context)!;
+            return Scaffold(
+              appBar: AppBar(title: Text(l10n.error)),
+              body: Center(child: Text(l10n.taskIdRequired)),
+            );
+          },
         );
 
       case AppRoutes.eventDetail:
@@ -76,12 +80,13 @@ class RouteGenerator {
           );
         }
         return MaterialPageRoute(
-          builder: (_) => Scaffold(
-            appBar: AppBar(title: const Text('Hata')),
-            body: const Center(
-              child: Text('Etkinlik ID gerekli'),
-            ),
-          ),
+          builder: (context) {
+            final l10n = AppLocalizations.of(context)!;
+            return Scaffold(
+              appBar: AppBar(title: Text(l10n.error)),
+              body: Center(child: Text(l10n.eventIdRequired)),
+            );
+          },
         );
 
       case AppRoutes.monthView:
@@ -142,39 +147,51 @@ class RouteGenerator {
         if (args is DeepLinkResult) {
           // Paylaşım sayfasına yönlendir (gelecekte oluşturulacak)
           return MaterialPageRoute(
-            builder: (_) => Scaffold(
-              appBar: AppBar(title: const Text('Etkinlik Paylaşımı')),
-              body: Center(
-                child: Text('Etkinlik ID: ${args.eventId}'),
-              ),
-            ),
+            builder: (context) {
+              final l10n = AppLocalizations.of(context)!;
+              return Scaffold(
+                appBar: AppBar(title: Text(l10n.eventSharing)),
+                body: Center(
+                  child: Text(l10n.eventIdLabel(args.eventId ?? l10n.unknown)),
+                ),
+              );
+            },
           );
         }
         return MaterialPageRoute(
-          builder: (_) => Scaffold(
-            appBar: AppBar(title: const Text('Etkinlik Paylaşımı')),
-            body: const Center(child: Text('Etkinlik bilgisi bulunamadı')),
-          ),
+          builder: (context) {
+            final l10n = AppLocalizations.of(context)!;
+            return Scaffold(
+              appBar: AppBar(title: Text(l10n.eventSharing)),
+              body: Center(child: Text(l10n.eventInfoNotFound)),
+            );
+          },
         );
 
       case AppRoutes.shareCalendar:
       case AppRoutes.importCalendar:
         // Paylaşım/İçe aktarma sayfaları (gelecekte oluşturulacak)
         return MaterialPageRoute(
-          builder: (_) => Scaffold(
-            appBar: AppBar(title: const Text('Takvim İşlemleri')),
-            body: const Center(child: Text('Bu özellik yakında eklenecek')),
-          ),
+          builder: (context) {
+            final l10n = AppLocalizations.of(context)!;
+            return Scaffold(
+              appBar: AppBar(title: Text(l10n.calendarOperations)),
+              body: Center(child: Text(l10n.featureComingSoon)),
+            );
+          },
         );
 
       default:
         return MaterialPageRoute(
-          builder: (_) => Scaffold(
-            appBar: AppBar(title: const Text('Sayfa Bulunamadı')),
-            body: Center(
-              child: Text('Sayfa bulunamadı: $routeName'),
-            ),
-          ),
+          builder: (context) {
+            final l10n = AppLocalizations.of(context)!;
+            return Scaffold(
+              appBar: AppBar(title: Text(l10n.pageNotFound)),
+              body: Center(
+                child: Text(l10n.pageNotFoundWithRoute(routeName)),
+              ),
+            );
+          },
         );
     }
   }
@@ -184,19 +201,22 @@ class RouteGenerator {
     switch (result.route) {
       case AppRoutes.shareEvent:
         return MaterialPageRoute(
-          builder: (_) => Scaffold(
-            appBar: AppBar(title: const Text('Etkinlik Paylaşımı')),
-            body: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text('Etkinlik ID: ${result.eventId ?? "Bilinmiyor"}'),
-                  if (result.timezone != null)
-                    Text('Zaman Dilimi: ${result.timezone}'),
-                ],
+          builder: (context) {
+            final l10n = AppLocalizations.of(context)!;
+            return Scaffold(
+              appBar: AppBar(title: Text(l10n.eventSharing)),
+              body: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(l10n.eventIdLabel(result.eventId ?? l10n.unknown)),
+                    if (result.timezone != null)
+                      Text(l10n.timezoneLabel(result.timezone!)),
+                  ],
+                ),
               ),
-            ),
-          ),
+            );
+          },
           settings: RouteSettings(
             name: result.route,
             arguments: result,
@@ -205,20 +225,23 @@ class RouteGenerator {
 
       case AppRoutes.shareCalendar:
         return MaterialPageRoute(
-          builder: (_) => Scaffold(
-            appBar: AppBar(title: const Text('Takvim Paylaşımı')),
-            body: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if (result.calendarName != null)
-                    Text('Takvim: ${result.calendarName}'),
-                  if (result.timezone != null)
-                    Text('Zaman Dilimi: ${result.timezone}'),
-                ],
+          builder: (context) {
+            final l10n = AppLocalizations.of(context)!;
+            return Scaffold(
+              appBar: AppBar(title: Text(l10n.calendarSharing)),
+              body: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (result.calendarName != null)
+                      Text(l10n.calendarNameLabel(result.calendarName!)),
+                    if (result.timezone != null)
+                      Text(l10n.timezoneLabel(result.timezone!)),
+                  ],
+                ),
               ),
-            ),
-          ),
+            );
+          },
           settings: RouteSettings(
             name: result.route,
             arguments: result,
@@ -227,19 +250,22 @@ class RouteGenerator {
 
       case AppRoutes.importCalendar:
         return MaterialPageRoute(
-          builder: (_) => Scaffold(
-            appBar: AppBar(title: const Text('Takvim İçe Aktarma')),
-            body: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text('Takvim içe aktarılıyor...'),
-                  if (result.sourceTimezone != null)
-                    Text('Kaynak Zaman Dilimi: ${result.sourceTimezone}'),
-                ],
+          builder: (context) {
+            final l10n = AppLocalizations.of(context)!;
+            return Scaffold(
+              appBar: AppBar(title: Text(l10n.calendarImport)),
+              body: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(l10n.importingCalendar),
+                    if (result.sourceTimezone != null)
+                      Text(l10n.sourceTimezoneLabel(result.sourceTimezone!)),
+                  ],
+                ),
               ),
-            ),
-          ),
+            );
+          },
           settings: RouteSettings(
             name: result.route,
             arguments: result,
@@ -248,10 +274,13 @@ class RouteGenerator {
 
       default:
         return MaterialPageRoute(
-          builder: (_) => Scaffold(
-            appBar: AppBar(title: const Text('Hata')),
-            body: const Center(child: Text('Geçersiz deep link')),
-          ),
+          builder: (context) {
+            final l10n = AppLocalizations.of(context)!;
+            return Scaffold(
+              appBar: AppBar(title: Text(l10n.error)),
+              body: Center(child: Text(l10n.invalidDeepLink)),
+            );
+          },
         );
     }
   }

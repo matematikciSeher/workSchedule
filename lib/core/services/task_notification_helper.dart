@@ -1,5 +1,8 @@
 import 'package:intl/intl.dart';
 import '../../domain/entities/task_entity.dart';
+import '../../l10n/app_localizations.dart';
+import '../locale/app_localizations_helper.dart';
+import '../locale/app_locale.dart';
 import 'notification_schedule_result.dart';
 import 'notification_service.dart';
 import 'task_due_worker.dart';
@@ -16,11 +19,21 @@ class TaskNotificationHelper {
   static NotificationScheduleResult previewSchedule({
     required DateTime? dueDate,
     bool isCompleted = false,
+    AppLocalizations? l10n,
   }) {
+    final strings = l10n ?? systemL10n;
+    final dateLocale = l10n != null
+        ? AppLocale.dateFormatLocale(
+            strings.localeName.startsWith('tr')
+                ? AppLocale.turkish
+                : AppLocale.english,
+          )
+        : systemDateFormatLocale();
+
     if (dueDate == null || isCompleted) {
-      return const NotificationScheduleResult(
+      return NotificationScheduleResult(
         success: false,
-        errorMessage: 'Tarih seçilmediği için bildirim planlanmaz.',
+        errorMessage: strings.noNotificationNoDate,
       );
     }
 
@@ -28,21 +41,23 @@ class TaskNotificationHelper {
     final now = DateTime.now();
 
     if (resolvedDue.isBefore(now.subtract(const Duration(minutes: 5)))) {
-      return const NotificationScheduleResult(
+      return NotificationScheduleResult(
         success: false,
-        errorMessage: 'Geçmiş bir görev için bildirim planlanmaz.',
+        errorMessage: strings.noNotificationPastTask,
       );
     }
 
-    final reminders = _buildReminderTimes(resolvedDue, now);
+    final reminders = _buildReminderTimes(resolvedDue, now, strings);
 
-    final dueStr = DateFormat('dd MMMM HH:mm', 'tr_TR').format(resolvedDue);
+    final dueStr = DateFormat('dd MMMM HH:mm', dateLocale).format(resolvedDue);
     final reminderLines = reminders.isEmpty
-        ? '• Hatırlatıcı yok (görev çok yakın)'
+        ? strings.noRemindersTaskTooSoon
         : reminders
             .map(
-              (r) =>
-                  '• ${r.label} kala: ${DateFormat('dd MMMM HH:mm', 'tr_TR').format(r.at)}',
+              (r) => strings.reminderBefore(
+                r.label,
+                DateFormat('dd MMMM HH:mm', dateLocale).format(r.at),
+              ),
             )
             .join('\n');
 
@@ -50,8 +65,7 @@ class TaskNotificationHelper {
       success: true,
       reminderAt: reminders.isNotEmpty ? reminders.first.at : resolvedDue,
       dueAt: resolvedDue,
-      infoMessage:
-          'Görev saati: $dueStr\nHatırlatıcılar:\n$reminderLines\n\nVade anında tamamlanma durumu bildirilecek.',
+      infoMessage: '$dueStr\n$reminderLines',
     );
   }
 
@@ -68,10 +82,11 @@ class TaskNotificationHelper {
   static List<({DateTime at, String label})> _buildReminderTimes(
     DateTime dueDate,
     DateTime now,
+    AppLocalizations l10n,
   ) {
     final candidates = [
-      (at: dueDate.subtract(oneHourOffset), label: '1 saat'),
-      (at: dueDate.subtract(halfHourOffset), label: '30 dakika'),
+      (at: dueDate.subtract(oneHourOffset), label: l10n.oneHour),
+      (at: dueDate.subtract(halfHourOffset), label: l10n.thirtyMinutes),
     ];
 
     final reminders = <({DateTime at, String label})>[];
@@ -101,7 +116,7 @@ class TaskNotificationHelper {
     try {
       final dueDate = preview.dueAt!;
       final now = DateTime.now();
-      final reminders = _buildReminderTimes(dueDate, now);
+      final reminders = _buildReminderTimes(dueDate, now, systemL10n);
 
       DateTime? firstScheduled;
       for (var i = 0; i < reminders.length; i++) {
@@ -139,10 +154,10 @@ class TaskNotificationHelper {
         needsExactAlarmPermission: needsExact,
         needsNotificationPermission: needsNotif,
         errorMessage: needsExact
-            ? 'Kesin alarm izni kapalı. Ayarlar > İzinler > Saat ve Alarm bölümünden açın.'
+            ? systemL10n.exactAlarmPermissionRequired
             : needsNotif
-                ? 'Bildirim izni kapalı. Ayarlar > Bildirimler bölümünden açın.'
-                : 'Bildirim zamanlanamadı: $e',
+                ? systemL10n.notificationPermissionRequired
+                : systemL10n.notificationNotScheduled,
       );
     }
   }
@@ -154,13 +169,15 @@ class TaskNotificationHelper {
     required TaskNotificationSlot slot,
     required String label,
   }) async {
-    final dueTimeStr = DateFormat('HH:mm').format(dueDate);
-    final dueDateStr = DateFormat('dd MMMM', 'tr_TR').format(dueDate);
+    final l10n = systemL10n;
+    final dateLocale = systemDateFormatLocale();
+    final dueTimeStr = DateFormat('HH:mm', dateLocale).format(dueDate);
+    final dueDateStr = DateFormat('dd MMMM', dateLocale).format(dueDate);
 
-    final title = 'Görev Hatırlatıcısı';
+    final title = l10n.taskReminderTitle;
     final body = StringBuffer()
       ..writeln(task.title)
-      ..write('$dueDateStr saat $dueTimeStr — $label kaldı');
+      ..write(l10n.taskReminderBody(dueDateStr, dueTimeStr, label));
     if (task.description != null && task.description!.isNotEmpty) {
       body.write('\n${task.description}');
     }

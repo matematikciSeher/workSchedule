@@ -4,6 +4,7 @@ import '../../pages/home/widgets/weekly_calendar_widget.dart';
 import '../../pages/home/widgets/task_list_panel_widget.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/theme/app_colors.dart';
+import '../../l10n/app_localizations.dart';
 
 /// Widget önizleme sayfası - Tema ve görünüm ayarlarıyla
 class WidgetPreviewPage extends StatefulWidget {
@@ -23,16 +24,6 @@ class _WidgetPreviewPageState extends State<WidgetPreviewPage> {
   DateTime _selectedMonth = DateTime.now();
   DateTime? _selectedDate = DateTime.now();
   List<TaskModel> _sampleTasks = [];
-  
-  // Renk paleti seçenekleri
-  final List<ColorPreset> _colorPresets = [
-    ColorPreset('Mavi', AppColors.lightPrimary, AppColors.lightSecondary),
-    ColorPreset('Yeşil', const Color(0xFF4CAF50), const Color(0xFF81C784)),
-    ColorPreset('Mor', const Color(0xFF9C27B0), const Color(0xFFBA68C8)),
-    ColorPreset('Turuncu', const Color(0xFFFF9800), const Color(0xFFFFB74D)),
-    ColorPreset('Kırmızı', const Color(0xFFE91E63), const Color(0xFFF06292)),
-    ColorPreset('Turkuaz', const Color(0xFF00BCD4), const Color(0xFF4DD0E1)),
-  ];
 
   @override
   void initState() {
@@ -75,6 +66,15 @@ class _WidgetPreviewPageState extends State<WidgetPreviewPage> {
     });
   }
 
+  List<ColorPreset> _colorPresets(AppLocalizations l10n) => [
+    ColorPreset(l10n.themeColorBlue, AppColors.lightPrimary, AppColors.lightSecondary),
+    ColorPreset(l10n.themeColorGreen, const Color(0xFF4CAF50), const Color(0xFF81C784)),
+    ColorPreset(l10n.themeColorPurple, const Color(0xFF9C27B0), const Color(0xFFBA68C8)),
+    ColorPreset(l10n.themeColorOrange, const Color(0xFFFF9800), const Color(0xFFFFB74D)),
+    ColorPreset(l10n.themeColorRed, const Color(0xFFE91E63), const Color(0xFFF06292)),
+    ColorPreset(l10n.themeColorTeal, const Color(0xFF00BCD4), const Color(0xFF4DD0E1)),
+  ];
+
   ThemeData _getCurrentTheme() {
     return _isDarkMode 
         ? darkTheme(1.0).copyWith(
@@ -101,11 +101,14 @@ class _WidgetPreviewPageState extends State<WidgetPreviewPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final locale = Localizations.localeOf(context);
+
     return Theme(
       data: _getCurrentTheme(),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Widget Önizleme'),
+          title: Text(l10n.widgetPreview),
           actions: [
             IconButton(
               icon: Icon(_isDarkMode ? Icons.light_mode : Icons.dark_mode),
@@ -122,7 +125,7 @@ class _WidgetPreviewPageState extends State<WidgetPreviewPage> {
                   }
                 });
               },
-              tooltip: _isDarkMode ? 'Açık Tema' : 'Koyu Tema',
+              tooltip: _isDarkMode ? l10n.lightTheme : l10n.darkTheme,
             ),
           ],
         ),
@@ -152,7 +155,7 @@ class _WidgetPreviewPageState extends State<WidgetPreviewPage> {
                           ),
                         ),
                       ),
-                      child: _buildSettingsPanel(),
+                      child: _buildSettingsPanel(l10n),
                     ),
                     
                     // Sağ panel - Widget önizlemesi
@@ -161,7 +164,7 @@ class _WidgetPreviewPageState extends State<WidgetPreviewPage> {
                         color: _isDarkMode 
                             ? AppColors.darkBackground 
                             : AppColors.lightBackground,
-                        child: _buildPreviewArea(),
+                        child: _buildPreviewArea(l10n, locale),
                       ),
                     ),
                   ],
@@ -186,7 +189,7 @@ class _WidgetPreviewPageState extends State<WidgetPreviewPage> {
                           ),
                         ),
                       ),
-                      child: _buildSettingsPanel(),
+                      child: _buildSettingsPanel(l10n),
                     ),
                     
                     // Alt panel - Widget önizlemesi
@@ -194,7 +197,7 @@ class _WidgetPreviewPageState extends State<WidgetPreviewPage> {
                       color: _isDarkMode 
                           ? AppColors.darkBackground 
                           : AppColors.lightBackground,
-                      child: _buildPreviewArea(),
+                      child: _buildPreviewArea(l10n, locale),
                     ),
                   ],
                 );
@@ -206,7 +209,9 @@ class _WidgetPreviewPageState extends State<WidgetPreviewPage> {
     );
   }
 
-  Widget _buildSettingsPanel() {
+  Widget _buildSettingsPanel(AppLocalizations l10n) {
+    final colorPresets = _colorPresets(l10n);
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
       child: Column(
@@ -215,7 +220,7 @@ class _WidgetPreviewPageState extends State<WidgetPreviewPage> {
         children: [
           // Başlık
           Text(
-            'Tema Ayarları',
+            l10n.themeSettings,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.bold,
             ),
@@ -224,19 +229,19 @@ class _WidgetPreviewPageState extends State<WidgetPreviewPage> {
         const SizedBox(height: 24),
         
         // Tema modu
-        _buildSectionTitle('Görünüm Modu'),
+        _buildSectionTitle(l10n.appearanceMode),
         const SizedBox(height: 8),
         SegmentedButton<bool>(
-          segments: const [
+          segments: [
             ButtonSegment<bool>(
               value: false,
-              label: Text('Açık'),
-              icon: Icon(Icons.light_mode),
+              label: Text(l10n.lightMode),
+              icon: const Icon(Icons.light_mode),
             ),
             ButtonSegment<bool>(
               value: true,
-              label: Text('Koyu'),
-              icon: Icon(Icons.dark_mode),
+              label: Text(l10n.darkMode),
+              icon: const Icon(Icons.dark_mode),
             ),
           ],
           selected: {_isDarkMode},
@@ -257,13 +262,13 @@ class _WidgetPreviewPageState extends State<WidgetPreviewPage> {
         const SizedBox(height: 32),
         
         // Renk şeması
-        _buildSectionTitle('Renk Şeması'),
+        _buildSectionTitle(l10n.colorScheme),
         const SizedBox(height: 12),
         Wrap(
           spacing: 8,
           runSpacing: 8,
           alignment: WrapAlignment.start,
-          children: _colorPresets.map((preset) {
+          children: colorPresets.map((preset) {
             final isSelected = _primaryColor == preset.primary;
             return GestureDetector(
               onTap: () {
@@ -333,15 +338,15 @@ class _WidgetPreviewPageState extends State<WidgetPreviewPage> {
         const SizedBox(height: 32),
         
         // Önizleme kontrolleri
-        _buildSectionTitle('Önizleme Kontrolleri'),
+        _buildSectionTitle(l10n.previewControls),
         const SizedBox(height: 12),
         
         // Tarih seçici
         Card(
           child: ListTile(
             leading: const Icon(Icons.calendar_today),
-            title: const Text(
-              'Ay Seç',
+            title: Text(
+              l10n.selectMonth,
               overflow: TextOverflow.ellipsis,
             ),
             subtitle: Text(
@@ -381,8 +386,8 @@ class _WidgetPreviewPageState extends State<WidgetPreviewPage> {
               });
             },
             icon: const Icon(Icons.today),
-            label: const Text(
-              'Bugünü Seç',
+            label: Text(
+              l10n.selectToday,
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -391,10 +396,10 @@ class _WidgetPreviewPageState extends State<WidgetPreviewPage> {
         const SizedBox(height: 32),
         
         // Örnek görevler
-        _buildSectionTitle('Örnek Görevler'),
+        _buildSectionTitle(l10n.sampleTasks),
         const SizedBox(height: 8),
         Text(
-          '${_sampleTasks.length} görev yüklendi',
+          l10n.tasksLoaded(_sampleTasks.length),
           style: Theme.of(context).textTheme.bodySmall,
           overflow: TextOverflow.ellipsis,
         ),
@@ -406,8 +411,8 @@ class _WidgetPreviewPageState extends State<WidgetPreviewPage> {
               _loadSampleTasks();
             },
             icon: const Icon(Icons.refresh),
-            label: const Text(
-              'Yenile',
+            label: Text(
+              l10n.refresh,
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -428,7 +433,7 @@ class _WidgetPreviewPageState extends State<WidgetPreviewPage> {
     );
   }
 
-  Widget _buildPreviewArea() {
+  Widget _buildPreviewArea(AppLocalizations l10n, Locale locale) {
     return Padding(
       padding: const EdgeInsets.all(24),
       child: Center(
@@ -440,7 +445,7 @@ class _WidgetPreviewPageState extends State<WidgetPreviewPage> {
             children: [
             // Başlık
             Text(
-              'Canlı Önizleme',
+              l10n.livePreview,
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -448,7 +453,7 @@ class _WidgetPreviewPageState extends State<WidgetPreviewPage> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Takvim ve görev widgetlarının görünümünü buradan önizleyebilirsiniz.',
+              l10n.livePreviewSubtitle,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
@@ -476,7 +481,7 @@ class _WidgetPreviewPageState extends State<WidgetPreviewPage> {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          'Takvim Widget',
+                          l10n.calendarWidget,
                           style: Theme.of(context).textTheme.titleLarge?.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
@@ -498,7 +503,7 @@ class _WidgetPreviewPageState extends State<WidgetPreviewPage> {
                         });
                       },
                       tasks: _sampleTasks,
-                      locale: const Locale('tr', 'TR'),
+                      locale: locale,
                     ),
                   ),
                 ],
@@ -526,7 +531,7 @@ class _WidgetPreviewPageState extends State<WidgetPreviewPage> {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          'Görev Listesi Widget',
+                          l10n.taskListWidget,
                           style: Theme.of(context).textTheme.titleLarge?.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
@@ -544,7 +549,7 @@ class _WidgetPreviewPageState extends State<WidgetPreviewPage> {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(
-                            'Görev tıklandı: ${task.title}',
+                            l10n.taskTapped(task.title),
                             overflow: TextOverflow.ellipsis,
                           ),
                           duration: const Duration(seconds: 1),
@@ -566,7 +571,7 @@ class _WidgetPreviewPageState extends State<WidgetPreviewPage> {
                         }
                       });
                     },
-                    locale: const Locale('tr', 'TR'),
+                    locale: locale,
                   ),
                 ],
               ),
@@ -590,7 +595,7 @@ class _WidgetPreviewPageState extends State<WidgetPreviewPage> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      'Tema ayarlarınızı değiştirerek widgetların farklı görünümlerini test edebilirsiniz.',
+                      l10n.previewInfo,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: Theme.of(context).colorScheme.onPrimaryContainer,
                       ),

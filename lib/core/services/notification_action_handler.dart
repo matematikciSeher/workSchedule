@@ -1,9 +1,11 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:intl/intl.dart';
 import '../../data/local/database_helper.dart';
 import '../../domain/entities/task_entity.dart';
 import '../../features/task/data/datasources/task_local_datasource.dart';
 import '../../features/task/data/repositories/task_repository_impl.dart';
+import '../locale/app_localizations_helper.dart';
 import 'notification_navigation_service.dart';
 import 'notification_service.dart';
 import 'task_notification_helper.dart';
@@ -81,8 +83,8 @@ class NotificationActionHandler {
 
     await notificationService.showFeedbackNotification(
       id: TaskNotificationIds.feedback(task.id),
-      title: 'Görev Tamamlandı',
-      body: '"${task.title}" tamamlandı olarak işaretlendi.',
+      title: systemL10n.taskCompletedNotificationTitle,
+      body: systemL10n.taskCompletedNotificationBody(task.title),
       isSuccess: true,
     );
   }
@@ -109,18 +111,14 @@ class NotificationActionHandler {
 
     await notificationService.showFeedbackNotification(
       id: TaskNotificationIds.feedback(task.id) + 1,
-      title: 'Görev Ertelendi',
-      body: '"${task.title}" → ${_formatDateTime(newDueDate)}',
+      title: systemL10n.taskSnoozedTitle,
+      body: systemL10n.taskSnoozedBody(task.title, _formatDateTime(newDueDate)),
       isSuccess: false,
       isSnooze: true,
     );
   }
 
   static String _formatDateTime(DateTime dt) {
-    final d = dt.day.toString().padLeft(2, '0');
-    final mo = dt.month.toString().padLeft(2, '0');
-    final h = dt.hour.toString().padLeft(2, '0');
-    final m = dt.minute.toString().padLeft(2, '0');
-    return '$d.$mo.${dt.year} $h:$m';
+    return DateFormat('dd.MM.yyyy HH:mm', systemDateFormatLocale()).format(dt);
   }
 }

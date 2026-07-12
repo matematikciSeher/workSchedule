@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/app_localizations.dart';
 
 class EventDetailPage extends StatelessWidget {
   final String eventId;
@@ -10,9 +11,11 @@ class EventDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Etkinlik Detayı'),
+        title: Text(l10n.eventDetails),
         actions: [
           IconButton(
             icon: const Icon(Icons.edit),
@@ -38,12 +41,12 @@ class EventDetailPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Etkinlik Başlığı',
+                    l10n.eventTitle,
                     style: Theme.of(context).textTheme.headlineSmall,
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Açıklama metni burada yer alacak...',
+                    l10n.eventDescriptionPlaceholder,
                     style: Theme.of(context).textTheme.bodyLarge,
                   ),
                   const Divider(),
@@ -71,4 +74,3 @@ class EventDetailPage extends StatelessWidget {
     );
   }
 }
-

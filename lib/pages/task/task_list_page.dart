@@ -5,6 +5,8 @@ import '../../features/task/bloc/task_event.dart';
 import '../../features/task/bloc/task_state.dart';
 import '../../domain/entities/task_entity.dart';
 import '../../shared/widgets/decorative_background.dart';
+import '../../l10n/app_localizations.dart';
+import '../../core/locale/theme_localizations.dart';
 import 'task_form_page.dart';
 
 /// Görev listesi sayfası
@@ -13,10 +15,11 @@ class TaskListPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Görevlerim'),
+        title: Text(l10n.myTasks),
         elevation: 0,
         backgroundColor: Colors.transparent,
       ),
@@ -34,13 +37,13 @@ class TaskListPage extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('Hata: ${state.message}'),
+                  Text(l10n.errorWithMessage(state.message)),
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () {
                       context.read<TaskBloc>().add(const LoadTasksEvent());
                     },
-                    child: const Text('Tekrar Dene'),
+                    child: Text(l10n.tryAgain),
                   ),
                 ],
               ),
@@ -57,14 +60,14 @@ class TaskListPage extends StatelessWidget {
                   children: [
                     const Icon(Icons.task_alt, size: 64, color: Colors.grey),
                     const SizedBox(height: 16),
-                    const Text(
-                      'Henüz görev yok',
-                      style: TextStyle(fontSize: 18, color: Colors.grey),
+                    Text(
+                      l10n.noTasksYet,
+                      style: const TextStyle(fontSize: 18, color: Colors.grey),
                     ),
                     const SizedBox(height: 8),
-                    const Text(
-                      'Yeni görev eklemek için + butonuna tıklayın',
-                      style: TextStyle(color: Colors.grey),
+                    Text(
+                      l10n.addTaskTapPlus,
+                      style: const TextStyle(color: Colors.grey),
                     ),
                   ],
                 ),
@@ -138,6 +141,8 @@ class _TaskListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
       child: ListTile(
@@ -190,11 +195,11 @@ class _TaskListItem extends StatelessWidget {
         trailing: PopupMenuButton(
           itemBuilder: (context) => [
             PopupMenuItem(
-              child: const Row(
+              child: Row(
                 children: [
-                  Icon(Icons.edit),
-                  SizedBox(width: 8),
-                  Text('Düzenle'),
+                  const Icon(Icons.edit),
+                  const SizedBox(width: 8),
+                  Text(l10n.edit),
                 ],
               ),
               onTap: () {
@@ -214,11 +219,11 @@ class _TaskListItem extends StatelessWidget {
               },
             ),
             PopupMenuItem(
-              child: const Row(
+              child: Row(
                 children: [
-                  Icon(Icons.delete, color: Colors.red),
-                  SizedBox(width: 8),
-                  Text('Sil', style: TextStyle(color: Colors.red)),
+                  const Icon(Icons.delete, color: Colors.red),
+                  const SizedBox(width: 8),
+                  Text(l10n.delete, style: const TextStyle(color: Colors.red)),
                 ],
               ),
               onTap: () {
@@ -248,25 +253,27 @@ class _TaskListItem extends StatelessWidget {
   }
 
   void _showDeleteDialog(BuildContext context, TaskEntity task) {
+    final l10n = AppLocalizations.of(context)!;
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Görevi Sil'),
-        content: Text('${task.title} görevini silmek istediğinizden emin misiniz?'),
+        title: Text(l10n.deleteTaskTitle),
+        content: Text(l10n.deleteTaskConfirm(task.title)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('İptal'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () {
               context.read<TaskBloc>().add(DeleteTaskEvent(task.id));
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Görev silindi')),
+                SnackBar(content: Text(l10n.taskDeleted)),
               );
             },
-            child: const Text('Sil', style: TextStyle(color: Colors.red)),
+            child: Text(l10n.delete, style: const TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -282,30 +289,26 @@ class _PriorityChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String label;
+    final l10n = AppLocalizations.of(context)!;
     Color color;
 
     switch (priority) {
       case 1:
-        label = 'Düşük';
         color = Colors.green;
         break;
       case 2:
-        label = 'Orta';
         color = Colors.orange;
         break;
       case 3:
-        label = 'Yüksek';
         color = Colors.red;
         break;
       default:
-        label = 'Belirtilmemiş';
         color = Colors.grey;
     }
 
     return Chip(
       label: Text(
-        label,
+        localizedPriority(l10n, priority),
         style: const TextStyle(fontSize: 11, color: Colors.white),
       ),
       backgroundColor: color,
@@ -314,4 +317,3 @@ class _PriorityChip extends StatelessWidget {
     );
   }
 }
-
