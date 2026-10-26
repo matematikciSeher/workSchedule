@@ -43,6 +43,13 @@ android {
         multiDexEnabled = true
     }
 
+    // AGP 8.5.1+: sıkıştırılmamış .so dosyaları 16 KB zip hizasına alınır.
+    packaging {
+        jniLibs {
+            useLegacyPackaging = false
+        }
+    }
+
     signingConfigs {
         create("release") {
             if (keystorePropertiesFile.exists()) {

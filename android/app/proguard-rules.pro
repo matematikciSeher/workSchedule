@@ -30,10 +30,6 @@
 -dontwarn sun.misc.**
 -keep class com.google.gson.** { *; }
 
-# Isar Database
--keep class io.isar.** { *; }
--keep class dev.isar.** { *; }
-
 # Work Manager
 -keep class androidx.work.** { *; }
 
